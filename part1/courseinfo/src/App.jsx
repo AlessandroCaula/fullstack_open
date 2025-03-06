@@ -153,6 +153,13 @@ const App = () => {
     setClicks(newClicks)
   }
 
+  // Fifth Exercise - Handling arrays (https://fullstackopen.com/en/part1/a_more_complex_state_debugging_react_apps)
+  // 
+  const [left, setLeft] = useState(0)
+  const [right, setRight] = useState(0)
+  const [allClicks, setAllClicks] = useState(0)
+
+
   return (
     <>
       {/* First Exercise */}
