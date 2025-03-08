@@ -78,6 +78,27 @@ const Button = ({ onClick, text }) => {
   )
 }
 
+//////////////////////////////////////////////
+// Fifth Example - Conditional rendering
+//////////////////////////////////////////////
+// History component
+const History = (props) => {
+  // If all clicks is equal to 0 then render this text.
+  if (props.allClicks.length === 0) {
+    return (
+      <div>
+        The app is used by pressing the buttons
+      </div>
+    )
+  }
+  // Otherwise.
+  return (
+    <div>
+      button press history: {props.allClicks.join(' ')}
+    </div>
+  )
+}
+
 
 //////////////
 // Main App //
@@ -157,7 +178,39 @@ const App = () => {
   // 
   const [left, setLeft] = useState(0)
   const [right, setRight] = useState(0)
-  const [allClicks, setAllClicks] = useState(0)
+  // Handling arrays
+  const [allClicks, setAllClicks] = useState([])
+  // Storing the total number of clicks
+  const [total, setTotal] = useState(0)
+  // Handling Left click
+  const handleLeftClick1 = () => {
+    setAllClicks(allClicks.concat('L'))
+    const updatedLeft = left + 1
+    setLeft(updatedLeft)
+    setTotal(updatedLeft + right)
+  }
+  // Handling right click
+  const handleRightClick1 = () => {
+    setAllClicks(allClicks.concat('R'))
+    const updatedRight = right + 1
+    setRight(updatedRight)
+    setTotal(updatedRight + left)
+  }
+
+  // Sixth example - A function that returns a function
+  //
+  const hello = (who) => {
+    const handler = () => {
+      console.log('hello', who)
+    }
+    return handler
+  }
+  const [value, setValue] = useState(10)
+  // This is another syntax to a function that calls a function. 
+  const setToValue = (newValue) => () => {
+    console.log('value now', newValue) // Print the new value to console
+    setValue(newValue)
+  }
 
 
   return (
@@ -204,6 +257,31 @@ const App = () => {
           right
         </button>
         {clicks.right}
+      </div>
+
+      {/* Fifth Exercise */}
+      <div>
+        {left}
+        <Button onClick={handleLeftClick1} text='left' />
+        <Button onClick={handleRightClick1} text='right' />
+        {right}
+        {/* Joining  */}
+        <History allClicks={allClicks} />
+        <p>Total: {total}</p>
+      </div>
+
+      {/* Sixth Exercise */}
+      <div>
+        <button onClick={hello('world')}>button</button>
+        <button onClick={hello('react')}>button</button>
+        <button onClick={hello('function')}>button</button>
+      </div>
+
+      <div>
+        {value}
+        <button onClick={setToValue(1000)}>thousand</button>
+        <button onClick={setToValue(0)}>reset</button>
+        <button onClick={setToValue(value + 1)}>increment</button>
       </div>
     </>
   )
