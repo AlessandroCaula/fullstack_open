@@ -11,8 +11,12 @@ function App() {
     'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
     'The only way to go fast, is to go well.'
   ]
-
+  // Randomly generated selected anecdotes
   const [selected, setSelected] = useState(0)
+  // Array containing the voted of the anecdotes
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
+  // Index of the most voted anecdote
+  const [mostVoted, setMostVoted] = useState(0)
 
   const generateRandomAnecdote = () => {
     // Ensure the new anecdotes is different from the previous
@@ -26,10 +30,26 @@ function App() {
     }
   }
 
+  const handleVoting = () => {
+    // Create a copy of the votes array
+    const newVotes = [...votes]
+    // Increment the votes of the selected anecdotes
+    newVotes[selected] += 1
+    setVotes(newVotes)
+    // Check if it is the new most voted anecdote
+    if (newVotes[selected] >= votes[mostVoted])
+      setMostVoted(selected)
+  }
+
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
+      <p>Votes: {votes[selected]}</p>
+      <button onClick={handleVoting}>vote</button>
       <button onClick={generateRandomAnecdote}>next anecdotes</button>
+      <h1>Anecdote with most votes</h1>
+      <p>{anecdotes[mostVoted]}</p>
     </div>
   )
 }
