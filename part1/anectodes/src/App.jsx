@@ -47,7 +47,7 @@ function App() {
       <p>{anecdotes[selected]}</p>
       <p>Votes: {votes[selected]}</p>
       <button onClick={handleVoting}>vote</button>
-      <button onClick={generateRandomAnecdote}>next anecdotes</button>
+      <button onClick={generateRandomAnecdote}>next anecdote</button>
       <h1>Anecdote with most votes</h1>
       <p>{anecdotes[mostVoted]}</p>
     </div>
