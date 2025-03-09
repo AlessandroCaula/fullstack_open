@@ -1,3 +1,1 @@
 # Course Information
-
-Basic concepts
