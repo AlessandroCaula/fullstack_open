@@ -1,4 +1,7 @@
 import { useState } from "react"
+import SearchFilter from "./components/SearchFilter"
+import PersonForm from "./components/PersonForm"
+import Persons from "./components/Persons"
 
 function App() {
 
@@ -66,55 +69,18 @@ function App() {
 
   return (
     <div>
-      <h1>Phonebook</h1>
+      <h2>Phonebook</h2>
 
       {/* Search Engine */}
-      <div>
-        <div>
-          Filter shown with:
-          <input
-            placeholder="Search"
-            value={filter}
-            onChange={handleFilterChange}
-          />
-        </div>
-      </div>
+      <SearchFilter filter={filter} handleFilterChange={handleFilterChange} />
 
-      <h2>Add a new</h2>
-      <div>
-        <form onSubmit={addContact}>
-          <div>
-            name:
-            <input
-              required
-              placeholder="New Name"
-              value={newName}
-              // When the value change call the event handler
-              onChange={handleNameChange}
-            />
-          </div>
-          <div>
-            number:
-            <input
-              required
-              placeholder="Phone Number"
-              value={newNumber}
-              // Handle each input letter in the input 
-              onChange={handleNumberChange}
-            />
-          </div>
-          <div>
-            <button type="submit">add</button>
-          </div>
-        </form>
-      </div>
-      <h2>Numbers</h2>
-      <div>
-        {/* Loop through all the names and render them */}
-        {filteredPerson.map((person) => (
-          <p key={person.id}>{person.name} {person.number}</p>
-        ))}
-      </div>
+      {/* Add new */}
+      <h3>Add a new</h3>
+      <PersonForm addContact={addContact} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
+
+      {/* Show Contacts */}
+      <h3>Numbers</h3>
+      <Persons filteredPerson={filteredPerson} />
     </div>
   )
 }
