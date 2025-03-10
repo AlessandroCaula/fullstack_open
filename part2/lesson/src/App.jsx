@@ -1,16 +1,28 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Note from "./components/Note"
+import axios from 'axios'
 
-const App = (props) => {
+const App = () => {
   // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array passed in the props.
-  const [notes, setNotes] = useState(props.notes)
-
+  const [notes, setNotes] = useState([])
   // Controlled component 
   // Accessing the data contained in the form's input element. 
   const [newNote, setNewNote] = useState('')
-
   // Let's add a new functionality to our application that allows us to only view the important notes. 
   const [showAll, setShowAll] = useState(true)
+
+  // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
+  useEffect(() => {
+    console.log('effect hook')
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        console.log('promise fulfilled')
+        // Set the notes with the fetched data.
+        setNotes(response.data)
+      })
+  }, [])
+  console.log('render', notes.length, 'notes')
 
   // Define an event handler that will be called when the form is submitted, by clicking the submit button.
   // the event parameter is the event that triggers the call to the event handler function.
