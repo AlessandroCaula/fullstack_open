@@ -1,5 +1,4 @@
 # Table of Contents
-## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Part 2](#part-2)
   - [2c - Getting data from server](#2c---getting-data-from-server)
