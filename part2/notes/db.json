@@ -28,12 +28,12 @@
     {
       "id": "129f",
       "content": "Note1",
-      "important": true
+      "important": false
     },
     {
       "id": "2dc0",
       "content": "Prova1",
-      "important": false
+      "important": true
     }
   ]
 }
