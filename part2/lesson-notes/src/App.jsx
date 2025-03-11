@@ -35,15 +35,21 @@ const App = () => {
         content: newNote,
         // Our note has 50% chance of being marked as important.
         important: Math.random() < 0.5,
-        // Generate a unique identifier
-        id: String(notes.length + 1)
+        // // Generate a unique identifier
+        // id: String(notes.length + 1)
       }
-      // Adding (concat) the new note to the notes object
-      setNotes(notes.concat(noteObject))
+      axios
+        .post('http://localhost:3001/notes', noteObject)
+        .then(response => {
+          // console.log(response);
+          // Adding the notes to the setNotes
+          setNotes(notes.concat(response.data))
+        })
+
+      // Reset new note
+      setNewNote('')
+      console.log('Add note button clicked', event.target)
     }
-    // Reset new note
-    setNewNote('')
-    console.log('Add note button clicked', event.target)
   }
 
   // The event handler is called every time a change occurs in the input element. The event handler function receives the event objects as its event parameter. 
@@ -58,6 +64,21 @@ const App = () => {
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
 
+  // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
+  const toggleImportanceOf = (id) => {
+    // Unique URL for each note resource based on its id
+    const url = `http://localhost:3001/notes/${id}`
+    // Find the note we want to modify, and assign it to the note variable
+    const note = notes.find(n => n.id === id)
+    // Creating a new object that is an exact copy of the old note, apart from the important property that has the value flipped. 
+    const changeNote = { ...note, important: !note.important }
+
+    // Loop through all the notes in the server, and replace the new note with the changed importance
+    axios.put(url, changeNote).then(response => {
+      setNotes(notes.map(n => n.id === id ? response.data : n))
+    })
+  }
+
   return (
     <div>
       <h1>Notes</h1>
@@ -71,7 +92,11 @@ const App = () => {
       <ul>
         {/* Map through the notes elements and render them as li element in the unordered list */}
         {notesToShow.map((note) =>
-          <Note key={note.id} note={note} />
+          <Note
+            key={note.id}
+            note={note}
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
         )}
       </ul>
       {/* Adding an HTML form that will be used for adding new notes. */}

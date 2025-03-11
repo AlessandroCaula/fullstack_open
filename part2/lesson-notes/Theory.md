@@ -1,11 +1,18 @@
 # Table of Contents
-- [Getting data from server - 2c](#2c---Getting-data-from-server)
-  - [The browser as a runtime environment](#the-browser-as-a-runtime-environment)
-  - [npm](#npm)
-  - [Axios and promises](#axios-and-promises)
-  - [Effect-hooks](#effect-hooks)
-  - [The development runtime environment](#the-development-runtime-environment)
-- [2d](#2d)
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Part 2](#part-2)
+  - [2c - Getting data from server](#2c---getting-data-from-server)
+    - [The browser as a runtime environment](#the-browser-as-a-runtime-environment)
+    - [npm](#npm)
+    - [Axios and promises](#axios-and-promises)
+    - [Effect-hooks](#effect-hooks)
+    - [The development runtime environment](#the-development-runtime-environment)
+  - [2d - Altering data in server](#2d---altering-data-in-server)
+    - [REST](#rest)
+    - [Sending Data to the Server](#sending-data-to-the-server)
+    - [Changing the Importance of Notes](#changing-the-importance-of-notes)
+    - [Extracting Communication with the Backed into a Separate Module](#extracting-communication-with-the-backed-into-a-separate-module)
 
 # Part 2
 
@@ -382,7 +389,7 @@ We still have a problem with our application. When adding new notes, they are no
 
 The configuration for the whole application has steadily grown more complex. Let's review what happens and where. The following image describes the makeup of the application
 
-![alt text](image.png)
+![alt text](public/image.png)
 
 The JavaScript code making up our React application is run in the browser. The browser gets the JavaScript from the *React dev server*, which is the application that runs after running the command `npm run dev`. The dev-server transforms the JavaScript into a format understood by the browser. Among other things, it stitches together JavaScript from different files into one file. We'll discuss the dev-server in more detail in part 7 of the course.
 
@@ -430,3 +437,181 @@ addNote = event => {
     })
 }
 ```
+
+We create a new object for the note but omit the *id* property since it's better to let the server generate ids for our resources.
+
+The object is sent to the server using the axios `post` method. The registered event handler logs the response that is sent back from the server to the console.
+
+When we try to create a new note, the following output pops up in the console:
+
+![alt text](public/image1.png)
+
+The newly created note resource is stored in the value of the data property of the `response` object.
+
+Quite often it is useful to inspect HTTP requests in the Network tab of Chrome developer tools. We can use the inspector to check that the headers sent in the POST request are what we expected them to be.
+
+Since the data we sent in the POST request was a JavaScript object, axios automatically knew to set the appropriate *application/json* value for the *Content-Type* header.
+
+The tab *payload* can be used to check the request data.  
+Also the tab *response* is useful, it shows what was the data the server responded with:
+
+The new note is not rendered to the screen yet. This is because we did not update the state of the App component when we created it. Let's fix this:
+
+```js
+addNote = event => {
+  event.preventDefault()
+  const noteObject = {
+    content: newNote,
+    important: Math.random() > 0.5,
+  }
+
+  axios
+    .post('http://localhost:3001/notes', noteObject)
+    .then(response => {
+
+      setNotes(notes.concat(response.data))
+      setNewNote('')
+    })
+}
+```
+
+The new note returned by the backend server is added to the list of notes in our application's state in the customary way of using the `setNotes` function and then resetting the note creation form. An important detail to remember is that the `concat` method does not change the component's original state, but instead creates a new copy of the list.
+
+Once the data returned by the server starts to have an effect on the behavior of our web applications, we are immediately faced with a whole new set of challenges arising from, for instance, the asynchronicity of communication. This necessitates new debugging strategies, console logging and other means of debugging become increasingly more important. We must also develop a sufficient understanding of the principles of both the JavaScript runtime and React components. Guessing won't be enough.
+
+It's beneficial to inspect the state of the backend server, e.g. through the browser:
+
+![alt text](public/image2.png)
+
+This makes it possible to verify that all the data we intended to send was actually received by the server.
+
+In the next part of the course, we will learn to implement our own logic in the backend. We will then take a closer look at tools like Postman that helps us to debug our server applications. However, inspecting the state of the json-server through the browser is sufficient for our current needs.
+
+### Changing the Importance of Notes
+
+Let's add a button to every note that can be used for toggling its importance.  
+We make the following changes to the Note component:
+
+```js
+const Note = ({ note, toggleImportance }) => {
+  const label = note.important
+    ? 'make not important' : 'make important'
+
+  return (
+    <li>
+      {note.content} 
+      <button onClick={toggleImportance}>{label}</button>
+    </li>
+  )
+}
+```
+
+We add a button to the component and assign its event handler as the `toggleImportance` function passed in the component's props.   
+The *App* component defines an initial version of the `toggleImportanceOf` event handler function and passes it to every *Note* component:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState([]) 
+  const [newNote, setNewNote] = useState('')
+  const [showAll, setShowAll] = useState(true)
+
+  // ...
+
+
+  const toggleImportanceOf = (id) => {
+    console.log('importance of ' + id + ' needs to be toggled')
+  }
+
+  // ...
+
+  return (
+    <div>
+      <h1>Notes</h1>
+      <div>
+        <button onClick={() => setShowAll(!showAll)}>
+          show {showAll ? 'important' : 'all' }
+        </button>
+      </div>      
+      <ul>
+        {notesToShow.map(note => 
+          <Note
+            key={note.id}
+            note={note} 
+
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
+        )}
+      </ul>
+      // ...
+    </div>
+  )
+}
+```
+
+Notice how every note receives its own *unique* event handler function since the *id* of every note is unique.
+
+Individual notes stored in the json-server backend can be modified in two different ways by making HTTP requests to the note's unique URL. We can either *replace* the entire note with an `HTTP PUT` request or only change some of the note's properties with an `HTTP PATCH` request.   
+The final form of the event handler function is the following:
+
+```js
+const toggleImportanceOf = id => {
+  const url = `http://localhost:3001/notes/${id}`
+  const note = notes.find(n => n.id === id)
+  const changedNote = { ...note, important: !note.important }
+
+  axios.put(url, changedNote).then(response => {
+    setNotes(notes.map(n => n.id === id ? response.data : n))
+  })
+}
+```
+
+Almost every line of code in the function body contains important details. The first line defines the unique URL for each note resource based on its id.
+
+The array find method is used to find the note we want to modify, and we then assign it to the `note` variable.
+
+After this, we create a *new object* that is an exact copy of the old note, apart from the important property that has the value flipped (from true to false or from false to true).
+
+The code for creating the new object that uses the object spread syntax may seem a bit strange at first:
+
+```js
+const changedNote = { ...note, important: !note.important }
+```
+
+In practice, `{ ...note }` creates a new object with copies of all the properties from the `note` object. When we add properties inside the curly braces after the spread object, e.g. `{ ...note, important: true }`, then the value of the `important` property of the new object will be `true`. In our example, the `important` property gets the negation of its previous value in the original object.
+
+There are a few things to point out. Why did we make a copy of the note object we wanted to modify when the following code also appears to work?
+
+```js
+const note = notes.find(n => n.id === id)
+note.important = !note.important
+
+axios.put(url, note).then(response => {
+  // ...
+```
+
+This is not recommended because the variable `note` is a reference to an item in the `notes` array in the component's state, and as we recall we must <u>never mutate state directly</u> in React.
+
+It's also worth noting that the new object `changedNote` is only a so-called <u>shallow copy</u>, meaning that the values of the new object are the same as the values of the old object. If the values of the old object were objects themselves, then the copied values in the new object would reference the same objects that were in the old object.
+
+The new note is then sent with a PUT request to the backend where it will replace the old object. 
+
+The callback function sets the component's `notes` state to a new array that contains all the items from the previous `notes` array, except for the old note which is replaced by the updated version of it returned by the server:
+
+```js
+axios.put(url, changedNote).then(response => {
+  setNotes(notes.map(note => note.id === id ? response.data : note))
+})
+```
+
+This is accomplished with the `map` method:
+
+```js
+notes.map(note => note.id === id ? response.data : note)
+```
+
+The map method creates a new array by mapping every item from the old array into an item in the new array. In our example, the new array is created conditionally so that if `note.id === id` is true; the note object returned by the server is added to the array. If the condition is false, then we simply copy the item from the old array into the new array instead. 
+
+This `map` trick may seem a bit strange at first, but it's worth spending some time wrapping your head around it. We will be using this method many times through the course. 
+
+### Extracting Communication with the Backed into a Separate Module
+
