@@ -1,6 +1,15 @@
-# Lesson 2
+# Table of Contents
+- [Getting data from server - 2c](#2c---Getting-data-from-server)
+  - [The browser as a runtime environment](#the-browser-as-a-runtime-environment)
+  - [npm](#npm)
+  - [Axios and promises](#axios-and-promises)
+  - [Effect-hooks](#effect-hooks)
+  - [The development runtime environment](#the-development-runtime-environment)
+- [2d](#2d)
 
-## 2c
+# Part 2
+
+## 2c - Getting data from server
 
 For a while now we have only been working on "frontend", i.e. client-side (browser) functionality. We will begin working on "backend", i.e. server-side functionality in the third part of this course. Nonetheless, we will now take a step in that direction by familiarizing ourselves with how the code executing in the browser communicates with the backend.   
 
@@ -380,3 +389,44 @@ The JavaScript code making up our React application is run in the browser. The b
 The React application running in the browser fetches the JSON formatted data from json-server running on port 3001 on the machine. The server we query the data from - *json-server* - gets its data from the file *db.json*.
 
 At this point in development, all the parts of the application happen to reside on the software developer's machine, otherwise known as localhost. The situation changes when the application is deployed to the internet. We will do this in part 3.
+
+## 2d - Altering data in server
+
+When creating notes in our application, we would naturally want to store them in some backend server. The <u>json-server</u> package claims to be a so-called REST or RESTful API in its documentation:
+
+> *Get a full fake REST API with zero coding in less than 30 seconds (seriously)*
+
+The json-server does not exactly match the description provided by the textbook definition of a REST API, but neither do most other APIs claiming to be RESTful.
+
+We will take a closer look at REST in the next part of the course. But it's important to familiarize ourselves at this point with some of the conventions used by json-server and REST APIs in general. In particular, we will be taking a look at the conventional use of routes, aka URLs and HTTP request types, in REST.
+
+### REST
+
+In REST terminology, we refer to individual data objects, such as the notes in our application, as *resources*. Every resource has a unique address associated with it - its URL. According to a general convention used by json-server, we would be able to locate an individual note at the resource URL *notes/3*, where 3 is the id of the resource. The *notes* URL, on the other hand, would point to a resource collection containing all the notes.
+
+Resources are fetched from the server with `HTTP GET` requests. For instance, an HTTP GET request to the URL *notes/3* will return the note that has the id number 3. An HTTP GET request to the *notes* URL would return a list of all notes.
+
+Creating a new resource for storing a note is done by making an `HTTP POST` request to the *notes* URL according to the REST convention that the json-server adheres to. The data for the new note resource is sent in the *body* of the request.
+
+json-server requires all data to be sent in JSON format. What this means in practice is that the data must be a correctly formatted string and that the request must contain the Content-Type request header with the value *application/json*.
+
+### Sending Data to the Server
+
+Let's make the following changes to the event handler responsible for creating a new note:
+
+```js
+addNote = event => {
+  event.preventDefault()
+  const noteObject = {
+    content: newNote,
+    important: Math.random() < 0.5,
+  }
+
+
+  axios
+    .post('http://localhost:3001/notes', noteObject)
+    .then(response => {
+      console.log(response)
+    })
+}
+```
