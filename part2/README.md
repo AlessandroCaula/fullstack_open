@@ -389,7 +389,7 @@ We still have a problem with our application. When adding new notes, they are no
 
 The configuration for the whole application has steadily grown more complex. Let's review what happens and where. The following image describes the makeup of the application
 
-![alt text](public/image.png)
+![alt text](assets/image.png)
 
 The JavaScript code making up our React application is run in the browser. The browser gets the JavaScript from the *React dev server*, which is the application that runs after running the command `npm run dev`. The dev-server transforms the JavaScript into a format understood by the browser. Among other things, it stitches together JavaScript from different files into one file. We'll discuss the dev-server in more detail in part 7 of the course.
 
@@ -444,7 +444,7 @@ The object is sent to the server using the axios `post` method. The registered e
 
 When we try to create a new note, the following output pops up in the console:
 
-![alt text](public/image1.png)
+![alt text](assets/image1.png)
 
 The newly created note resource is stored in the value of the data property of the `response` object.
 
@@ -481,7 +481,7 @@ Once the data returned by the server starts to have an effect on the behavior of
 
 It's beneficial to inspect the state of the backend server, e.g. through the browser:
 
-![alt text](public/image2.png)
+![alt text](assets/image2.png)
 
 This makes it possible to verify that all the data we intended to send was actually received by the server.
 
