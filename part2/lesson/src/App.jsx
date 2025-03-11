@@ -3,7 +3,7 @@ import Note from "./components/Note"
 import axios from 'axios'
 
 const App = () => {
-  // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array passed in the props.
+  // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array fetched from the server.
   const [notes, setNotes] = useState([])
   // Controlled component 
   // Accessing the data contained in the form's input element. 
