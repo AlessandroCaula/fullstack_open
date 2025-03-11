@@ -1,1 +1,1 @@
-# General Lesson
+# Notes app for Lesson
