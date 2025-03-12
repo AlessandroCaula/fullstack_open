@@ -3,6 +3,7 @@ import SearchFilter from "./components/SearchFilter"
 import PersonForm from "./components/PersonForm"
 import Persons from "./components/Persons"
 import axios from 'axios'
+import personService from './services/persons'
 
 function App() {
   // Collection of persons contacts fetched from the db server
@@ -16,12 +17,12 @@ function App() {
 
   // useEffect hook used to fetched the person data from the db.json server database (http://localhost:3001/persons) - npm run server - to run it.
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
+    personService
+      .getAll()
+      .then(initialPersons => {
         console.log('persons data fetched')
         // Set the persons with the fetched data
-        setPersons(response.data)
+        setPersons(initialPersons)
       })
   }, [])
 
@@ -43,11 +44,11 @@ function App() {
       }
 
       // Saving the new contact to the backend server
-      axios
-        .post('http://localhost:3001/persons', newPerson)
-        .then(response => {
+      personService
+        .create(newPerson)
+        .then(returnedPerson => {
           // Adding the newName to the persons
-          setPersons(persons.concat(response.data))
+          setPersons(persons.concat(returnedPerson))
           // Resetting the new Name
           setNewName('')
           // Resetting the new Number
