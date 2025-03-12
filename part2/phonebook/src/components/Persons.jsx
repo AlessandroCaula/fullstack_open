@@ -1,7 +1,10 @@
 // Person component
 const Person = ({ person }) => {
   return (
-    <p>{person.name} {person.number}</p>
+    <div>
+      <span>{person.name} {person.number}</span>
+      <button>delete</button>
+    </div>
   )
 }
 
