@@ -934,5 +934,114 @@ However, since both the property fields and the variable names in the object are
 const person = { name, age }
 ```
 
-The result is identical for both expressions. They both create an object with a *name* property with the value *Leevi* and an *age* property with the value 0.
+The result is identical for both expressions. They both create an object with a *name* property with the value *Leevi* and an *age* property with the value *0*.
+
+### Promise and Errors
+
+If our application allowed users to delete notes, we could end up in a situation where a user tries to change the importance of a note that has already been deleted from the system.
+
+Let's simulate this situation by making the `getAll` function of the note service return a "hardcoded" note that does not actually exist on the backend server:
+
+```js
+const getAll = () => {
+  const request = axios.get(baseUrl)
+  const nonExisting = {
+    id: 10000,
+    content: 'This note is not saved to server',
+    important: true,
+  }
+  return request.then(response => response.data.concat(nonExisting))
+}
+```
+
+When we try to change the importance of the hardcoded note, we see the following error message in the console. The error says that the backend server responded to our HTTP PUT request with a status code 404 *not found*.
+
+![alt text](assets/image3.png)
+
+The application should be able to handle these types of error situations gracefully. Users won't be able to tell that an error has occurred unless they happen to have their console open. The only way the error can be seen in the application is that clicking the button does not affect the note's importance.
+
+We had previously mentioned that a promise can be in one of three different states. When an HTTP request fails, the associated promise is *rejected*. Our current code does not handle this rejection in any way.
+
+The rejection of a promise is handled by providing the `then` method with a second callback function, which is called in the situation where the promise is rejected.
+
+The more common way of adding a handler for rejected promises is to use the `catch` method.
+
+In practice, the error handler for rejected promises is defined like this:
+
+```js
+axios
+  .get('http://example.com/probably_will_fail')
+  .then(response => {
+    console.log('success!')
+  })
+  .catch(error => {
+    console.log('fail')
+  })
+```
+
+If the request fails, the event handler registered with the `catch` method gets called. 
+
+The `catch` method is often utilized by placing it deeper within the promise chain. 
+
+When multiple `.then` methods are chained together, we are in fact creating a <u>promise chain</u>:
+
+```js
+axios
+  .get('http://...')
+  .then(response => response.data)
+  .then(data => {
+    // ...
+  })
+```
+
+The `catch` method can be used to define a handler function at the end of a promise chain, which is called once any promise in the chain throws an error and the promise becomes *rejected*.
+
+Let's take advantage of this feature. We will place our application's error handler in the App component:
+
+```js
+const toggleImportanceOf = id => {
+  const note = notes.find(n => n.id === id)
+  const changedNote = { ...note, important: !note.important }
+
+  noteService
+    .update(id, changedNote).then(returnedNote => {
+      setNotes(notes.map(note => note.id === id ? returnedNote : note))
+    })
+
+    .catch(error => {
+      alert(
+        `the note '${note.content}' was already deleted from server`
+      )
+      setNotes(notes.filter(n => n.id !== id))
+    })
+}
+```
+
+The error message is displayed to the user with the trusty old <u>alert</u> dialog popup, and the deleted note gets filtered out from the state.
+
+Removing an already deleted note from the application's state is done with the array <u>filter</u> method, which returns a new array comprising only the items from the list for which the function that was passed as a parameter returns true for:
+
+```js
+notes.filter(n => n.id !== id)
+```
+
+It's probably not a good idea to use alert in more serious React applications. We will soon learn a more advanced way of displaying messages and notifications to users. There are situations, however, where a simple, battle-tested method like `alert` can function as a starting point. A more advanced method could always be added in later, given that there's time and energy for it.
+
+### Full stack developer's oath
+
+It is again time for the exercises. The complexity of our app is now increasing since besides just taking care of the React components in the frontend, we also have a backend that is persisting the application data.
+
+To cope with the increasing complexity we should extend the web developer's oath to a *Full stack developer's oath*, which reminds us to make sure that the communication between frontend and backend happens as expected.
+
+So here is the updated oath:
+
+Full stack development is extremely hard, that is why I will use all the possible means to make it easier
+- I will have my browser developer console open all the time
+- I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+- I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+- I will progress with small steps
+- I will write lots of `console.log` statements to make sure I understand how the code behaves and to help pinpoint problems
+- If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+
+
 

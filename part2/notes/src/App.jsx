@@ -37,6 +37,10 @@ const App = () => {
         // Loop through all the notes in the server, and replace the new note with the changed importance
         setNotes(notes.map(note => note.id === id ? returnedNote : note))
       })
+      .catch(error => {
+        alert(`The note ${note.content} was already deleted from the server`)
+        setNotes(notes.filter(n => n.id !== id))
+      })
   }
 
   // Define an event handler that will be called when the form is submitted, by clicking the submit button.
