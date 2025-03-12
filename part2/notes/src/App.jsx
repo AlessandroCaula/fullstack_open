@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import Note from "./components/Note"
 import axios from 'axios'
+import noteService from './services/notes'
 
 const App = () => {
   // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array fetched from the server.
@@ -13,16 +14,30 @@ const App = () => {
 
   // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
   useEffect(() => {
-    console.log('effect hook')
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response => {
-        console.log('promise fulfilled')
-        // Set the notes with the fetched data.
-        setNotes(response.data)
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
       })
   }, [])
   console.log('render', notes.length, 'notes')
+
+  // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
+  const toggleImportanceOf = id => {
+    // // Unique URL for each note resource based on its id
+    // const url = `http://localhost:3001/notes/${id}`
+    // Find the note we want to modify, and assign it to the note variable
+    const note = notes.find(n => n.id === id)
+    // Creating a new object that is an exact copy of the old note, apart from the important property that has the value flipped. 
+    const changedNote = { ...note, important: !note.important }
+
+    noteService
+      .update(id, changedNote)
+      .then(returnedNote => {
+        // Loop through all the notes in the server, and replace the new note with the changed importance
+        setNotes(notes.map(note => note.id === id ? returnedNote : note))
+      })
+  }
 
   // Define an event handler that will be called when the form is submitted, by clicking the submit button.
   // the event parameter is the event that triggers the call to the event handler function.
@@ -38,17 +53,16 @@ const App = () => {
         // // Generate a unique identifier
         // id: String(notes.length + 1)
       }
-      axios
-        .post('http://localhost:3001/notes', noteObject)
-        .then(response => {
-          // console.log(response);
-          // Adding the notes to the setNotes
-          setNotes(notes.concat(response.data))
-        })
 
-      // Reset new note
-      setNewNote('')
-      console.log('Add note button clicked', event.target)
+      noteService
+        .create(noteObject)
+        .then(returnedNote => {
+          // Adding the notes to the setNotes
+          setNotes(notes.concat(returnedNote))
+          // Reset new note
+          setNewNote('')
+        })
+      // console.log('Add note button clicked', event.target)
     }
   }
 
@@ -63,21 +77,6 @@ const App = () => {
   const notesToShow = showAll
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
-
-  // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
-  const toggleImportanceOf = (id) => {
-    // Unique URL for each note resource based on its id
-    const url = `http://localhost:3001/notes/${id}`
-    // Find the note we want to modify, and assign it to the note variable
-    const note = notes.find(n => n.id === id)
-    // Creating a new object that is an exact copy of the old note, apart from the important property that has the value flipped. 
-    const changeNote = { ...note, important: !note.important }
-
-    // Loop through all the notes in the server, and replace the new note with the changed importance
-    axios.put(url, changeNote).then(response => {
-      setNotes(notes.map(n => n.id === id ? response.data : n))
-    })
-  }
 
   return (
     <div>
