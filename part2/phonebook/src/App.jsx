@@ -5,14 +5,6 @@ import Persons from "./components/Persons"
 import axios from 'axios'
 
 function App() {
-
-  // const [persons, setPersons] = useState([
-  //   { name: 'Arto Hellas', number: '040-1234567', id: 1 },
-  //   { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-  //   { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-  //   { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  // ])
-
   // Collection of persons contacts fetched from the db server
   const [persons, setPersons] = useState([])
   // Name of the new contact
@@ -38,7 +30,7 @@ function App() {
     event.preventDefault()
     if (newName !== '' && newNumber !== '') {
       // Check if the name already exist. In this case alert the user. 
-      // .some() method tests whether at least one element in the array passes the test implemented bu the provided function. It returns true if, in the array, it finds an element for which the provided function return true.
+      // .some() method tests whether at least one element in the array passes the test implemented by the provided function. It returns true if, in the array, it finds an element for which the provided function return true.
       if (persons.some(person => person.name === newName)) {
         alert(`${newName} is already added to phonebook`)
         return
@@ -47,14 +39,20 @@ function App() {
       const newPerson = {
         name: newName,
         number: newNumber,
-        id: persons.length + 1
+        // id: persons.length + 1
       }
-      // Adding the newName to the persons
-      setPersons(persons.concat(newPerson))
-      // Resetting the new Name
-      setNewName('')
-      // Resetting the new Number
-      setNewNumber('')
+
+      // Saving the new contact to the backend server
+      axios
+        .post('http://localhost:3001/persons', newPerson)
+        .then(response => {
+          // Adding the newName to the persons
+          setPersons(persons.concat(response.data))
+          // Resetting the new Name
+          setNewName('')
+          // Resetting the new Number
+          setNewNumber('')
+        })
     }
   }
 

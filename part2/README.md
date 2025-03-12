@@ -1,5 +1,5 @@
 # Table of Contents
-- [Table of Contents](#table-of-contents)
+## Table of Contents
 - [Part 2](#part-2)
   - [2c - Getting data from server](#2c---getting-data-from-server)
     - [The browser as a runtime environment](#the-browser-as-a-runtime-environment)
@@ -11,7 +11,8 @@
     - [REST](#rest)
     - [Sending Data to the Server](#sending-data-to-the-server)
     - [Changing the Importance of Notes](#changing-the-importance-of-notes)
-    - [Extracting Communication with the Backed into a Separate Module](#extracting-communication-with-the-backed-into-a-separate-module)
+    - [Extracting Communication with the Backend into a Separate Module](#extracting-communication-with-the-backend-into-a-separate-module)
+    - [Full stack developer's oath](#full-stack-developers-oath)
 
 # Part 2
 
