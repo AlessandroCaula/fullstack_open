@@ -15,6 +15,9 @@
     - [Changing the Importance of Notes](#changing-the-importance-of-notes)
     - [Extracting Communication with the Backend into a Separate Module](#extracting-communication-with-the-backend-into-a-separate-module)
     - [Full stack developer's oath](#full-stack-developers-oath)
+  - [2e - Adding styles to React App](#2e---adding-styles-to-react-app)
+    - [Inline style](#inline-style)
+    - [Improved error message](#improved-error-message)
 
 # Part 2
 
@@ -1015,7 +1018,7 @@ Full stack development is extremely hard, that is why I will use all the possibl
 - I will write lots of `console.log` statements to make sure I understand how the code behaves and to help pinpoint problems
 - If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
 
-## 2c - Adding styles to React App
+## 2e - Adding styles to React App
 
 The appearance of our current Notes application is quite modest. In exercise 0.2, the assignment was to go through [Mozilla's CSS](https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/Styling_the_content) tutorial.
 
@@ -1198,3 +1201,6 @@ When the error occurs we add a descriptive error message to the `errorMessage` s
 ![alt text](./assets/image4.png)
 
 ### Inline style
+
+React also makes it possible to write styles directly in the code as so-called <u>inline styles</u>.
+
