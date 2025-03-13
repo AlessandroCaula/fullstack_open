@@ -75,6 +75,28 @@ function App() {
     setFilter(event.target.value)
   }
 
+  // Handle the deletion of a contact
+  const handleContactDeletion = (person) => {
+    // Prompt the user with a confirmation form.
+    const confirmation = confirm(`Delete ${person.name}`)
+    // If not confirmed, then return. 
+    if (!confirmation)
+      return
+    
+    // Delete the person contact.
+    personService
+      .remove(person.id)
+      .then(deletedPerson => {
+        // The returned person is the deleted person
+        // Remove the person from the state
+        setPersons(persons.filter((person) => person.id !== deletedPerson.id))
+      })
+      .catch(error => {
+        console.log(error)
+        alert(`Failed to delete ${person.name}`)
+      })
+  }
+
   // Filter out the persons
   const filteredPerson = persons.filter(person =>
     person.name.toLowerCase().includes(filter.toLowerCase())
@@ -86,15 +108,28 @@ function App() {
       <h2>Phonebook</h2>
 
       {/* Search Engine */}
-      <SearchFilter filter={filter} handleFilterChange={handleFilterChange} />
+      <SearchFilter 
+        filter={filter} 
+        handleFilterChange={handleFilterChange} 
+      />
 
       {/* Add new */}
       <h3>Add a new</h3>
-      <PersonForm addContact={addContact} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
+      <PersonForm 
+        addContact={addContact} 
+        newName={newName} 
+        handleNameChange={handleNameChange} 
+        newNumber={newNumber} 
+        handleNumberChange={handleNumberChange} 
+      />
 
       {/* Show Contacts */}
       <h3>Numbers</h3>
-      <Persons filteredPerson={filteredPerson} />
+      <Persons 
+        filteredPerson={filteredPerson} 
+        handleContactDeletion={handleContactDeletion} 
+      />
+
     </div>
   )
 }
