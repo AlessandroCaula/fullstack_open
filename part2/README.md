@@ -1200,7 +1200,79 @@ When the error occurs we add a descriptive error message to the `errorMessage` s
 
 ![alt text](./assets/image4.png)
 
-### Inline style
+### Inline styles
 
 React also makes it possible to write styles directly in the code as so-called <u>inline styles</u>.
 
+The idea behind defining inline styles is extremely simple. Any React component or element can be provided with a set of CSS properties as a JavaScript object through the style attribute. 
+
+CSS rules are defined slightly different in JavaScript than in normal CSS files. Let's say that we wanted to give some element the color green and italic font that's 16 pixels in size. In CSS, it would look like this:
+
+```css
+{
+  color: green;
+  font-style: italic;
+  font-size: 16px;
+}
+```
+
+But as a React inline-style object it would look like this:
+
+```js
+{
+  color: 'green',
+  fontStyle: 'italic',
+  fontSize: 16
+}
+```
+
+Every CSS property is defined as a separate property of the JavaScript object. Numeric values for pixels can be simply defined as integers. On of the major differences compared to regular CSS, is that hyphenated (kebab case) CSS properties
+are written in camelCase.
+
+Next, we could add a "Bottom block" to our application by creating a *Footer* component and defining the following inline styles for it:
+
+```js
+const Footer = () => {
+  const footerStyle = {
+    color: 'green',
+    fontStyle: 'italic',
+    fontSize: 16
+  }
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>Note app, Department of Computer Science, University of Helsinki 2025</em>
+    </div>
+  )
+}
+
+const App = () => {
+  // ...
+
+  return (
+    <div>
+      <h1>Notes</h1>
+
+      <Notification message={errorMessage} />
+
+      // ...  
+
+
+      <Footer />
+    </div>
+  )
+}
+```
+
+Inline styles come with certain limitations. For instance, so-called pseudo-classes can't be used straightforwardly.
+
+A CSS **pseudo-class** is a keyword added to a selector that lets you style a specific state of the selected element(s). For example, the pseudo-class :hover can be used to select a button when a user's pointer hovers over the button and this selected button can then be styled.
+
+```css
+/* Any button over which the user's pointer is hovering */
+button:hover {
+  color: blue;
+}
+```
+
+Inline style 

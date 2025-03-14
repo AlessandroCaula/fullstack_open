@@ -3,6 +3,22 @@ import Note from "./components/Note"
 import noteService from './services/notes'
 import Notification from "./components/Notification"
 
+// Bottom block component, a Footer component.
+const Footer = () => {
+  const footerStyle = {
+    color: 'green',
+    fontStyle: 'italic',
+    fontSize: 16
+  }
+
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>Note app, Department of Computer Science, University of Helsinki 2025</em>
+    </div>
+  )
+}
+
 const App = () => {
   // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array fetched from the server.
   const [notes, setNotes] = useState([])
@@ -91,8 +107,11 @@ const App = () => {
 
   return (
     <div>
+
       <h1>Notes</h1>
+
       <Notification message={errorMessage} />
+
       <div>
         {/* Invert the value of the showAll state */}
         <button onClick={() => setShowAll(!showAll)}>
@@ -120,6 +139,9 @@ const App = () => {
         />
         <button type="submit">save</button>
       </form>
+
+      <Footer />
+
     </div>
   )
 }
