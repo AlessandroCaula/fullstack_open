@@ -85,6 +85,11 @@ function App() {
     personService
       .update(contact.id, changedContact)
       .then(returnedContact => {
+        // Creating the message to be displayed
+        const messageToDisplay = `Updated ${returnedContact.name} contact`
+        const messageColorToDisplay = 'green'
+        // Calling the method to display the message, its color, and set the timer to then hide it.
+        showMessage(messageToDisplay, messageColorToDisplay)
         // Loop through all the contacts and replace the new note with the old one
         setPersons(persons.map(person => person.id === contact.id ? returnedContact : person))
       })
@@ -99,7 +104,7 @@ function App() {
     setTimeout(() => {
       setMessage('')
       setMessageColor('')
-    }, 2000)
+    }, 2500)
   }
 
   // Handling the Name changing in the input element
