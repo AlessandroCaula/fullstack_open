@@ -3,6 +3,7 @@ import SearchFilter from "./components/SearchFilter"
 import PersonForm from "./components/PersonForm"
 import Persons from "./components/Persons"
 import personService from './services/persons'
+import Notification from "./components/Notification"
 
 function App() {
   // Collection of persons contacts fetched from the db server
@@ -13,6 +14,10 @@ function App() {
   const [newNumber, setNewNumber] = useState('')
   // Filter the contacts
   const [filter, setFilter] = useState('')
+  // Notification message
+  const [message, setMessage] = useState('')
+  // // Color of the notification message
+  const [messageColor, setMessageColor] = useState('')
 
   // useEffect hook used to fetched the person data from the db.json server database (http://localhost:3001/persons) - npm run server - to run it.
   useEffect(() => {
@@ -53,15 +58,20 @@ function App() {
         personService
           .create(newPerson)
           .then(returnedPerson => {
+            // Creating the message to be displayed
+            const messageToDisplay = `Added ${returnedPerson.name}`
+            const messageColorToDisplay = 'green'
+            // Calling the method to display the message, and its color, and set the timer to then hide it.
+            showMessage(messageToDisplay, messageColorToDisplay)
             // Adding the newName to the persons
             setPersons(persons.concat(returnedPerson))
           })
       }
-      // Resetting the new Name
-      setNewName('')
-      // Resetting the new Number
-      setNewNumber('')
     }
+    // Resetting the new Name
+    setNewName('')
+    // Resetting the new Number
+    setNewNumber('')
   }
 
   // Update contact number 
@@ -70,14 +80,26 @@ function App() {
     // Find the person contact we want to modify 
     const contact = persons.find(person => person.name === newName)
     // Creating a new object that is an exact copy of the old contact, apart from the number property that has the value updated. 
-    const changedContact = { ...contact, number: newNumber}
+    const changedContact = { ...contact, number: newNumber }
 
     personService
       .update(contact.id, changedContact)
       .then(returnedContact => {
         // Loop through all the contacts and replace the new note with the old one
-        setPersons(persons.map(person => person.id === contact.id ? returnedContact : person)) 
+        setPersons(persons.map(person => person.id === contact.id ? returnedContact : person))
       })
+  }
+
+  const showMessage = (messageToDisplay, messageColorToDisplay) => {
+    // console.log('in showMEssage')
+    // Set the message and the color to be displayed when a new person is added
+    setMessage(messageToDisplay)
+    setMessageColor(messageColorToDisplay)
+    // Setting the timer, that will set the message state to null after five seconds. 
+    setTimeout(() => {
+      setMessage('')
+      setMessageColor('')
+    }, 2000)
   }
 
   // Handling the Name changing in the input element
@@ -130,6 +152,9 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      {/* Showing the notification component only when there is some message to display */}
+      {message !== '' && <Notification message={message} color={messageColor} />}
 
       {/* Search Engine */}
       <SearchFilter
