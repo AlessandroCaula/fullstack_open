@@ -1204,12 +1204,12 @@ When the error occurs we add a descriptive error message to the `errorMessage` s
 
 React also makes it possible to write styles directly in the code as so-called <u>inline styles</u>.
 
-The idea behind defining inline styles is extremely simple. Any React component or element can be provided with a set of CSS properties as a JavaScript object through the style attribute. 
+The idea behind defining inline styles is extremely simple. Any React component or element can be provided with a set of CSS properties as a JavaScript object through the style attribute.
 
 CSS rules are defined slightly different in JavaScript than in normal CSS files. Let's say that we wanted to give some element the color green and italic font that's 16 pixels in size. In CSS, it would look like this:
 
 ```css
-{
+ {
   color: green;
   font-style: italic;
   font-size: 16px;
@@ -1229,22 +1229,24 @@ But as a React inline-style object it would look like this:
 Every CSS property is defined as a separate property of the JavaScript object. Numeric values for pixels can be simply defined as integers. On of the major differences compared to regular CSS, is that hyphenated (kebab case) CSS properties
 are written in camelCase.
 
-Next, we could add a "Bottom block" to our application by creating a *Footer* component and defining the following inline styles for it:
+Next, we could add a "Bottom block" to our application by creating a _Footer_ component and defining the following inline styles for it:
 
 ```js
 const Footer = () => {
   const footerStyle = {
-    color: 'green',
-    fontStyle: 'italic',
-    fontSize: 16
-  }
+    color: "green",
+    fontStyle: "italic",
+    fontSize: 16,
+  };
   return (
     <div style={footerStyle}>
       <br />
-      <em>Note app, Department of Computer Science, University of Helsinki 2025</em>
+      <em>
+        Note app, Department of Computer Science, University of Helsinki 2025
+      </em>
     </div>
-  )
-}
+  );
+};
 
 const App = () => {
   // ...
@@ -1252,16 +1254,12 @@ const App = () => {
   return (
     <div>
       <h1>Notes</h1>
-
       <Notification message={errorMessage} />
-
-      // ...  
-
-
+      // ...
       <Footer />
     </div>
-  )
-}
+  );
+};
 ```
 
 Inline styles come with certain limitations. For instance, so-called pseudo-classes can't be used straightforwardly.
@@ -1281,3 +1279,119 @@ The philosophy of React is, in fact, the polar opposite of this. Since the separ
 
 The structural units that make up the application's functional entities are React components. A React component defines the HTML for structuring the content, the JavaScript functions for determining functionality, and also the component's styling; all in one place. This is to create individual components that are as independent and reusable as possible.
 
+We have done one thing in our app that is masking away a very typical source of error.
+
+We set the state `notes` to have initial value of an empty array:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState([]);
+
+  // ...
+};
+```
+
+This is a pretty natural initial value since the notes are a set, that is, there are many notes that the state will store.
+
+If the state were only saving "one thing", a more appropriate initial value would be `null` denoting that there is _nothing_ in the state at the start. Let's see what happens if we use this initial value:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState(null);
+
+  // ...
+};
+```
+
+The app breaks down:
+
+![alt text](./assets/image5.png)
+
+The error message gives the reason and location for the error. The code that caused the problems is the following:
+
+```js
+// notesToShow gets the value of notes
+const notesToShow = showAll ? notes : notes.filter((note) => note.important);
+
+// ...
+
+{
+  notesToShow.map((note) => <Note key={note.id} note={note} />);
+}
+```
+
+The error message is
+
+```bash
+Cannot read properties of null (reading 'map')
+```
+
+The variable `notesToShow` is first assigned the value of the state `notes` and then the code tries to call method `map` to a nonexisting object, that is, to `null`.
+
+What is the reason for that?
+
+The effect hook uses the function `setNotes` to set `notes` to have the `notes` that the backend is returning:
+
+```js
+useEffect(() => {
+  noteService
+    .getAll()
+    .then((initialNotes) => {
+    setNotes(initialNotes);
+  });
+}, []);
+```
+
+However the problem is that the effect is executed only *after the first render*. And because `notes` has the initial value of null:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState(null)
+  // ...
+```
+
+on the first render the following code gets executed:
+
+```js
+notesToShow = notes
+
+// ...
+
+notesToShow.map(note => ...)
+```
+
+and this blows up the app since we can not call method `map` of the value `null`.
+
+When we set `notes` to be initially an empty array, there is no error since it is allowed to call `map` to an empty array.
+
+So, the initialization of the state "masked" the problem that is caused by the fact that the data is not yet fetched from the backend.
+
+Another way to circumvent the problem is to use *conditional rendering* and return null if the component state is not properly initialized:
+
+```js
+const App = () => {
+
+  const [notes, setNotes] = useState(null)
+  // ... 
+
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
+      })
+  }, [])
+
+  // do not render anything if notes is still null
+
+  if (!notes) { 
+    return null 
+  }
+
+  // ...
+} 
+```
+
+So on the first render, nothing is rendered. When the notes arrive from the backend, the effect used function `setNotes` to set the value of the state `notes`. This causes the component to be rendered again, and at the second render, the notes get rendered to the screen.
+
+The method based on conditional rendering is suitable in cases where it is impossible to define the state so that the initial rendering is possible.

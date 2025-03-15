@@ -21,7 +21,7 @@ const Footer = () => {
 
 const App = () => {
   // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array fetched from the server.
-  const [notes, setNotes] = useState([])
+  const [notes, setNotes] = useState(null)
   // Controlled component 
   // Accessing the data contained in the form's input element. 
   const [newNote, setNewNote] = useState('')
@@ -38,6 +38,12 @@ const App = () => {
         setNotes(initialNotes)
       })
   }, [])
+
+  // Do not render anything if notes is still null
+  if (!notes) {
+    return null
+  }
+
   console.log('render', notes.length, 'notes')
 
   // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
