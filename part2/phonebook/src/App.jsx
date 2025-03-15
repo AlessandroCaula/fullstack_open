@@ -93,6 +93,12 @@ function App() {
         // Loop through all the contacts and replace the new note with the old one
         setPersons(persons.map(person => person.id === contact.id ? returnedContact : person))
       })
+      // Catching the error if the person contact has already been deleted
+      .catch(error => {
+        const messageToDisplay = `Information of ${changedContact.name} has already been removed from the server`
+        const messageColorToDisplay = 'red'
+        showMessage(messageToDisplay, messageColorToDisplay)
+      })
   }
 
   const showMessage = (messageToDisplay, messageColorToDisplay) => {
