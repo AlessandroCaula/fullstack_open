@@ -23,7 +23,7 @@
     {
       "id": "6686",
       "content": "Prova",
-      "important": true
+      "important": false
     },
     {
       "id": "129f",
@@ -63,7 +63,7 @@
     {
       "id": "b69b",
       "content": "New Note7",
-      "important": true
+      "important": false
     }
   ]
 }

@@ -1395,3 +1395,133 @@ const App = () => {
 So on the first render, nothing is rendered. When the notes arrive from the backend, the effect used function `setNotes` to set the value of the state `notes`. This causes the component to be rendered again, and at the second render, the notes get rendered to the screen.
 
 The method based on conditional rendering is suitable in cases where it is impossible to define the state so that the initial rendering is possible.
+
+The other thing that we still need to have a closer look at is the second parameter of the useEffect:
+
+```js
+useEffect(() => {
+  noteService
+    .getAll()
+    .then(initialNotes => {
+      setNotes(initialNotes)  
+    })
+}, [])
+```
+
+The second parameter of `useEffect` is used to specify how often the effect is run. The principle is that the effect is always executed after the first render of the component *and* when the value of the second parameter changes.
+
+If the second parameter is an empty array `[]`, its content never changes and the effect is only run after the first render of the component. This is exactly what we want when we are initializing the app state from the server.
+
+However, there are situations where we want to perform the effect at other times, e.g. when the state of the component changes in a particular way.
+
+Consider the following simple application for querying currency exchange rates from the [Exchange rate API](https://www.exchangerate-api.com/):
+
+```js
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
+const App = () => {
+  const [value, setValue] = useState('')
+  const [rates, setRates] = useState({})
+  const [currency, setCurrency] = useState(null)
+
+  useEffect(() => {
+    console.log('effect run, currency is now', currency)
+
+    // skip if currency is not defined
+    if (currency) {
+      console.log('fetching exchange rates...')
+      axios
+        .get(`https://open.er-api.com/v6/latest/${currency}`)
+        .then(response => {
+          setRates(response.data.rates)
+        })
+    }
+  }, [currency])
+
+  const handleChange = (event) => {
+    setValue(event.target.value)
+  }
+
+  const onSearch = (event) => {
+    event.preventDefault()
+    setCurrency(value)
+  }
+
+  return (
+    <div>
+      <form onSubmit={onSearch}>
+        currency: <input value={value} onChange={handleChange} />
+        <button type="submit">exchange rate</button>
+      </form>
+      <pre>
+        {JSON.stringify(rates, null, 2)}
+      </pre>
+    </div>
+  )
+}
+
+export default App
+```
+
+The user interface of the application has a form, in the input field of which the name of the desired currency is written. If the currency exists, the application renders the exchange rates of the currency to other currencies:
+
+![alt text](./assets/image6.png)
+
+The application sets the name of the currency entered to the form to the state currency at the moment the button is pressed.
+
+When the `currency` gets a new value, the application fetches its exchange rates from the API in the effect function:
+
+```js
+const App = () => {
+  // ...
+  const [currency, setCurrency] = useState(null)
+
+  useEffect(() => {
+    console.log('effect run, currency is now', currency)
+
+    // skip if currency is not defined
+    if (currency) {
+      console.log('fetching exchange rates...')
+      axios
+        .get(`https://open.er-api.com/v6/latest/${currency}`)
+        .then(response => {
+          setRates(response.data.rates)
+        })
+    }
+
+  }, [currency])
+  // ...
+}
+```
+
+The `useEffect` hook now has `[currency]` as the second parameter. The effect function is therefore executed after the first render, and *always* after the table as its second parameter `[currency]` changes. That is, when the state `currency` gets a new value, the content of the table changes and the effect function is executed.
+
+It is natural to choose `null` as the initial value for the variable `currency`, because `currency` represents a single item. The initial value `null` indicates that there is nothing in the state yet, and it is also easy to check with a simple if statement whether a value has been assigned to the variable. The effect has the following condition
+
+```js
+if (currency) { 
+  // exchange rates are fetched
+}
+```
+which prevents requesting the exchange rates just after the first render when the variable `currency` still has the initial value, i.e. a `null` value.
+
+So if the user writes e.g. *eur* in the search field, the application uses Axios to perform an HTTP GET request to the address https://open.er-api.com/v6/latest/eur and stores the response in the `rates` state.
+
+When the user then enters another value in the search field, e.g. *usd*, the effect function is executed again and the exchange rates of the new currency are requested from the API.
+
+The way presented here for making API requests might seem a bit awkward. This particular application could have been made completely without using the useEffect, by making the API requests directly in the form submit handler function:
+
+```js
+const onSearch = (event) => {
+  event.preventDefault()
+  axios
+    .get(`https://open.er-api.com/v6/latest/${value}`)
+    .then(response => {
+      setRates(response.data.rates)
+    })
+}
+```
+
+However, there are situations where that technique would not work. For example, you *might* encounter one such a situation in the exercise 2.20 where the use of useEffect could provide a solution. Note that this depends quite much on the approach you selected, e.g. the model solution does not use this trick.
+
