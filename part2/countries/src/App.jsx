@@ -15,14 +15,36 @@ const SearchCountry = ({ handleSearchChange, countryFilter }) => {
   )
 }
 
-// Countries List component
-const CountryList = ({ filteredCountries }) => {
+// Component for showing country details
+const CountryDetail = ({ displayCountry }) => {
+  return (
+    <div>
+      <h1>{displayCountry.name.common}</h1>
+      <div>
+        <div>Capital: {displayCountry.capital}</div>
+        <div>Area: {displayCountry.area}</div>
+      </div>
+      <div>
+        <h2>Languages</h2>
+        <ul>
+          {Object.values(displayCountry.languages).map((language, index) => (
+            <li key={index}>{language}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <img src={displayCountry.flags.svg} alt="flag" style={{ width: '200px' }} />
+      </div>
+    </div>
+  )
+}
+
+// Hero Component
+const Hero = ({ filteredCountries }) => {
 
   // If the filteredCountries is null, return.
   if (!filteredCountries)
     return
-
-  // console.log(filteredCountries)
 
   // If the filtered Countries is higher than 10. Show that there are too many countries to visualize
   if (filteredCountries.length > 10) {
@@ -35,24 +57,8 @@ const CountryList = ({ filteredCountries }) => {
     if (filteredCountries.length == 1) {
       // If there is only one matched country display it. 
       const displayCountry = filteredCountries[0]
-      const languages = ["a", "b", "c"]
-      console.log(displayCountry)
       return (
-        <div>
-          <h1>{displayCountry.name.common}</h1>
-          <div>
-            <div>Capital: {displayCountry.capital}</div>
-            <div>Area: {displayCountry.area}</div>
-          </div>
-          <div>
-            <h2>Languages</h2>
-            {/* <ul>
-              {displayCountry.languages.map((language, index) => (
-                <li key={index}>{language}</li>
-              ))}
-            </ul> */}
-          </div>
-        </div>
+        <CountryDetail displayCountry={displayCountry} />
       )
     } else {
       // If there are more than one, and less (or equal) than 10, display only the country names. 
@@ -98,20 +104,12 @@ function App() {
       country.name.common.toLowerCase().includes(countryFilter.toLowerCase())
     ) : null
 
-  // let filteredCountries = null
-  // if (countriesCollection && countryFilter != '') {
-  //   filteredCountries = countriesCollection.filter(country => 
-  //     country.name.common.toLowerCase().includes(countryFilter.toLowerCase())
-  //   )
-  //   console.log(filteredCountries)
-  // }
-
   return (
     <div>
 
       <SearchCountry handleSearchChange={handleSearchChange} countryFilter={countryFilter} />
 
-      <CountryList filteredCountries={filteredCountries} />
+      <Hero filteredCountries={filteredCountries} />
 
     </div>
   )
