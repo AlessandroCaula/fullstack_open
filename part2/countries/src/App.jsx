@@ -91,6 +91,9 @@ function App() {
   const [countriesCollection, setCountriesCollection] = useState(null)
   const [countryToDisplay, setCountryToDisplay] = useState(null)
 
+  // Weather API key
+  const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+
   // Fetching the countries data from the api
   useEffect(() => {
     console.log('fetching countries data...')
