@@ -39,15 +39,32 @@ const CountryDetail = ({ displayCountry }) => {
   )
 }
 
-// Component for country list 
+// Component for showing weather details
+const WeatherDetail = ({ countryWeather }) => {
+  if (!countryWeather)
+    return null
+
+  console.log(countryWeather)
+  return (
+    <div>
+      <h1>Weather in {countryWeather.location.name}</h1>
+      <div>
+        <p>Condition <span style={{fontWeight: 'bold'}}>{countryWeather.current.condition.text}</span></p>
+        <img style={{width:'100px'}} src={countryWeather.current.condition.icon} alt="icon" />
+      </div>
+      <p>Temperature <span style={{fontWeight: 'bold'}}>{countryWeather.current.temp_c}</span> Celsius</p>
+      <p>Wind <span style={{fontWeight:'bold'}}>{countryWeather.current.wind_kph}</span> km/h</p>
+    </div>
+  )
+}
 
 // Hero Component
-const Hero = ({ filteredCountries, countryToDisplay, setCountryToDisplay }) => {
+const Hero = ({ filteredCountries, countryToDisplay, setCountryToDisplay, countryWeather }) => {
 
   // If the filteredCountries is null, return.
   if (!filteredCountries)
     return
-  
+
   // Method called when the button to show the country is clicked.
   const handleShowCountry = (country) => {
     // console.log(country)
@@ -62,11 +79,13 @@ const Hero = ({ filteredCountries, countryToDisplay, setCountryToDisplay }) => {
       </div>
     )
   } else {
-    if (countryToDisplay || filteredCountries.length === 1) {
-      // If there is only one matched country display it. 
-      const displayCountry = countryToDisplay ? countryToDisplay : filteredCountries[0]
+    if (countryToDisplay) {
+      // If there is the countryToDisplay
       return (
-        <CountryDetail displayCountry={displayCountry} />
+        <div>
+          <CountryDetail displayCountry={countryToDisplay} />
+          <WeatherDetail countryWeather={countryWeather} />
+        </div>
       )
     } else { // else if (filteredCountries.length > 1 && filteredCountries <= 10)
       // If there are more than one, and less (or equal) than 10, display only the country names. 
@@ -90,9 +109,7 @@ function App() {
   const [countryFilter, setCountryFilter] = useState('')
   const [countriesCollection, setCountriesCollection] = useState(null)
   const [countryToDisplay, setCountryToDisplay] = useState(null)
-
-  // Weather API key - https://www.weatherapi.com/my/
-  const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+  const [countryWeather, setCountryWeather] = useState(null)
 
   // Fetching the countries data from the api
   useEffect(() => {
@@ -104,14 +121,37 @@ function App() {
         // console.log(countriesCollection)
       })
       .catch(error => {
-        alert('Error Fetching the data')
+        alert('Error Fetching the data:', error)
       })
   }, [])
+
+  // Weather API key - https://www.weatherapi.com/my/
+  const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+  // Fetching the weather data
+  useEffect(() => {
+    if (countryToDisplay) {
+      console.log('Fetching weather data')
+      const capitalToDisplay = countryToDisplay.capital[0]
+      axios
+        .get(`http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${capitalToDisplay}&aqi=no`)
+        .then(response => {
+          setCountryWeather(response.data)
+          // console.log(response.data)
+        })
+        .catch(error => {
+          alert(`Failed to fetch the weather data - ${error}`)
+          setCountryWeather(null)
+        })
+    }
+  }, [countryToDisplay])
 
   // Method handling the change of the search engine.
   const handleSearchChange = (event) => {
     setCountryFilter(event.target.value)
-    setCountryToDisplay(null)
+    // Reset the countryToDisplay to null when the users starts to type again.
+    if (countryToDisplay) {
+      setCountryToDisplay(null)
+    }
   }
 
   // Filtering out the countries based on the research. Only if the countries have been fetched.
@@ -120,18 +160,24 @@ function App() {
       country.name.common.toLowerCase().includes(countryFilter.toLowerCase())
     ) : null
 
+  // If the filterCountries has only 1 country, and the country to display is null (avoiding infinite rendering), set the CountryToDisplay.
+  if (filteredCountries?.length === 1 && !countryToDisplay) {
+    setCountryToDisplay(filteredCountries[0])
+  }
+
   return (
     <div>
 
-      <SearchCountry 
-        handleSearchChange={handleSearchChange} 
-        countryFilter={countryFilter} 
+      <SearchCountry
+        handleSearchChange={handleSearchChange}
+        countryFilter={countryFilter}
       />
 
       <Hero
         filteredCountries={filteredCountries}
-        countryToDisplay={countryToDisplay} 
-        setCountryToDisplay={setCountryToDisplay} 
+        countryToDisplay={countryToDisplay}
+        setCountryToDisplay={setCountryToDisplay}
+        countryWeather={countryWeather}
       />
 
     </div>
