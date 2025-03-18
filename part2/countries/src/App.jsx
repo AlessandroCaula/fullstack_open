@@ -41,10 +41,10 @@ const CountryDetail = ({ displayCountry }) => {
 
 // Component for showing weather details
 const WeatherDetail = ({ countryWeather }) => {
+  
   if (!countryWeather)
     return null
 
-  console.log(countryWeather)
   return (
     <div>
       <h1>Weather in {countryWeather.location.name}</h1>

@@ -1,7 +1,5 @@
 # Table of Contents
 
-## Table of Contents
-
 - [Part 2](#part-2)
   - [2c - Getting data from server](#2c---getting-data-from-server)
     - [The browser as a runtime environment](#the-browser-as-a-runtime-environment)
@@ -14,10 +12,12 @@
     - [Sending Data to the Server](#sending-data-to-the-server)
     - [Changing the Importance of Notes](#changing-the-importance-of-notes)
     - [Extracting Communication with the Backend into a Separate Module](#extracting-communication-with-the-backend-into-a-separate-module)
+    - [Cleaner Syntax for Defining Object Literals](#cleaner-syntax-for-defining-object-literals)
+    - [Promise and Errors](#promise-and-errors)
     - [Full stack developer's oath](#full-stack-developers-oath)
   - [2e - Adding styles to React App](#2e---adding-styles-to-react-app)
-    - [Inline style](#inline-style)
     - [Improved error message](#improved-error-message)
+    - [Inline style](#inline-styles)
 
 # Part 2
 
@@ -603,7 +603,7 @@ The map method creates a new array by mapping every item from the old array into
 
 This `map` trick may seem a bit strange at first, but it's worth spending some time wrapping your head around it. We will be using this method many times through the course.
 
-### Extracting Communication with the Backed into a Separate Module
+### Extracting Communication with the Backend into a Separate Module
 
 The _App_ component has become somewhat bloated after adding the code for communicating with the backend server. In the spirit of the <u>single responsibility principle</u> we deem it wise to extract this communication into its own module.
 
