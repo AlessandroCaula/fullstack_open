@@ -19,10 +19,17 @@ let notes = [
   },
 ];
 
+// Route to handle the GET request for the main "Hello World"
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!!!!!!</h1>");
 });
 
+// Route to handle the GET request for all the notes.
+app.get('/api/notes', (request, response) => {
+  response.json(notes)
+})
+
+// Route to handle the GET request and retrieve a specific note by ID
 app.get("/api/notes/:id", (request, response) => {
   const id = request.params.id;
   const note = notes.find((note) => note.id === id);
@@ -34,6 +41,7 @@ app.get("/api/notes/:id", (request, response) => {
   }
 });
 
+// Route to DELETE a note by ID
 app.delete("/api/notes/:id", (request, response) => {
   const id = request.params.id;
   notes = notes.filter((note) => note.id !== id);
