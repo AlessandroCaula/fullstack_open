@@ -3,6 +3,7 @@ const app = express();
 
 app.use(express.json());
 
+// Notes collection. 
 let notes = [
   {
     id: "1",
@@ -51,23 +52,33 @@ app.delete("/api/notes/:id", (request, response) => {
   response.status(204).end();
 });
 
+// Function used to generate the note Id
+const generateId = () => {
+  const maxId =
+    notes.length > 0
+      ? Math.max(...notes.map((n) => Number(n.id))) //The spread operator `(...)` is used to "spread" the elements of the array into individual arguments for `Math.max()`
+      : 0;
+  return String(maxId + 1);
+};
+
 // Handling the POST request and creation of a new note to the server
 app.post("/api/notes", (request, response) => {
-  // Finding the maxId of the present notes
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => Number(n.id))) // Number() => Function to convert to integer
-    : 0
+  const body = request.body; // Accessing the data from the body property of the request object
 
-  // Accessing the data from the body property of the request object
-  const note = request.body;
-  // Adding the Id to the new note
-  note.id = String(maxId + 1)
+  if (!body.content) {
+    return response.status(400).json({
+      error: "content missing",
+    });
+  }
 
+  const note = {
+    content: body.content,
+    important: body.important || false,
+    id: generateId(),
+  };
   console.log(note); // { content: 'Postman is good in testing backend', important: true }
 
-  // Adding the new note to the notes
-  notes = notes.concat(note)
-
+  notes = notes.concat(note); // Adding the new note to the notes
   response.json(note);
 });
 
