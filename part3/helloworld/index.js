@@ -3,7 +3,18 @@ const app = express();
 
 app.use(express.json());
 
-// Notes collection. 
+// Middleware that prints information about every request that is sent to the server
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:  ", request.path);
+  console.log("Body:  ", request.body);
+  console.log("---");
+  next();
+};
+
+app.use(requestLogger);
+
+// Notes collection.
 let notes = [
   {
     id: "1",
@@ -81,6 +92,13 @@ app.post("/api/notes", (request, response) => {
   notes = notes.concat(note); // Adding the new note to the notes
   response.json(note);
 });
+
+// Middleware used for catching requests made to non-existent routes.
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({
+    error: 'unknown endpoint'
+  })
+}
 
 const PORT = 3001;
 app.listen(PORT, () => {
