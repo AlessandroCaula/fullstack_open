@@ -75,6 +75,47 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+// Function used to generate a random id
+const generateId = () => {
+  const randomId = String(Math.trunc(Math.random() * 1000));
+  // Check if the Id already exists in the phonebook
+  if (phonebook.some((p) => p.id === randomId)) {
+    // If it exists, recursively call this function to generate a new Id
+    return generateId();
+  }
+  return randomId;
+};
+
+// Implementing the POST request allowing to add new entries
+app.post("/api/persons/", (request, response) => {
+  // Accessing the data from the body property of the request object
+  const body = request.body;
+
+  // Return an error if the body name of number of the new person to add/post does not exist
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: "name or number missing",
+    });
+  }
+  // Check if the name already exists
+  if (phonebook.some((p) => p.name === body.name)) {
+    return response.status(400).json({
+      error: "name must be unique",
+    });
+  }
+
+  // Otherwise create a new object for the person to add to the phonebook
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number,
+  };
+
+  // Adding the new person to the phonebook
+  phonebook = phonebook.concat(person);
+  response.json(person);
+});
+
 const PORT = 3001;
 app.listen(PORT);
 console.log(`server running at port ${PORT}`);

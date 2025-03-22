@@ -16,3 +16,13 @@ GET http://localhost:3001/api/persons/1
 ###
 # Remove single person
 DELETE http://localhost:3001/api/persons/1
+
+###
+# Adding a new person to the phonebook
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Alessandro Caula",
+    "number": "+39 319 222 0692"
+}
