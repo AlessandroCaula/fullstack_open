@@ -4,8 +4,15 @@ const app = express();
 
 app.use(express.json());
 
+// Define a custom token for logging the request body
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body); // Convert the request body to a JSON string
+});
+
 // Morgan middleware
-app.use(morgan("tiny"));
+app.use(
+  morgan(':method :url :status :response-time ms - :body')
+);
 
 let phonebook = [
   {
