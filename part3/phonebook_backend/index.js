@@ -32,7 +32,7 @@ app.get("/", (request, response) => {
 });
 
 // Route to handle the GET request for all the phonebook entries http://localhost:3001/api/phonebook
-app.get("/api/phonebook", (request, response) => {
+app.get("/api/persons", (request, response) => {
   response.json(phonebook);
 });
 
@@ -62,6 +62,17 @@ app.get("/api/persons/:id", (request, response) => {
   } else {
     response.status(404).end();
   }
+});
+
+// Functionality to delete a single phonebook entry
+app.delete("/api/persons/:id", (request, response) => {
+  // Retrieve the id of the person that we want to delete from the phonebook collection.
+  const id = request.params.id;
+  // Filter out the id from the phonebook collection
+  phonebook = phonebook.filter((p) => p.id !== id);
+
+  // Sending the response back to the server
+  response.status(204).end();
 });
 
 const PORT = 3001;
