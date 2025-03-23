@@ -1,21 +1,7 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");
-
-app.use(express.json());
-app.use(cors())
-app.use(express.static('dist'))
-
-// Middleware that prints information about every request that is sent to the server
-const requestLogger = (request, response, next) => {
-  console.log("Method:", request.method);
-  console.log("Path:  ", request.path);
-  console.log("Body:  ", request.body);
-  console.log("---");
-  next();
-};
-
-app.use(requestLogger);
+// const cors = require("cors");
+// app.use(cors())
 
 // Notes collection.
 let notes = [
@@ -35,6 +21,19 @@ let notes = [
     important: true,
   },
 ];
+
+// Middleware that prints information about every request that is sent to the server
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:  ", request.path);
+  console.log("Body:  ", request.body);
+  console.log("---");
+  next();
+};
+
+app.use(requestLogger);
+app.use(express.static("dist"));
+app.use(express.json());
 
 // Route to handle the GET request for the main "Hello World"
 app.get("/", (request, response) => {
@@ -103,7 +102,9 @@ const unknownEndpoint = (request, response) => {
   });
 };
 
-const PORT = process.env.PORT || 3001
+app.use(unknownEndpoint);
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
