@@ -4,6 +4,7 @@ const cors = require("cors");
 
 app.use(express.json());
 app.use(cors())
+app.use(express.static('dist'))
 
 // Middleware that prints information about every request that is sent to the server
 const requestLogger = (request, response, next) => {
