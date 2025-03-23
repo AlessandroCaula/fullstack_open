@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors())
 
 // Middleware that prints information about every request that is sent to the server
 const requestLogger = (request, response, next) => {
@@ -96,9 +98,9 @@ app.post("/api/notes", (request, response) => {
 // Middleware used for catching requests made to non-existent routes.
 const unknownEndpoint = (request, response) => {
   response.status(404).send({
-    error: 'unknown endpoint'
-  })
-}
+    error: "unknown endpoint",
+  });
+};
 
 const PORT = 3001;
 app.listen(PORT, () => {
