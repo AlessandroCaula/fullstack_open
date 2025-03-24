@@ -2,18 +2,6 @@ const express = require("express");
 const morgan = require("morgan");
 const app = express();
 
-app.use(express.json());
-
-// Define a custom token for logging the request body
-morgan.token("body", (req) => {
-  return JSON.stringify(req.body); // Convert the request body to a JSON string
-});
-
-// Morgan middleware
-app.use(
-  morgan(':method :url :status :response-time ms - :body')
-);
-
 let phonebook = [
   {
     id: "1",
@@ -36,6 +24,17 @@ let phonebook = [
     number: "39-23-6423122",
   },
 ];
+
+app.use(express.json());
+app.use(express.static("dist"));
+
+// Define a custom token for logging the request body
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body); // Convert the request body to a JSON string
+});
+
+// Morgan middleware
+app.use(morgan(":method :url :status :response-time ms - :body"));
 
 // Route to handle the GET request fo the http://localhost:3001 showing just the text
 app.get("/", (request, response) => {
@@ -127,6 +126,7 @@ app.post("/api/persons/", (request, response) => {
   response.json(person);
 });
 
-const PORT = 3001;
-app.listen(PORT);
-console.log(`server running at port ${PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
