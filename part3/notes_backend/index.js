@@ -1,7 +1,22 @@
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
 // const cors = require("cors");
 // app.use(cors())
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!
+const password = process.argv[2];
+const url = `mongodb+srv://alecaula:${password}@cluster0.ksork.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`;
+
+mongoose.set('strictQuery', false);
+mongoose.connect(url);
+
+const noteSchema = new mongoose.Schema({
+  content: String, 
+  important: Boolean,
+});
+
+const Note = mongoose.model('Note', noteSchema);
 
 // Notes collection.
 let notes = [
@@ -42,7 +57,9 @@ app.get("/", (request, response) => {
 
 // Route to handle the GET request for all the notes.
 app.get("/api/notes", (request, response) => {
-  response.json(notes);
+  Note.find({}).then(notes => {
+    response.json(notes);
+  })
 });
 
 // Route to handle the GET request and retrieve a specific note by ID
