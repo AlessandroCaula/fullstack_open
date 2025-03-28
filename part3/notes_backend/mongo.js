@@ -32,7 +32,7 @@ const Note = mongoose.model("Note", noteSchema);
 //   mongoose.connection.close();
 // });
 
-Note.find({ important: true }).then((result) => {
+Note.find({}).then((result) => {  // ({important: true})
   result.forEach((note) => {
     console.log(note);
   });
