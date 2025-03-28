@@ -11,7 +11,7 @@ GET http://localhost:3001/api/persons
 
 ###
 # Get single person 
-GET http://localhost:3001/api/persons/1
+GET http://localhost:3001/api/persons/67e333297390baa0c4574d7a
 
 ###
 # Remove single person
