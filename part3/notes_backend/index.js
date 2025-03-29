@@ -4,9 +4,6 @@ const Note = require("./models/note");
 
 const app = express();
 
-// Notes collection.
-let notes = [];
-
 // Middleware that prints information about every request that is sent to the server
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
@@ -16,14 +13,17 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
-app.use(requestLogger);
 app.use(express.static("dist"));
 app.use(express.json());
+app.use(requestLogger);
 
 // Route to handle the GET request for the main "Hello World"
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!!!!!!</h1>");
 });
+
+// // Notes collection.
+// let notes = [];
 
 // Route to handle the GET request for all the notes from mongoDB.
 app.get("/api/notes", (request, response) => {
@@ -43,17 +43,19 @@ app.get("/api/notes/:id", (request, response) => {
       }
     })
     .catch((error) => {
-      console.log(error);
-      response.status(500).end();
+      next(error);
+      // console.log(error);
+      // response.status(400).send({ error: "malformatted id" });
     });
 });
 
 // Route to DELETE a note by ID
 app.delete("/api/notes/:id", (request, response) => {
-  const id = request.params.id;
-  notes = notes.filter((note) => note.id !== id);
-
-  response.status(204).end();
+  Note.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
 // Function used to generate the note Id
@@ -68,7 +70,7 @@ const generateId = () => {
 // Handling the POST request and creation of a new note to the server
 app.post("/api/notes", (request, response) => {
   const body = request.body; // Accessing the data from the body property of the request object
-
+  // If there is no content.
   if (!body.content) {
     return response.status(400).json({
       error: "content missing",
@@ -93,7 +95,22 @@ const unknownEndpoint = (request, response) => {
   });
 };
 
+// Handler of requests with unknown endpoint
 app.use(unknownEndpoint);
+
+// Error handler middleware
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
+};
+
+// This has to be the last loaded middleware, also all the routes should be registered before this.
+// Handler of requests with result to errors
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
