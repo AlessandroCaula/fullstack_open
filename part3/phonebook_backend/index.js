@@ -92,6 +92,25 @@ app.post("/api/persons/", (request, response) => {
   });
 });
 
+// Functionality to update the number of an existing contact
+app.put("/api/persons/:id", (request, response, next) => {
+  const { name, number } = request.body;
+
+  Contacts.findById(request.params.id)
+    .then((person) => {
+      if (!person) {
+        return response.status(404).end();
+      }
+      person.name = name;
+      person.number = number;
+
+      return person.save().then((updatedContact) => {
+        response.json(updatedContact);
+      });
+    })
+    .catch((error) => next(error));
+});
+
 // Functionality to delete a single phonebook entry
 app.delete("/api/persons/:id", (request, response, next) => {
   Contacts.findByIdAndDelete(request.params.id)

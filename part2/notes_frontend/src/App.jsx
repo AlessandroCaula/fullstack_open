@@ -47,7 +47,7 @@ const App = () => {
   console.log('render', notes.length, 'notes')
 
   // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
-  const toggleImportanceOf = id => {
+  const toggleImportanceOf = (id) => {
     // // Unique URL for each note resource based on its id
     // const url = `http://localhost:3001/notes/${id}`
     // Find the note we want to modify, and assign it to the note variable
