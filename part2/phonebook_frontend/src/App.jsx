@@ -142,11 +142,10 @@ function App() {
     // Delete the person contact.
     personService
       .remove(person.id)
-      .then(deletedPerson => {
-        console.log(deletedPerson)
+      .then(() => {
         // The returned person is the deleted person
         // Remove the person from the state
-        setPersons(persons.filter((person) => person.id !== deletedPerson.id))
+        setPersons(persons.filter((p) => p.id !== person.id))
       })
       .catch(error => {
         console.log(error)
