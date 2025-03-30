@@ -22,9 +22,6 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!!!!!!</h1>");
 });
 
-// // Notes collection.
-// let notes = [];
-
 // Route to handle the GET request for all the notes from mongoDB.
 app.get("/api/notes", (request, response) => {
   Note.find({}).then((notes) => {
@@ -86,6 +83,25 @@ app.post("/api/notes", (request, response) => {
   note.save().then((savedNote) => {
     response.json(savedNote);
   });
+});
+
+// Functionality to update a single note, allowing the importance of the note to be changed.
+app.put("/api/notes/:id", (request, response) => {
+  const { content, important } = request.body;
+
+  Note.findById(request.params.id)
+    .then((note) => {
+      if (!note) {
+        return response.status(404).end();
+      }
+      note.content = content;
+      note.important = important;
+
+      return note.save().then((updatedNote) => {
+        response.json(updatedNote);
+      });
+    })
+    .catch((error) => next(error));
 });
 
 // Middleware used for catching requests made to non-existent routes.
