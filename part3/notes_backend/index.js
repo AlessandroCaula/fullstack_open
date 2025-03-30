@@ -30,7 +30,7 @@ app.get("/api/notes", (request, response) => {
 });
 
 // Route to handle the GET request and retrieve a specific note by ID
-app.get("/api/notes/:id", (request, response) => {
+app.get("/api/notes/:id", (request, response, next) => {
   Note.findById(request.params.id)
     .then((note) => {
       if (note) {
@@ -47,7 +47,7 @@ app.get("/api/notes/:id", (request, response) => {
 });
 
 // Route to DELETE a note by ID
-app.delete("/api/notes/:id", (request, response) => {
+app.delete("/api/notes/:id", (request, response, next) => {
   Note.findByIdAndDelete(request.params.id)
     .then((result) => {
       response.status(204).end();
@@ -86,7 +86,7 @@ app.post("/api/notes", (request, response) => {
 });
 
 // Functionality to update a single note, allowing the importance of the note to be changed.
-app.put("/api/notes/:id", (request, response) => {
+app.put("/api/notes/:id", (request, response, next) => {
   const { content, important } = request.body;
 
   Note.findById(request.params.id)
