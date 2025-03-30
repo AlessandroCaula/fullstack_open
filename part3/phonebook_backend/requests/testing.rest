@@ -15,7 +15,7 @@ GET http://localhost:3001/api/persons/67e333297390baa0c4574d7a
 
 ###
 # Remove single person
-DELETE http://localhost:3001/api/persons/1
+DELETE http://localhost:3001/api/persons/67e47b1a258bc1ceae1a7ee7
 
 ###
 # Adding a new person to the phonebook
