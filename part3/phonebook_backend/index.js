@@ -31,16 +31,19 @@ app.get("/api/persons", (request, response) => {
 });
 
 // Route to handle the GET request for the info at http://localhost:3001/info
-app.get("/info", (request, response) => {
-  const text = `Phonebook has info for ${phonebook.length} people`;
-  const date = new Date();
-
-  response.send(
-    `<div>
-      <p>${text}<p>
-      <p>${date}<p>
-    </div>`
-  );
+app.get("/info", (request, response, next) => {
+  Contacts.countDocuments({})
+    .then((count) => {
+      const text = `Phonebook has info for ${count} people`;
+      const date = new Date();
+      response.send(
+        `<div>
+          <p>${text}<p>
+          <p>${date}<p>
+        </div>`
+      );
+    })
+    .catch((error) => next(error));
 });
 
 // Route to get the information for a single phonebook entry from mongoDB.
@@ -56,7 +59,7 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-    .catch(error => next(error));
+    .catch((error) => next(error));
 });
 
 // Implementing the POST request allowing to add new entries
