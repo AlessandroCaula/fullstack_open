@@ -16,7 +16,7 @@ function App() {
   const [filter, setFilter] = useState('')
   // Notification message
   const [message, setMessage] = useState('')
-  // // Color of the notification message
+  // Color of the notification message
   const [messageColor, setMessageColor] = useState('')
 
   // useEffect hook used to fetched the person data from the db.json server database (http://localhost:3001/persons) - npm run server - to run it.
@@ -51,20 +51,24 @@ function App() {
         const newPerson = {
           name: newName,
           number: newNumber,
-          // id: persons.length + 1
         }
 
         // Saving the new contact to the backend server
         personService
           .create(newPerson)
-          .then(returnedPerson => {
+          .then(createdPerson => {
             // Creating the message to be displayed
-            const messageToDisplay = `Added ${returnedPerson.name}`
+            const messageToDisplay = `Added ${createdPerson.name}`
             const messageColorToDisplay = 'green'
             // Calling the method to display the message, and its color, and set the timer to then hide it.
             showMessage(messageToDisplay, messageColorToDisplay)
             // Adding the newName to the persons
-            setPersons(persons.concat(returnedPerson))
+            setPersons(persons.concat(createdPerson))
+          })
+          .catch(error => {
+            // This is the way to access the error message
+            const errorToShow = error.response.data.split("<pre>")[1].split("</pre>")[0].split("<br>")[0]
+            showMessage(errorToShow, 'red')
           })
       }
     }
@@ -164,7 +168,9 @@ function App() {
       <h2>Phonebook</h2>
 
       {/* Showing the notification component only when there is some message to display */}
-      {message !== '' && <Notification message={message} color={messageColor} />}
+      {/* {message !== '' && <Notification message={message} color={messageColor} />} */}
+
+      <Notification message={message} color={messageColor} />
 
       {/* Search Engine */}
       <SearchFilter

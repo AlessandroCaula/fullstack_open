@@ -63,7 +63,7 @@ app.get("/api/persons/:id", (request, response, next) => {
 });
 
 // Implementing the POST request allowing to add new entries
-app.post("/api/persons/", (request, response) => {
+app.post("/api/persons/", (request, response, next) => {
   // Accessing the data from the body property of the request object
   const body = request.body;
 
@@ -87,9 +87,11 @@ app.post("/api/persons/", (request, response) => {
   });
 
   // Adding the new person to the phonebook
-  person.save().then((savedContact) => {
-    response.json(savedContact);
-  });
+  person.save()
+    .then((savedContact) => {
+      response.json(savedContact);
+    })
+    .catch(error => next(error))
 });
 
 // Functionality to update the number of an existing contact

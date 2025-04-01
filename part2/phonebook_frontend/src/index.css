@@ -1,4 +1,5 @@
 .notification {
+  height: 20px;/* Set a fixed height */
   color: black;
   background: lightgrey;
   font-style: 20px;
