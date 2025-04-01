@@ -114,7 +114,7 @@ function App() {
     setTimeout(() => {
       setMessage('')
       setMessageColor('')
-    }, 2500)
+    }, 3500)
   }
 
   // Handling the Name changing in the input element
