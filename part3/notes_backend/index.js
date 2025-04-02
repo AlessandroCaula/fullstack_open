@@ -39,11 +39,7 @@ app.get("/api/notes/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-    .catch((error) => {
-      next(error);
-      // console.log(error);
-      // response.status(400).send({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
 
 // Route to DELETE a note by ID
