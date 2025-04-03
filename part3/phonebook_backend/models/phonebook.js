@@ -1,32 +1,32 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false)
 
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 
-console.log("connecting to MongoDB url");
+console.log('connecting to MongoDB url')
 
 mongoose
   .connect(url)
-  .then((result) => {
-    console.log("connected to MongoDB");
+  .then(() => {
+    console.log('connected to MongoDB')
   })
   .catch((error) => {
-    console.log("error connecting to MongoDB:", error.message);
-  });
+    console.log('error connecting to MongoDB:', error.message)
+  })
 
 // Custom validator used for the number format
 const validatePhoneNumber = (val) => {
   // If there is no "-" then, it's an invalid number
-  if (!val.includes("-")) {
-    return false;
+  if (!val.includes('-')) {
+    return false
   }
   // Check if before the "-" there are two or three numbers
-  if (val.split("-")[0].length < 2 || val.split("-")[0].length > 3) {
-    return false;
+  if (val.split('-')[0].length < 2 || val.split('-')[0].length > 3) {
+    return false
   }
-  return true;
-};
+  return true
+}
 
 const contactSchema = new mongoose.Schema({
   name: {
@@ -41,14 +41,14 @@ const contactSchema = new mongoose.Schema({
       message: (props) => `${props.value} is not a valid phone number!`,
     },
   },
-});
+})
 
-contactSchema.set("toJSON", {
+contactSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
   },
-});
+})
 
-module.exports = mongoose.model("Contact", contactSchema);
+module.exports = mongoose.model('Contact', contactSchema)
