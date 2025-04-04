@@ -316,3 +316,69 @@ You can find the code for our current application in its entirety in the part4-1
 
 If you clone the project for yourself, run the `npm install` command before starting the application with `npm run dev`.
 
+### Note on exports
+
+We have used two different kinds of exports in this part. Firstly, e.g. the file utils/logger.js does the export as follows:
+
+```js
+const info = (...params) => {
+  console.log(...params)
+}
+
+const error = (...params) => {
+  console.error(...params)
+}
+
+module.exports = { info, error }
+```
+
+The file exports _an object_ that has two fields, both of which are functions. The functions can be used in two different ways. The first option is to require the whole object and refer to functions through the object using the dot notation:
+
+```js
+const logger = require('./utils/logger')
+
+logger.info('message')
+
+logger.error('error message')
+```
+
+The other option is to destructure the functions to their own variables in the require statement:
+
+```js
+const { info, error } = require('./utils/logger')
+
+info('message')
+error('error message')
+```
+
+The second way of exporting may be preferable if only a small portion of the exported functions are used in a file. E.g. in file controller/notes.js exporting happens as follows:
+
+```js
+const notesRouter = require('express').Router()
+const Note = require('../models/note')
+
+// ...
+
+module.exports = notesRouter
+```
+
+In this case, there is just one "thing" exported, so the only way to use it is the following:
+
+```js
+const notesRouter = require('./controllers/notes')
+
+// ...
+
+app.use('/api/notes', notesRouter)
+```
+
+Now the exported "thing" (in this case a router object) is assigned to a variable and used as such.
+
+#### Finding the usage of your exports with VS Code
+
+VS Code has a handy feature that allows you to see where your modules have been exported. This can be very helpful for refactoring. For example, if you decide to split a function into two separate functions, your code could break if you don't modify all the usages. This is difficult if you don't know where they are. However, you need to define your exports in a particular way for this to work.
+
+If you right-click on a variable in the location it is exported from and select "Find All References", it will show you everywhere the variable is imported. However, if you assign an object directly to module.exports, it will not work. A workaround is to assign the object you want to export to a named variable and then export the named variable. It also will not work if you destructure where you are importing; you have to import the named variable and then destructure, or just use dot notation to use the functions contained in the named variable.
+
+The nature of VS Code bleeding into how you write your code is probably not ideal, so you need to decide for yourself if the trade-off is worthwhile.
+
