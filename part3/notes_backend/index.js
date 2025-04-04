@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const Note = require('./models/note')
+const config = require('./utils/config')
 
 const app = express()
 
@@ -120,7 +121,7 @@ const errorHandler = (error, request, response, next) => {
 // Handler of requests with result to errors
 app.use(errorHandler)
 
-const PORT = process.env.PORT
+const PORT = config.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} - http://localhost:${PORT}`)
 })
