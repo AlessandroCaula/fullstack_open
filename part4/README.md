@@ -209,3 +209,110 @@ app.use(middleware.errorHandler)
 
 module.exports = app
 ```
+
+The file takes different middleware into use, and one of these is the _notesRouter_ that is attached to the _/api/notes_ route.
+
+Our custom middleware has been moved to a new _utils/middleware.js_ module:
+
+```js
+const logger = require('./logger')
+
+const requestLogger = (request, response, next) => {
+  logger.info('Method:', request.method)
+  logger.info('Path:  ', request.path)
+  logger.info('Body:  ', request.body)
+  logger.info('---')
+  next()
+}
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+const errorHandler = (error, request, response, next) => {
+  logger.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+
+  next(error)
+}
+
+module.exports = {
+  requestLogger,
+  unknownEndpoint,
+  errorHandler
+}
+```
+
+The responsibility of establishing the connection to the database has been given to the app.js module. The _note.js_ file under the models directory only defines the Mongoose schema for notes.
+
+```js
+const mongoose = require('mongoose')
+
+const noteSchema = new mongoose.Schema({
+  content: {
+    type: String,
+    required: true,
+    minlength: 5
+  },
+  important: Boolean,
+})
+
+noteSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
+module.exports = mongoose.model('Note', noteSchema)
+```
+
+The contents of the index.js file used for starting the application gets simplified as follows:
+
+```js
+const app = require('./app') // the actual Express application
+const config = require('./utils/config')
+const logger = require('./utils/logger')
+
+app.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
+})
+```
+
+The _index.js_ file only imports the actual application from the _app.js_ file and then starts the application. The function `info` of the logger-module is used for the console printout telling that the application is running.
+
+Now the Express app and the code taking care of the web server are separated from each other following the [best](https://dev.to/nermine-slimane/always-separate-app-and-server-files--1nc7) practices. One of the advantages of this method is that the application can now be tested at the level of HTTP API calls without actually making calls via HTTP over the network, this makes the execution of tests faster.
+
+To recap, the directory structure looks like this after the changes have been made:
+
+```
+├── controllers
+│   └── notes.js
+├── dist
+│   └── ...
+├── models
+│   └── note.js
+├── utils
+│   ├── config.js
+│   ├── logger.js
+│   └── middleware.js  
+├── app.js
+├── index.js
+├── package-lock.json
+├── package.json
+```
+
+For smaller applications, the structure does not matter that much. Once the application starts to grow in size, you are going to have to establish some kind of structure and separate the different responsibilities of the application into separate modules. This will make developing the application much easier.
+
+There is no strict directory structure or file naming convention that is required for Express applications. In contrast, Ruby on Rails does require a specific structure. Our current structure simply follows some of the best practices that you can come across on the internet.
+
+You can find the code for our current application in its entirety in the part4-1 branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-1).
+
+If you clone the project for yourself, run the `npm install` command before starting the application with `npm run dev`.
+
