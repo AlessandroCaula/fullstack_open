@@ -25,11 +25,18 @@ const Blog = mongoose.model("Blog", blogSchema)
 const blog = new Blog({
   title: "Blog 1",
   author: "Author 1",
-  utl: "url 1",
+  url: "url 1",
   likes: 33,
 })
 
-blog.save().then((result) => {
+blog.save().then(() => {
   console.log("blog saved!")
   mongoose.connection.close()
 })
+
+// Blog.find({}).then((result) => {
+//   result.forEach((blog) => {
+//     console.log(blog)
+//   })
+//   mongoose.connection.close()
+// })
