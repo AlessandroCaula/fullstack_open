@@ -1263,7 +1263,13 @@ The code also assumes that it will be passed the password from the credentials w
 const password = process.argv[2];
 ```
 
-When the code is run with the command _node mongo.js yourPassword_, Mongo will add a new document to the database.
+When the code is run with the command 
+
+```
+node mongo.js yourPassword
+```
+
+Mongo will add a new document to the database.
 
 NB: Please note the password is the password created for the database user, not your MongoDB Atlas password. Also, if you created a password with special characters, then you'll need to [URL encode that password](https://www.mongodb.com/docs/atlas/troubleshoot-connection/#special-characters-in-connection-string-password).
 
