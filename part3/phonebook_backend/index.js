@@ -63,7 +63,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 // Implementing the POST request allowing to add new entries
-app.post('/api/persons/', (request, response, next) => {
+app.post('/api/persons', (request, response, next) => {
   // Accessing the data from the body property of the request object
   const body = request.body
 

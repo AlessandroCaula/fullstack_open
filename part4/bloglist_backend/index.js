@@ -32,10 +32,8 @@ app.post('/api/blogs', (request, response) => {
   // Retrieve the added blog body
   const body = request.body
 
-  if (!body.content) {
-    return response.status(400).json({
-      error: "content missing"
-    })
+  if (!body) {
+    return response.status(400).json({ error: "content missing" });
   }
   
   const blog = new Blog({
