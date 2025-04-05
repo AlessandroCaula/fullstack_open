@@ -1,0 +1,18 @@
+# Get home page, root directory
+GET http://localhost:3001
+
+###
+# Get list with all the stored blogs
+GET http://localhost:3001/api/blogs
+
+###
+# Post a new blog
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Blog 4",
+    "author": "Author 4",
+    "url": "url 4",
+    "likes": 100
+}
