@@ -16,3 +16,15 @@ Content-Type: application/json
     "url": "url 7",
     "likes": 10
 }
+
+###
+# Post a new blog
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Blog 3",
+    "author": "Author 3",
+    "url": "url 3",
+    "likes": 8
+}

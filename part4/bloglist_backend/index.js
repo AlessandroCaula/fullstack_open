@@ -1,21 +1,20 @@
 require('dotenv').config()
 const express = require('express')
 
-const Blog = require('./models/blog')
-
 const app = express()
 
-app.use(express.json())
+const Blog = require('./models/blog')
 
 // Adding a middleware
 const requestLogger = (request, response, next) => {
-  console.log("Method:", request.method);
-  console.log("Path:  ", request.path);
-  console.log("Body:  ", request.body);
-  console.log("---");
-  next();
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
 };
 
+app.use(express.json())
 app.use(requestLogger)
 
 app.get('/', (request, response) => {
