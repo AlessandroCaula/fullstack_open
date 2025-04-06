@@ -1,13 +1,13 @@
 # Get home page, root directory
-GET http://localhost:3001
+GET http://localhost:3003
 
 ###
 # Get list with all the stored blogs
-GET http://localhost:3001/api/blogs
+GET http://localhost:3003/api/blogs
 
 ###
 # Post a new blog
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 # Post a new blog
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {

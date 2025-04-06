@@ -438,3 +438,13 @@ Turn the application into a functioning _npm_ project. To keep your development 
 
 Verify that it is possible to add blogs to the list with Postman or the VS Code REST client and that the application returns the added blogs at the correct endpoint.
 
+#### 4.2 Blog List, step 2
+
+Refactor the application into separate modules as shown earlier in this part of the course material.
+
+NB refactor your application in baby steps and verify that it works after every change you make. If you try to take a "shortcut" by refactoring many things at once, then Murphy's law will kick in and it is almost certain that something will break in your application. The "shortcut" will end up taking more time than moving forward slowly and systematically.
+
+One best practice is to commit your code every time it is in a stable state. This makes it easy to rollback to a situation where the application still works.
+
+If you're having issues with _content.body_ being undefined for seemingly no reason, make sure you didn't forget to add _app.use(express.json())_ near the top of the file.
+
