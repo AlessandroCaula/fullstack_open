@@ -628,3 +628,38 @@ test('of empty array is zero', () => {
   assert.strictEqual(average([]), 0)
 })
 ```
+
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
+### Exercise 4.3 - 4.7
+
+Let's create a collection of helper functions that are best suited for working with the describe sections of the blog list. Create the functions into a file called _utils/list_helper.js_. Write your tests into an appropriately named test file under the tests directory.
+
+#### 4.3: Helper Functions and Unit Tests, step 1
+
+First, define a dummy function that receives an array of blog posts as a parameter and always returns the value 1. The contents of the list_helper.js file at this point should be the following:
+
+```js
+const dummy = (blogs) => {
+  // ...
+}
+
+module.exports = {
+  dummy
+}
+```
+
+Verify that your test configuration works with the following test:
+
+```js
+const { test, describe } = require('node:test')
+const assert = require('node:assert')
+const listHelper = require('../utils/list_helper')
+
+test('dummy returns one', () => {
+  const blogs = []
+
+  const result = listHelper.dummy(blogs)
+  assert.strictEqual(result, 1)
+})
+```
