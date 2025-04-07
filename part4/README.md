@@ -448,3 +448,33 @@ One best practice is to commit your code every time it is in a stable state. Thi
 
 If you're having issues with _content.body_ being undefined for seemingly no reason, make sure you didn't forget to add _app.use(express.json())_ near the top of the file.
 
+### Testing Node applications
+
+We have completely neglected one essential area of software development, and that is automated testing.
+
+Let's start our testing journey by looking at unit tests. The logic of our application is so simple, that there is not much that makes sense to test with unit tests. Let's create a new file _utils/for_testing.js_ and write a couple of simple functions that we can use for test writing practice:
+
+```js
+const reverse = (string) => {
+  return string
+    .split('')
+    .reverse()
+    .join('')
+}
+
+const average = (array) => {
+  const reducer = (sum, item) => {
+    return sum + item
+  }
+
+  return array.reduce(reducer, 0) / array.length
+}
+
+module.exports = {
+  reverse,
+  average,
+}
+```
+
+> The `average` function uses the array [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) method. If the method is not familiar to you yet, then now is a good time to watch the first three videos from the [Functional JavaScript](https://www.youtube.com/watch?v=BMUiFMZr7vk&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84) series on YouTube.
+
