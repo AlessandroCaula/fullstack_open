@@ -478,3 +478,153 @@ module.exports = {
 
 > The `average` function uses the array [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) method. If the method is not familiar to you yet, then now is a good time to watch the first three videos from the [Functional JavaScript](https://www.youtube.com/watch?v=BMUiFMZr7vk&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84) series on YouTube.
 
+There are a large number of test libraries, or _test runners_, available for JavaScript. The old king of test libraries is [Mocha](https://mochajs.org/), which was replaced a few years ago by [Jest](https://jestjs.io/). A newcomer to the libraries is [Vitest](https://vitest.dev/), which bills itself as a new generation of test libraries.
+
+Nowadays, Node also has a built-in test library [node:test](https://nodejs.org/docs/latest/api/test.html), which is well suited to the needs of the course.
+
+Let's define the _npm script_ `test` for the test execution:
+
+```js
+{
+  // ...
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node --test",
+    "lint": "eslint ."
+  },
+  // ...
+}
+```
+
+Let's create a separate directory for our tests called tests and create a new file called _reverse.test.js_ with the following contents:
+
+```js
+const { test } = require('node:test')
+const assert = require('node:assert')
+
+const reverse = require('../utils/for_testing').reverse
+
+test('reverse of a', () => {
+  const result = reverse('a')
+
+  assert.strictEqual(result, 'a')
+})
+
+test('reverse of react', () => {
+  const result = reverse('react')
+
+  assert.strictEqual(result, 'tcaer')
+})
+
+test('reverse of saippuakauppias', () => {
+  const result = reverse('saippuakauppias')
+
+  assert.strictEqual(result, 'saippuakauppias')
+})
+```
+
+The test defines the keyword `test` and the library [assert](https://nodejs.org/docs/latest/api/assert.html), which is used by the tests to check the results of the functions under test.
+
+In the next row, the test file imports the function to be tested and assigns it to a variable called `reverse`:
+
+```js
+const reverse = require('../utils/for_testing').reverse
+```
+
+Individual test cases are defined with the `test` function. The first argument of the function is the test description as a string. The second argument is a _function_, that defines the functionality for the test case. The functionality for the second test case looks like this:
+
+```js
+() => {
+  const result = reverse('react')
+
+  assert.strictEqual(result, 'tcaer')
+}
+```
+
+First, we execute the code to be tested, meaning that we generate a reverse for the string _react_. Next, we verify the results with the the method [strictEqual](https://nodejs.org/docs/latest/api/assert.html#assertstrictequalactual-expected-message) of the [assert](https://nodejs.org/docs/latest/api/assert.html) library.
+
+As expected, all of the tests pass:
+
+![alt text](./assets/image.png)
+
+In the course, we follow the convention where test file names end with _.test.js_, as the _node:test_ testing library automatically executes test files named this way.
+
+Let's break the test:
+
+```js
+test('reverse of react', () => {
+  const result = reverse('react')
+
+  assert.strictEqual(result, 'tkaer')
+})
+```
+
+Running this test results in the following error message:
+
+![alt text](./assets/image1.png)
+
+Let's add a few tests for the average function as well. Let's create a new file _tests/average.test.js_ and add the following content to it:
+
+```js
+const { test, describe } = require('node:test')
+const assert = require('node:assert')
+
+const average = require('../utils/for_testing').average
+
+describe('average', () => {
+  test('of one value is the value itself', () => {
+    assert.strictEqual(average([1]), 1)
+  })
+
+  test('of many is calculated right', () => {
+    assert.strictEqual(average([1, 2, 3, 4, 5, 6]), 3.5)
+  })
+
+  test('of empty array is zero', () => {
+    assert.strictEqual(average([]), 0)
+  })
+})
+```
+
+The test reveals that the function does not work correctly with an empty array (this is because in JavaScript dividing by zero results in _NaN_):
+
+![alt text](./assets//image2.png)
+
+Fixing the function is quite easy:
+
+```js
+const average = array => {
+  const reducer = (sum, item) => {
+    return sum + item
+  }
+
+  return array.length === 0
+    ? 0
+    : array.reduce(reducer, 0) / array.length
+}
+```
+
+If the length of the array is 0 then we return 0, and in all other cases, we use the `reduce` method to calculate the average.
+
+There are a few things to notice about the tests that we just wrote. We defined a _describe_ block around the tests that were given the name `average`:
+
+```js
+describe('average', () => {
+  // tests
+})
+```
+
+Describe blocks can be used for grouping tests into logical collections. The test output also uses the name of the describe block:
+
+![alt text](./assets/image3.png)
+
+As we will see later on _describe_ blocks are necessary when we want to run some shared setup or teardown operations for a group of tests.
+
+Another thing to notice is that we wrote the tests in quite a compact way, without assigning the output of the function being tested to a variable:
+
+```js
+test('of empty array is zero', () => {
+  assert.strictEqual(average([]), 0)
+})
+```
