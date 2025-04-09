@@ -664,7 +664,7 @@ test('dummy returns one', () => {
 })
 ```
 
-#### Helper Functions and Unit Tests, step 2
+#### 4.4: Helper Functions and Unit Tests, step 2
 
 Define a new `totalLikes` function that receives a list of blog posts as a parameter. The function returns the total sum of _likes_ in all of the blog posts.
 
@@ -695,4 +695,12 @@ describe('total likes', () => {
 ```
 
 You are bound to run into problems while writing tests. Remember the things that we learned about debugging in part 3. You can print things to the console with `console.log` even during test execution.
+
+#### 4.5: Helper Functions and Unit Tests, step 3
+
+Define a new `favoriteBlog` function that receives a list of blogs as a parameter. The function returns the blog with the most likes. If there are multiple favorites, it is sufficient for the function to return any one of them.
+
+__NB__ when you are comparing objects, the [deepStrictEqual](https://nodejs.org/api/assert.html#assertdeepstrictequalactual-expected-message) method is probably what you want to use, as it ensures that the objects have the same attributes. For differences between various assert module functions, you can refer to [this Stack Overflow answer](https://stackoverflow.com/questions/16745855/difference-between-equal-deep-equal-and-strict-equal/73937068#73937068).
+
+Write the tests for this exercise inside of a new _describe_ block. Do the same for the remaining exercises as well.
 

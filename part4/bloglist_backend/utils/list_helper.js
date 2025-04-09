@@ -12,7 +12,17 @@ const totalLikes = (blogs) => {
   return total
 }
 
+// Define a function that will retrieve the favorite blog, based on the number of likes
+const favoriteBlog = (blogs) => {
+  const favorite = blogs.reduce((fav, blog) => {
+    return fav.likes > blog.likes ? fav : blog
+  }, blogs[0])
+
+  return favorite
+}
+
 module.exports = {
   dummy, 
-  totalLikes
+  totalLikes,
+  favoriteBlog
 }
