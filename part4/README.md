@@ -1,7 +1,21 @@
 In this part, we will continue our work on the backend. Our first major theme will be writing unit and integration tests for the backend. After we have covered testing, we will take a look at implementing user authentication and authorization.
 
 # Table of Content
-
+- [Part 4](#part-4)
+  - [Part4a - Structure of backend application, introduction to testing](#part4a---structure-of-backend-application-introduction-to-testing)
+    - [Project structure](#project-structure)
+    - [Note on exports](#note-on-exports)
+    - [Finding the usage of your exports with VS Code](#finding-the-usage-of-your-exports-with-vs-code)
+  - [Exercises 4.1 - 4.2](#exercises-41---42)
+    - [4.1 Blog List, step 1](#41-blog-list-step-1)
+    - [4.2 Blog List, step 2](#42-blog-list-step-2)
+  - [Testing Node applications](#testing-node-applications)
+    - [Exercise 4.3 - 4.7](#exercise-43---47)
+      - [4.3: Helper Functions and Unit Tests, step 1](#43-helper-functions-and-unit-tests-step-1)
+      - [4.4: Helper Functions and Unit Tests, step 2](#44-helper-functions-and-unit-tests-step-2)
+      - [4.5: Helper Functions and Unit Tests, step 3](#45-helper-functions-and-unit-tests-step-3)
+      - [4.6: Helper Functions and Unit Tests, step 4](#46-helper-functions-and-unit-tests-step-4)
+      - [4.7: Helper Functions and Unit Tests, step 5](#47-helper-functions-and-unit-tests-step-5)
 
 # Part 4
 
