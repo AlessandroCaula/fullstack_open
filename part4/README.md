@@ -710,7 +710,7 @@ This and the next exercise are a little bit more challenging. Finishing these tw
 
 Finishing this exercise can be done without the use of additional libraries. However, this exercise is a great opportunity to learn how to use the [Lodash](https://lodash.com/) library.
 
-Define a function called mostBlogs that receives an array of blogs as a parameter. The function returns the author who has the largest amount of blogs. The return value also contains the number of blogs the top author has:
+Define a function called `mostBlogs` that receives an array of blogs as a parameter. The function returns the author who has the largest amount of blogs. The return value also contains the number of blogs the top author has:
 
 ```js
 {
@@ -721,3 +721,15 @@ Define a function called mostBlogs that receives an array of blogs as a paramete
 
 If there are many top bloggers, then it is enough to return any one of them.
 
+#### 4.7: Helper Functions and Unit Tests, step 5
+
+Define a function called `mostLikes` that receives an array of blogs as its parameter. The function returns the author, whose blog posts have the largest amount of likes. The return value also contains the total number of likes that the author has received:
+
+```js
+{
+  author: "Edsger W. Dijkstra",
+  likes: 17
+}
+```
+
+If there are many top bloggers, then it is enough to show any one of them.

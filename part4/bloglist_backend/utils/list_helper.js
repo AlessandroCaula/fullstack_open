@@ -33,7 +33,6 @@ const mostBlogs = (blogs) => {
       // }
       authorBlogCount[blog.author] = (authorBlogCount[blog.author] || 0) + 1;
   })
-
   // Final collection that will contain the name and the count of the author with the most blogs
   const authorWithMoreBlogs = {
     author: "",
@@ -49,9 +48,30 @@ const mostBlogs = (blogs) => {
   return authorWithMoreBlogs
 }
 
+// Define the function that the author, whose blog posts have the largest amount of likes
+const mostLikes = (blogs) => {
+  const authorLikesCount = {}
+  blogs.forEach((blog) => {
+    authorLikesCount[blog.author] = (authorLikesCount[blog.author] || 0) + blog.likes
+  })
+  const authorWithMostLikes = {
+    author: "",
+    likes: 0
+  }
+  Object.keys(authorLikesCount).forEach((author) => {
+    if (authorLikesCount[author] > authorWithMostLikes.likes) {
+      authorWithMostLikes.author = author
+      authorWithMostLikes.likes = authorLikesCount[author]
+    }
+  })
+
+  return authorWithMostLikes
+}
+
 module.exports = {
   dummy, 
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }

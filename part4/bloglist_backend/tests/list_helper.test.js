@@ -47,10 +47,15 @@ describe('favorite blog', () => {
   })
 })
 
-describe('author with most blogs', () => {
+describe('author statistics', () => {
   test('the author with the most blogs is correct', () => {
     const result = listHelper.mostBlogs(listOfBlogs)
     // console.log(result)
-    assert.deepStrictEqual(result, {author: 'Robert C. Martin', blogs: 3})
+    assert.deepStrictEqual(result, { author: 'Robert C. Martin', blogs: 3 })
+  })
+  test('the author with more likes is correct', () => {
+    const result = listHelper.mostLikes(listOfBlogs)
+    // console.log(result)
+    assert.deepStrictEqual(result, { author: "Edsger W. Dijkstra", likes: 17 })
   })
 })
