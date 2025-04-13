@@ -1004,3 +1004,41 @@ module.exports = {
   info, error
 }
 ```
+
+### Initializing the database before tests
+
+Currently, our tests have an issue where their success depends on the state of the database. The tests pass if the test database happens to contain two notes, one of which has the content _'HTML is easy'_. To make them more robust, we have to reset the database and generate the needed test data in a controlled manner before we run the tests.
+
+Our tests are already using the [after](https://nodejs.org/api/test.html#afterfn-options) function to close the connection to the database after the tests are finished executing. The library node:test offers many other functions that can be used for executing operations once before any test is run or every time before a test is run.
+
+Let's initialize the database _before every test_ with the [beforeEach](https://nodejs.org/api/test.html#beforeeachfn-options) function:
+
+```js
+const { test, after, beforeEach } = require('node:test')
+const Note = require('../models/note')
+
+const initialNotes = [
+  {
+    content: 'HTML is easy',
+    important: false,
+  },
+  {
+    content: 'Browser can execute only JavaScript',
+    important: true,
+  },
+]
+
+// ...
+
+beforeEach(async () => {
+  await Note.deleteMany({})
+  let noteObject = new Note(initialNotes[0])
+  await noteObject.save()
+  noteObject = new Note(initialNotes[1])
+  await noteObject.save()
+})
+// ...
+```
+
+The database is cleared out at the beginning, and after that, we save the two notes stored in the `initialNotes` array to the database. By doing this, we ensure that the database is in the same state before every test is run.
+

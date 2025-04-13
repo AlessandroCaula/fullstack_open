@@ -1,10 +1,33 @@
-const { test, after } = require('node:test')
+const { test, after, beforeEach } = require('node:test')
+const Note = require('../models/note')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const assert = require('node:assert')
 
+// Initial notes that will be stored in the testNoteApp. Used for testing purposes
+const initialNotes = [
+  {
+    content: 'HTML is easy',
+    important: false,
+  },
+  {
+    content: 'Browser can execute only JavaScript',
+    important: true,
+  }
+]
+
 const api = supertest(app)
+
+// The database is cleared out at the beginning, and after that, we save the two notes stored in the initialNotes array to the database.
+// By doing this, we ensure that the database is in the same state before every test is run.
+beforeEach(async () => {
+  await Note.deleteMany({})
+  let noteObject = new Note(initialNotes[0])
+  await noteObject.save()
+  noteObject = new Note(initialNotes[1])
+  await noteObject.save()
+})
 
 // Testing that the returned notes are in JSON
 test('notes are returned as json', async () => {
