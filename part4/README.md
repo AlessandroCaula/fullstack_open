@@ -1400,3 +1400,106 @@ notesRouter.post('/', async (request, response, next) => {
 
 There's a slight problem with our code: we don't handle error situations. How should we deal with them?
 
+### Error handling and async/await
+
+If there's an exception while handling the POST request we end up in a familiar situation:
+
+![alt text](./assets/image5.png)
+
+In other words, we end up with an unhandled promise rejection, and the request never receives a response.
+
+With async/await the recommended way of dealing with exceptions is the old and familiar `try/catch` mechanism:
+
+```js
+notesRouter.post('/', async (request, response, next) => {
+  const body = request.body
+
+  const note = new Note({
+    content: body.content,
+    important: body.important || false,
+  })
+
+  try {
+    const savedNote = await note.save()
+    response.status(201).json(savedNote)
+  } catch(exception) {
+    next(exception)
+  }
+})
+```
+
+The catch block simply calls the `next` function, which passes the request handling to the error handling middleware.
+
+After making the change, all of our tests will pass once again.
+
+Next, let's write tests for fetching and removing an individual note:
+
+```js
+test('a specific note can be viewed', async () => {
+  const notesAtStart = await helper.notesInDb()
+
+  const noteToView = notesAtStart[0]
+
+  const resultNote = await api
+    .get(`/api/notes/${noteToView.id}`)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.deepStrictEqual(resultNote.body, noteToView)
+})
+
+test('a note can be deleted', async () => {
+  const notesAtStart = await helper.notesInDb()
+  const noteToDelete = notesAtStart[0]
+
+  await api
+    .delete(`/api/notes/${noteToDelete.id}`)
+    .expect(204)
+
+  const notesAtEnd = await helper.notesInDb()
+
+  const contents = notesAtEnd.map(r => r.content)
+  assert(!contents.includes(noteToDelete.content))
+
+  assert.strictEqual(notesAtEnd.length, helper.initialNotes.length - 1)
+})
+```
+
+Both tests share a similar structure. In the initialization phase, they fetch a note from the database. After this, the tests call the actual operation being tested, which is highlighted in the code block. Lastly, the tests verify that the outcome of the operation is as expected.
+
+There is one point worth noting in the first test. Instead of the previously used method [strictEqual](https://nodejs.org/api/assert.html#assertstrictequalactual-expected-message), the method [deepStrictEqual](https://nodejs.org/api/assert.html#assertdeepstrictequalactual-expected-message) is used:
+
+```js
+assert.deepStrictEqual(resultNote.body, noteToView)
+```
+
+The reason for this is that `strictEqual` uses the method [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) to compare similarity, i.e. it compares whether the objects are the same. In our case, it is enough to check that the contents of the objects, i.e. the values of their fields, are the same. For this purpose `deepStrictEqual` is suitable.
+
+The tests pass and we can safely refactor the tested routes to use async/await:
+
+```js
+notesRouter.get('/:id', async (request, response, next) => {
+  try {
+    const note = await Note.findById(request.params.id)
+    if (note) {
+      response.json(note)
+    } else {
+      response.status(404).end()
+    }
+  } catch(exception) {
+    next(exception)
+  }
+})
+
+notesRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await Note.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch(exception) {
+    next(exception)
+  }
+})
+```
+
+You can find the code for our current application in its entirety in the part4-4 branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-4).
+
