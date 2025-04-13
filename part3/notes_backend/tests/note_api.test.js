@@ -30,7 +30,7 @@ beforeEach(async () => {
 })
 
 // Testing that the returned notes are in JSON
-test('notes are returned as json', async () => {
+test.only('notes are returned as json', async () => {
   await api
     .get('/api/notes')
     .expect(200)
@@ -38,7 +38,7 @@ test('notes are returned as json', async () => {
 })
 
 // Testing that there are two notes
-test('there are two notes', async () => {
+test.only('there are two notes', async () => {
   const response = await api.get('/api/notes')
 
   // execution gets gere only after the HTTP request is complete

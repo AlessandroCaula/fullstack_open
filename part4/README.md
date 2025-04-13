@@ -1042,3 +1042,54 @@ beforeEach(async () => {
 
 The database is cleared out at the beginning, and after that, we save the two notes stored in the `initialNotes` array to the database. By doing this, we ensure that the database is in the same state before every test is run.
 
+### Running tests one by one
+
+The `npm test` command executes all of the tests for the application. When we are writing tests, it is usually wise to only execute one or two tests.
+
+There are a few different ways of accomplishing this, one of which is the [only](https://nodejs.org/api/test.html#testonlyname-options-fn) method. With this method we can define in the code what tests should be executed:
+
+```js
+test.only('notes are returned as json', async () => {
+  await api
+    .get('/api/notes')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+})
+
+test.only('there are two notes', async () => {
+  const response = await api.get('/api/notes')
+
+  assert.strictEqual(response.body.length, 2)
+})
+```
+
+When tests are run with option `--test-only`, that is, with the command:
+
+```
+npm test -- --test-only
+```
+
+only the `only` marked tests are executed.
+
+The danger of `only` is that one forgets to remove those from the code.
+
+Another option is to specify the tests that need to be run as arguments of the _npm test_ command.
+
+The following command only runs the tests found in the _tests/note_api.test.js_ file:
+
+```
+npm test -- tests/note_api.test.js
+```
+
+The [`--tests-by-name-pattern`](https://nodejs.org/api/test.html#filtering-tests-by-name) option can be used for running tests with a specific name:
+
+```
+npm test -- --test-name-pattern="the first note is about HTTP methods"
+```
+
+The provided argument can refer to the name of the test or the describe block. It can also contain just a part of the name. The following command will run all of the tests that contain _notes_ in their name:
+
+```
+npm run test -- --test-name-pattern="notes"
+```
+
