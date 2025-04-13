@@ -1503,3 +1503,91 @@ notesRouter.delete('/:id', async (request, response, next) => {
 
 You can find the code for our current application in its entirety in the part4-4 branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-4).
 
+### Eliminating the try-catch
+
+Async/await unclutters the code a bit, but the 'price' is the try/catch structure required for catching exceptions. All of the route handlers follow the same structure
+
+```js
+try {
+  // do the async operations here
+} catch(exception) {
+  next(exception)
+}
+```
+
+One starts to wonder if it would be possible to refactor the code to eliminate the catch from the methods?
+
+The [express-async-errors](https://github.com/davidbanham/express-async-errors) library has a solution for this.
+
+Let's install the library
+
+```
+npm install express-async-errors
+```
+
+Using the library is _very_ easy. You introduce the library in _app.js_, `before` you import your routes:
+
+```js
+const config = require('./utils/config')
+const express = require('express')
+require('express-async-errors')
+const app = express()
+const cors = require('cors')
+const notesRouter = require('./controllers/notes')
+const middleware = require('./utils/middleware')
+const logger = require('./utils/logger')
+const mongoose = require('mongoose')
+
+// ...
+
+module.exports = app
+```
+
+The 'magic' of the library allows us to eliminate the try-catch blocks completely. For example the route for deleting a note
+
+```js
+notesRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await Note.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch (exception) {
+    next(exception)
+  }
+})
+```
+
+becomes
+
+```js
+notesRouter.delete('/:id', async (request, response) => {
+  await Note.findByIdAndDelete(request.params.id)
+  response.status(204).end()
+})
+```
+
+Because of the library, we do not need the next(exception) call anymore. The library handles everything under the hood. If an exception occurs in an async route, the execution is automatically passed to the error-handling middleware.
+
+The other routes become:
+
+```js
+notesRouter.post('/', async (request, response) => {
+  const body = request.body
+
+  const note = new Note({
+    content: body.content,
+    important: body.important || false,
+  })
+
+  const savedNote = await note.save()
+  response.status(201).json(savedNote)
+})
+
+notesRouter.get('/:id', async (request, response) => {
+  const note = await Note.findById(request.params.id)
+  if (note) {
+    response.json(note)
+  } else {
+    response.status(404).end()
+  }
+})
+```
