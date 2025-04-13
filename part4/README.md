@@ -1186,3 +1186,217 @@ We can verify that our refactoring was successful by testing the endpoint throug
 
 You can find the code for our current application in its entirety in the _part4-3_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-3).
 
+### More tests and refactoring the backend
+
+When code gets refactored, there is always the risk of [regression](https://en.wikipedia.org/wiki/Regression_testing), meaning that existing functionality may break. Let's refactor the remaining operations by first writing a test for each route of the API.
+
+Let's start with the operation for adding a new note. Let's write a test that adds a new note and verifies that the number of notes returned by the API increases and that the newly added note is in the list.
+
+```js
+test('a valid note can be added ', async () => {
+  const newNote = {
+    content: 'async/await simplifies making async calls',
+    important: true,
+  }
+
+  await api
+    .post('/api/notes')
+    .send(newNote)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/notes')
+
+  const contents = response.body.map(r => r.content)
+
+  assert.strictEqual(response.body.length, initialNotes.length + 1)
+
+  assert(contents.includes('async/await simplifies making async calls'))
+})
+```
+
+The test fails because we accidentally returned the status code 200 OK when a new note is created. Let us change that to the status code 201 CREATED:
+
+```js
+notesRouter.post('/', (request, response, next) => {
+  const body = request.body
+
+  const note = new Note({
+    content: body.content,
+    important: body.important || false,
+  })
+
+  note.save()
+    .then(savedNote => {
+
+      response.status(201).json(savedNote)
+    })
+    .catch(error => next(error))
+})
+```
+
+Let's also write a test that verifies that a note without content will not be saved into the database.
+
+```js
+test('note without content is not added', async () => {
+  const newNote = {
+    important: true
+  }
+
+  await api
+    .post('/api/notes')
+    .send(newNote)
+    .expect(400)
+
+  const response = await api.get('/api/notes')
+
+  assert.strictEqual(response.body.length, initialNotes.length)
+})
+```
+
+Both tests check the state stored in the database after the saving operation, by fetching all the notes of the application.
+
+```js
+const response = await api.get('/api/notes')
+```
+
+The same verification steps will repeat in other tests later on, and it is a good idea to extract these steps into helper functions. Let's add the function into a new file called _tests/test_helper.js_ which is in the same directory as the test file.
+
+```js
+const Note = require('../models/note')
+
+const initialNotes = [
+  {
+    content: 'HTML is easy',
+    important: false
+  },
+  {
+    content: 'Browser can execute only JavaScript',
+    important: true
+  }
+]
+
+const nonExistingId = async () => {
+  const note = new Note({ content: 'willremovethissoon' })
+  await note.save()
+  await note.deleteOne()
+
+  return note._id.toString()
+}
+
+const notesInDb = async () => {
+  const notes = await Note.find({})
+  return notes.map(note => note.toJSON())
+}
+
+module.exports = {
+  initialNotes, nonExistingId, notesInDb
+}
+```
+
+The module defines the `notesInDb` function that can be used for checking the notes stored in the database. The `initialNotes` array containing the initial database state is also in the module. We also define the `nonExistingId` function ahead of time, which can be used for creating a database object ID that does not belong to any note object in the database.
+
+Our tests can now use the helper module and be changed like this:
+
+```js
+const { test, after, beforeEach } = require('node:test')
+const assert = require('node:assert')
+const supertest = require('supertest')
+const mongoose = require('mongoose')
+const helper = require('./test_helper')
+const app = require('../app')
+const api = supertest(app)
+
+const Note = require('../models/note')
+
+beforeEach(async () => {
+  await Note.deleteMany({})
+
+  let noteObject = new Note(helper.initialNotes[0])
+  await noteObject.save()
+
+  noteObject = new Note(helper.initialNotes[1])
+  await noteObject.save()
+})
+
+test('notes are returned as json', async () => {
+  await api
+    .get('/api/notes')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+})
+
+test('all notes are returned', async () => {
+  const response = await api.get('/api/notes')
+
+
+   assert.strictEqual(response.body.length, helper.initialNotes.length)
+})
+
+test('a specific note is within the returned notes', async () => {
+  const response = await api.get('/api/notes')
+
+  const contents = response.body.map(r => r.content)
+
+  assert(contents.includes('Browser can execute only JavaScript'))
+})
+
+test('a valid note can be added ', async () => {
+  const newNote = {
+    content: 'async/await simplifies making async calls',
+    important: true,
+  }
+
+  await api
+    .post('/api/notes')
+    .send(newNote)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const notesAtEnd = await helper.notesInDb()
+  assert.strictEqual(notesAtEnd.length, helper.initialNotes.length + 1)
+
+  const contents = notesAtEnd.map(n => n.content)
+  assert(contents.includes('async/await simplifies making async calls'))
+})
+
+test('note without content is not added', async () => {
+  const newNote = {
+    important: true
+  }
+
+  await api
+    .post('/api/notes')
+    .send(newNote)
+    .expect(400)
+
+  const notesAtEnd = await helper.notesInDb()
+
+  assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
+})
+
+after(async () => {
+  await mongoose.connection.close()
+})
+```
+
+The code using promises works and the tests pass. We are ready to refactor our code to use the async/await syntax.
+
+We make the following changes to the code that takes care of adding a new note (notice that the route handler definition is preceded by the async keyword):
+
+```js
+notesRouter.post('/', async (request, response, next) => {
+  const body = request.body
+
+  const note = new Note({
+    content: body.content,
+    important: body.important || false,
+  })
+
+  const savedNote = await note.save()
+  response.status(201).json(savedNote)
+})
+```
+
+There's a slight problem with our code: we don't handle error situations. How should we deal with them?
+
