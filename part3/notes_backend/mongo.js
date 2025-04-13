@@ -9,7 +9,8 @@ if (process.argv.length < 3) {
 // Retrieve the third string typed in the terminal, which is the password for accessing to mongoDB
 const password = process.argv[2]
 
-const url = `mongodb+srv://alecaula:${password}@cluster0.ksork.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+// const url = `mongodb+srv://alecaula:${password}@cluster0.ksork.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+const url = `mongodb+srv://alecaula:${password}@cluster0.ksork.mongodb.net/testNoteApp?retryWrites=true&w=majority&appName=Cluster0`
 
 mongoose.set('strictQuery', false)
 
@@ -22,10 +23,24 @@ const noteSchema = new mongoose.Schema({
 
 const Note = mongoose.model('Note', noteSchema)
 
-Note.find({}).then((result) => {  // ({important: true})
-  result.forEach((note) => {
-    console.log(note)
-  })
+// Saving new notes
+//
+const note = new Note({
+  content: 'CSS is hard',
+  important: false,
+})
+
+note.save().then(() => {
+  console.log('note saved!')
   mongoose.connection.close()
 })
+
+// // Retrieving all the notes
+// //
+// Note.find({}).then((result) => {  // ({important: true})
+//   result.forEach((note) => {
+//     console.log(note)
+//   })
+//   mongoose.connection.close()
+// })
 

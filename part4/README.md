@@ -843,3 +843,164 @@ These are the only changes we need to make to our application's code.
 
 You can find the code for our current application in its entirety in the part4-2 branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-2).
 
+### Supertest
+
+Let's use the [supertest](https://github.com/ladjs/supertest) package to help us write our tests for testing the API.
+
+We will install the package as a development dependency:
+
+```
+npm install --save-dev supertest
+```
+
+Let's write our first test in the _tests/note_api.test.js_ file:
+
+```js
+const { test, after } = require('node:test')
+const mongoose = require('mongoose')
+const supertest = require('supertest')
+const app = require('../app')
+
+const api = supertest(app)
+
+test('notes are returned as json', async () => {
+  await api
+    .get('/api/notes')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+})
+
+after(async () => {
+  await mongoose.connection.close()
+})
+```
+
+The test imports the Express application from the _app.js_ module and wraps it with the _supertest_ function into a so-called [superagent](https://github.com/ladjs/superagent) object. This object is assigned to the _api_ variable and tests can use it for making HTTP requests to the backend.
+
+Our test makes an HTTP GET request to the _api/notes_ url and verifies that the request is responded to with the status code 200. The test also verifies that the _Content-Type_ header is set to _application/json_, indicating that the data is in the desired format.
+
+Checking the value of the header uses a bit strange looking syntax:
+
+```js
+.expect('Content-Type', /application\/json/)
+```
+
+The desired value is now defined as [regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions) or in short regex. The regex starts and ends with a slash /, and because the desired string _application/json_ also contains the same slash, it is preceded by a \ so that it is not interpreted as a regex termination character.
+
+In principle, the test could also have been defined as a string
+
+```js
+.expect('Content-Type', 'application/json')
+```
+
+The problem here, however, is that when using a string, the value of the header must be exactly the same. For the regex we defined, it is acceptable that the header contains the string in question. The actual value of the header is _application/json; charset=utf-8_, i.e. it also contains information about character encoding. However, our test is not interested in this and therefore it is better to define the test as a regex instead of an exact string.
+
+The test contains some details that we will explore a bit later on. The arrow function that defines the test is preceded by the _async_ keyword and the method call for the _api_ object is preceded by the _await_ keyword. We will write a few tests and then take a closer look at this async/await magic. Do not concern yourself with them for now, just be assured that the example tests work correctly. The async/await syntax is related to the fact that making a request to the API is an _asynchronous_ operation. The async/await syntax can be used for writing asynchronous code with the appearance of synchronous code.
+
+Once all the tests (there is currently only one) have finished running we have to close the database connection used by Mongoose. Without this, the test program will not terminate. This can be easily achieved with the [after](https://nodejs.org/api/test.html#afterfn-options) method:
+
+```js
+after(async () => {
+  await mongoose.connection.close()
+})
+```
+
+One tiny but important detail: at the beginning of this part we extracted the Express application into the _app.js_ file, and the role of the _index.js_ file was changed to launch the application at the specified port via `app.listen`:
+
+```js
+const app = require('./app') // the actual Express app
+const config = require('./utils/config')
+const logger = require('./utils/logger')
+
+app.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
+})
+```
+
+The tests only use the Express application defined in the _app.js_ file, which does not listen to any ports:
+
+```js
+const mongoose = require('mongoose')
+const supertest = require('supertest')
+
+const app = require('../app')
+
+const api = supertest(app)
+
+// ...
+```
+
+The documentation for supertest says the following:
+
+> if the server is not already listening for connections then it is bound to an ephemeral port for you so there is no need to keep track of ports.
+
+In other words, supertest takes care that the application being tested is started at the port that it uses internally. This is one of the reasons why we are going with supertest instead of something like axios, as we do not need to run another instance of the server separately before beginning to test. The other reason is that supertest provides functions like `expect()`, which makes testing easier.
+
+Let's add two notes to the test database using the `mongo.js` program (here we must remember to switch to the correct database url).
+
+Let's write a few more tests:
+
+```js
+const assert = require('node:assert')
+// ...
+
+test('there are two notes', async () => {
+  const response = await api.get('/api/notes')
+
+  assert.strictEqual(response.body.length, 2)
+})
+
+test('the first note is about HTTP methods', async () => {
+  const response = await api.get('/api/notes')
+
+  const contents = response.body.map(e => e.content)
+  assert.strictEqual(contents.includes('HTML is easy'), true)
+})
+
+// ...
+```
+
+Both tests store the response of the request to the `response` variable, and unlike the previous test that used the methods provided by `supertest` for verifying the status code and headers, this time we are inspecting the response data stored in _response.body_ property. Our tests verify the format and content of the response data with the method [strictEqual](https://nodejs.org/docs/latest/api/assert.html#assertstrictequalactual-expected-message) of the assert-library.
+
+We could simplify the second test a bit, and use the [assert](https://nodejs.org/docs/latest/api/assert.html#assertokvalue-message) itself to verify that the note is among the returned ones:
+
+```js
+test('the first note is about HTTP methods', async () => {
+  const response = await api.get('/api/notes')
+
+  const contents = response.body.map(e => e.content)
+  assert(contents.includes('HTML is easy'))
+})
+```
+
+The benefit of using the async/await syntax is starting to become evident. Normally we would have to use callback functions to access the data returned by promises, but with the new syntax things are a lot more comfortable:
+
+```js
+const response = await api.get('/api/notes')
+
+// execution gets here only after the HTTP request is complete
+// the result of HTTP request is saved in variable response
+assert.strictEqual(response.body.length, 2)
+```
+
+The middleware that outputs information about the HTTP requests is obstructing the test execution output. Let us modify the logger so that it does not print to the console in test mode:
+
+```js
+const info = (...params) => {
+
+  if (process.env.NODE_ENV !== 'test') { 
+    console.log(...params)
+  }
+}
+
+const error = (...params) => {
+
+  if (process.env.NODE_ENV !== 'test') { 
+    console.error(...params)
+  }
+}
+
+module.exports = {
+  info, error
+}
+```
