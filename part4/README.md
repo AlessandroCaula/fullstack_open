@@ -766,3 +766,80 @@ It is common practice to define separate modes for development and testing.
 
 Next, let's change the scripts in our notes application _package.json_ file, so that when tests are run, _NODE_ENV_ gets the value _test_:
 
+```js
+{
+  // ...
+  "scripts": {
+
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "NODE_ENV=test node --test",
+    "lint": "eslint ."
+  }
+  // ...
+}
+```
+
+We specified the mode of the application to be _development_ in the `npm run dev` script. We also specified that the default `npm start` command will define the mode as _production_.
+
+There is a slight issue in the way that we have specified the mode of the application in our scripts: it will not work on Windows. We can correct this by installing the [cross-env](https://www.npmjs.com/package/cross-env) package as a project dependency using the command:
+
+```
+npm install cross-env
+```
+
+We can then achieve cross-platform compatibility by using the cross-env library in our npm scripts defined in package.json:
+
+```js
+{
+  // ...
+  "scripts": {
+
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
+    "test": "cross-env  NODE_ENV=test node --test",
+    "lint": "eslint ."
+  },
+  // ...
+}
+```
+
+Now we can modify the way that our application runs in different modes. As an example of this, we could define the application to use a separate test database when it is running tests.
+
+We can create our separate test database in MongoDB Atlas. This is not an optimal solution in situations where many people are developing the same application. Test execution in particular typically requires a single database instance that is not used by tests that are running concurrently.
+
+It would be better to run our tests using a database that is installed and running on the developer's local machine. The optimal solution would be to have every test execution use a separate database. This is "relatively simple" to achieve by [running Mongo in-memory](https://www.mongodb.com/docs/manual/core/inmemory/) or by using [Docker](https://www.docker.com/) containers. We will not complicate things and will instead continue to use the MongoDB Atlas database.
+
+Let's make some changes to the module that defines the application's configuration in `utils/config.js`:
+
+```js
+require('dotenv').config()
+
+const PORT = process.env.PORT
+
+
+const MONGODB_URI = process.env.NODE_ENV === 'test' 
+  ? process.env.TEST_MONGODB_URI
+  : process.env.MONGODB_URI
+
+module.exports = {
+  MONGODB_URI,
+  PORT
+}
+```
+
+The _.env_ file has _separate_ variables for the database addresses of the development and test databases:
+
+```bash
+MONGODB_URI=mongodb+srv://fullstack:thepasswordishere@cluster0.a5qfl.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0
+PORT=3001
+
+TEST_MONGODB_URI=mongodb+srv://fullstack:thepasswordishere@cluster0.a5qfl.mongodb.net/testNoteApp?retryWrites=true&w=majority&appName=Cluster0
+```
+
+The `config` module that we have implemented slightly resembles the [node-config](https://github.com/node-config/node-config) package. Writing our implementation is justified since our application is simple, and also because it teaches us valuable lessons.
+
+These are the only changes we need to make to our application's code.
+
+You can find the code for our current application in its entirety in the part4-2 branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-2).
+
