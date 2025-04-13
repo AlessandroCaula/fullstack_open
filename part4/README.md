@@ -16,6 +16,19 @@ In this part, we will continue our work on the backend. Our first major theme wi
       - [4.5: Helper Functions and Unit Tests, step 3](#45-helper-functions-and-unit-tests-step-3)
       - [4.6: Helper Functions and Unit Tests, step 4](#46-helper-functions-and-unit-tests-step-4)
       - [4.7: Helper Functions and Unit Tests, step 5](#47-helper-functions-and-unit-tests-step-5)
+  - [Exercises 4.8 - 4.12](#exercises-48---412)
+    - [4.8: Blog List Tests, step 1](#48-blog-list-tests-step-1)
+  - [Part 4b - Testing the backend](#part-4b---testing-the-backend)
+    - [Test Environment](#test-environment)
+    - [Initializing the database before tests](#initializing-the-database-before-tests)
+    - [Running tests one by one](#running-tests-one-by-one)
+    - [async/await](#asyncawait)
+    - [async/await in the backend](#asyncawait-in-the-backend)
+    - [More tests and refactoring the backend](#more-tests-and-refactoring-the-backend)
+    - [Error handling and async/await](#error-handling-and-asyncawait)
+    - [Eliminating the try-catch](#eliminating-the-try-catch)
+    - [Optimizing the beforeEach function](#optimizing-the-beforeeach-function)
+  - [A true full stack developer's oath](#a-true-full-stack-developers-oath)
 
 # Part 4
 
@@ -1705,4 +1718,14 @@ Full stack development is _extremely hard_, that is why I will use all the possi
 ### Exercise 4.8 - 4.12
 
 __Warning__: If you find yourself using async/await and _then_ methods in the same code, it is almost guaranteed that you are doing something wrong. Use one or the other and don't mix the two.
+
+#### 4.8: Blog List Tests, step 1
+
+Use the SuperTest library for writing a test that makes an HTTP GET request to the _/api/blogs_ URL. Verify that the blog list application returns the correct amount of blog posts in the JSON format.
+
+Once the test is finished, refactor the route handler to use the async/await syntax instead of promises.
+
+Notice that you will have to make similar changes to the code that were made [in the material](#test-environment), like defining the test environment so that you can write tests that use separate databases.
+
+NB: when you are writing your tests __it is better to not execute them all__, only execute the ones you are working on. Read more about this [here](#running-tests-one-by-one).
 
