@@ -1169,3 +1169,20 @@ main()
 
 The code declares that the function assigned to `main` is asynchronous. After this, the code calls the function with `main()`.
 
+### async/await in the backend
+
+Let's start to change the backend to async and await. As all of the asynchronous operations are currently done inside of a function, it is enough to change the route handler functions into async functions.
+
+The route for fetching all notes gets changed to the following:
+
+```js
+notesRouter.get('/', async (request, response) => { 
+  const notes = await Note.find({})
+  response.json(notes)
+})
+```
+
+We can verify that our refactoring was successful by testing the endpoint through the browser and by running the tests that we wrote earlier.
+
+You can find the code for our current application in its entirety in the _part4-3_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-3).
+
