@@ -19,7 +19,7 @@ In this part, we will continue our work on the backend. Our first major theme wi
 
 # Part 4
 
-## Part4a - Structure of backend application, introduction to testing
+## Part 4a - Structure of backend application, introduction to testing
 
 Let's continue our work on the backend of the notes application we started in part 3.
 
@@ -747,3 +747,22 @@ Define a function called `mostLikes` that receives an array of blogs as its para
 ```
 
 If there are many top bloggers, then it is enough to show any one of them.
+
+## Part 4b - Testing the backend
+
+We will now start writing tests for the backend. Since the backend does not contain any complicated logic, it doesn't make sense to write [unit tests](https://en.wikipedia.org/wiki/Unit_testing) for it. The only potential thing we could unit test is the `toJSON` method that is used for formatting notes.
+
+In some situations, it can be beneficial to implement some of the backend tests by mocking the database instead of using a real database. One library that could be used for this is [mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server).
+
+Since our application's backend is still relatively simple, we will decide to test the entire application through its REST API, so that the database is also included. This kind of testing where multiple components of the system are being tested as a group is called [integration testing](https://en.wikipedia.org/wiki/Integration_testing).
+
+### Test Environment
+
+In one of the previous chapters of the course material, we mentioned that when your backend server is running in Fly.io or Render, it is in _production_ mode.
+
+The convention in Node is to define the execution mode of the application with the _NODE_ENV_ environment variable. In our current application, we only load the environment variables defined in the _.env_ file if the application is _not_ in production mode.
+
+It is common practice to define separate modes for development and testing.
+
+Next, let's change the scripts in our notes application _package.json_ file, so that when tests are run, _NODE_ENV_ gets the value _test_:
+
