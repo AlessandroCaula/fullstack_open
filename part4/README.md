@@ -1093,3 +1093,79 @@ The provided argument can refer to the name of the test or the describe block. I
 npm run test -- --test-name-pattern="notes"
 ```
 
+### async/await
+
+Before we write more tests let's take a look at the `async` and `await` keywords.
+
+The async/await syntax that was introduced in ES7 makes it possible to use _asynchronous functions that return a promise_ in a way that makes the code look synchronous.
+
+As an example, the fetching of notes from the database with promises looks like this:
+
+```js
+Note.find({}).then(notes => {
+  console.log('operation returned the following notes', notes)
+})
+```
+
+The `Note.find()` method returns a promise and we can access the result of the operation by registering a callback function with the `then` method.
+
+All of the code we want to execute once the operation finishes is written in the callback function. If we wanted to make several asynchronous function calls in sequence, the situation would soon become painful. The asynchronous calls would have to be made in the callback. This would likely lead to complicated code and could potentially give birth to a so-called [callback hell](http://callbackhell.com/).
+
+By [chaining promises](https://javascript.info/promise-chaining) we could keep the situation somewhat under control, and avoid callback hell by creating a fairly clean chain of `then` method calls. We have seen a few of these during the course. To illustrate this, you can view an artificial example of a function that fetches all notes and then deletes the first one:
+
+```js
+Note.find({})
+  .then(notes => {
+    return notes[0].deleteOne()
+  })
+  .then(response => {
+    console.log('the first note is removed')
+    // more code here
+  })
+```
+
+The then-chain is alright, but we can do better. The [generator functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) introduced in ES6 provided a [clever way](https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/async%20%26%20performance/ch4.md#iterating-generators-asynchronously) of writing asynchronous code in a way that "looks synchronous". The syntax is a bit clunky and not widely used.
+
+The `async` and `await` keywords introduced in ES7 bring the same functionality as the generators, but in an understandable and syntactically cleaner way to the hands of all citizens of the JavaScript world.
+
+We could fetch all of the notes in the database by utilizing the [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) operator like this:
+
+```js
+const notes = await Note.find({})
+
+console.log('operation returned the following notes', notes)
+```
+
+The code looks exactly like synchronous code. The execution of code pauses at `const notes = await Note.find({})` and waits until the related promise is _fulfilled_, and then continues its execution to the next line. When the execution continues, the result of the operation that returned a promise is assigned to the `notes` variable.
+
+The slightly complicated example presented above could be implemented by using await like this:
+
+```js
+const notes = await Note.find({})
+const response = await notes[0].deleteOne()
+
+console.log('the first note is removed')
+```
+
+Thanks to the new syntax, the code is a lot simpler than the previous then-chain.
+
+There are a few important details to pay attention to when using async/await syntax. To use the await operator with asynchronous operations, they have to return a promise. This is not a problem as such, as regular asynchronous functions using callbacks are easy to wrap around promises.
+
+The await keyword can't be used just anywhere in JavaScript code. Using await is possible only inside of an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function.
+
+This means that in order for the previous examples to work, they have to be using async functions. Notice the first line in the arrow function definition:
+
+```js
+const main = async () => {
+  const notes = await Note.find({})
+  console.log('operation returned the following notes', notes)
+
+  const response = await notes[0].deleteOne()
+  console.log('the first note is removed')
+}
+
+main()
+```
+
+The code declares that the function assigned to `main` is asynchronous. After this, the code calls the function with `main()`.
+
