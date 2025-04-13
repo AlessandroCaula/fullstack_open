@@ -1591,3 +1591,118 @@ notesRouter.get('/:id', async (request, response) => {
   }
 })
 ```
+
+### Optimizing the beforeEach function
+
+Let's return to writing our tests and take a closer look at the `beforeEach` function that sets up the tests:
+
+```js
+beforeEach(async () => {
+  await Note.deleteMany({})
+
+  let noteObject = new Note(helper.initialNotes[0])
+  await noteObject.save()
+
+  noteObject = new Note(helper.initialNotes[1])
+  await noteObject.save()
+})
+```
+
+The function saves the first two notes from the `helper.initialNotes` array into the database with two separate operations. The solution is alright, but there's a better way of saving multiple objects to the database:
+
+```js
+beforeEach(async () => {
+  await Note.deleteMany({})
+  console.log('cleared')
+
+  helper.initialNotes.forEach(async (note) => {
+    let noteObject = new Note(note)
+    await noteObject.save()
+    console.log('saved')
+  })
+  console.log('done')
+})
+
+test('notes are returned as json', async () => {
+  console.log('entered test')
+  // ...
+}
+```
+
+We save the notes stored in the array into the database inside of a `forEach` loop. The tests don't quite seem to work however, so we have added some console logs to help us find the problem.
+
+The console displays the following output:
+
+```
+cleared
+done
+entered test
+saved
+saved
+```
+
+Despite our use of the async/await syntax, our solution does not work as we expected it to. The test execution begins before the database is initialized!
+
+The problem is that every iteration of the forEach loop generates an asynchronous operation, and `beforeEach` won't wait for them to finish executing. In other words, the `await` commands defined inside of the `forEach` loop are not in the `beforeEach` function, but in separate functions that `beforeEach` will not wait for.
+
+Since the execution of tests begins immediately after `beforeEach` has finished executing, the execution of tests begins before the database state is initialized.
+
+One way of fixing this is to wait for all of the asynchronous operations to finish executing with the [Promise.all](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) method:
+
+```js
+beforeEach(async () => {
+  await Note.deleteMany({})
+
+  const noteObjects = helper.initialNotes
+    .map(note => new Note(note))
+  const promiseArray = noteObjects.map(note => note.save())
+  await Promise.all(promiseArray)
+})
+```
+
+The solution is quite advanced despite its compact appearance. The `noteObjects` variable is assigned to an array of Mongoose objects that are created with the `Note` constructor for each of the notes in the `helper.initialNotes` array. The next line of code creates a new array that _consists of promises_, that are created by calling the `save` method of each item in the `noteObjects` array. In other words, it is an array of promises for saving each of the items to the database.
+
+The [Promise.all](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) method can be used for transforming an array of promises into a single promise, that will be _fulfilled_ once every promise in the array passed to it as an argument is resolved. The last line of code `await Promise.all(promiseArray)` waits until every promise for saving a note is finished, meaning that the database has been initialized.
+
+> The returned values of each promise in the array can still be accessed when using the Promise.all method. If we wait for the promises to be resolved with the `await` syntax `const results = await Promise.all(promiseArray)`, the operation will return an array that contains the resolved values for each promise in the `promiseArray`, and they appear in the same order as the promises in the array.
+
+Promise.all executes the promises it receives in parallel. If the promises need to be executed in a particular order, this will be problematic. In situations like this, the operations can be executed inside of a [for...of](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of) block, that guarantees a specific execution order.
+
+```js
+beforeEach(async () => {
+  await Note.deleteMany({})
+
+  for (let note of helper.initialNotes) {
+    let noteObject = new Note(note)
+    await noteObject.save()
+  }
+})
+```
+
+The asynchronous nature of JavaScript can lead to surprising behavior, and for this reason, it is important to pay careful attention when using the async/await syntax. Even though the syntax makes it easier to deal with promises, it is still necessary to understand how promises work!
+
+The code for our application can be found on [GitHub](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-5), branch part4-5.
+
+### A true full stack developer's oath
+
+Making tests brings yet another layer of challenge to programming. We have to update our full stack developer oath to remind you that systematicity is also key when developing tests.
+
+So we should once more extend our oath:
+
+Full stack development is _extremely hard_, that is why I will use all the possible means to make it easier
+- I will have my browser developer console open all the time
+- I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+- I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved as I expect
+- I will keep an eye on the database: does the backend save data there in the right format
+- I will progress in small steps
+- _I will write lots of `console.log` statements to make sure I understand how the code and the tests behave and to help pinpoint problems_
+- If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything is still working
+- _If a test does not pass, I make sure that the tested functionality for sure works in the application_
+- When I ask for help in the course Discord channel or elsewhere I formulate my questions properly, see [here](https://fullstackopen.com/en/part0/general_info#how-to-get-help-in-discord) how to ask for help
+
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
+### Exercise 4.8 - 4.12
+
+__Warning__: If you find yourself using async/await and _then_ methods in the same code, it is almost guaranteed that you are doing something wrong. Use one or the other and don't mix the two.
+
