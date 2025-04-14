@@ -3,8 +3,8 @@ const assert = require('node:assert')
 
 const listHelper = require('../utils/list_helper')
 // Retrieve the list of blogs
-const listOfBlogs = require('../utils/list_blogs')
-const blogs = require('../utils/list_blogs')
+const blogsHelper = require('./test_helper')
+const listOfBlogs = blogsHelper.initialBlogs
 
 test('dummy returns one', () => {
   const blogs = []
