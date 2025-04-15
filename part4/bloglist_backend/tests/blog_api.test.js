@@ -29,7 +29,6 @@ test('blogs are returned as json', async () => {
 // Check if the get method return the correct number of elements from the database
 test('all the blogs are returned', async () => {
   const response = await api.get('/api/blogs')
-
   assert.strictEqual(response.body.length, 6)
 })
 
@@ -52,6 +51,15 @@ test('a valid blog can be added', async() => {
 
   const contents = blogsAtEnd.map(n => n.title)
   assert(contents.includes('Valid Blog'))
+})
+
+// Test that verifies that the unique identifier property of the blog posts is named id
+test("the unique identifier is the 'id'", async() => {
+  const response = await api.get('/api/blogs') // Fetch all blogs from the API
+  // Ensure there is at least one blog in the response
+  assert(response.body.length > 0, 'No blogs found in the response')
+  objectKeys = Object.keys(response.body[0])
+  assert(objectKeys.includes('id'), "The unique identifier property is not named 'id'")
 })
 
 after(async () => {

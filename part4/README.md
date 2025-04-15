@@ -1729,3 +1729,9 @@ Notice that you will have to make similar changes to the code that were made [in
 
 NB: when you are writing your tests __it is better to not execute them all__, only execute the ones you are working on. Read more about this [here](#running-tests-one-by-one).
 
+#### 4.9: Blog List Tests, step 2
+
+Write a test that verifies that the unique identifier property of the blog posts is named _id_, by default the database names the property __id_.
+
+Make the required changes to the code so that it passes the test. The [toJSON](../part3/README.md#connecting-the-backend-to-a-database) method discussed in part 3 is an appropriate place for defining the id parameter.
+
