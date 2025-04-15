@@ -50,6 +50,7 @@ test('a valid blog can be added', async() => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
 
   const contents = blogsAtEnd.map(n => n.title)
+  // console.log(contents)
   assert(contents.includes('Valid Blog'))
 })
 
@@ -60,6 +61,24 @@ test("the unique identifier is the 'id'", async() => {
   assert(response.body.length > 0, 'No blogs found in the response')
   objectKeys = Object.keys(response.body[0])
   assert(objectKeys.includes('id'), "The unique identifier property is not named 'id'")
+})
+
+// Test that verifies that if the likes property is missing from the request, it will default to the value 0.
+test('missing likes will default to value 0', async () => {
+  const newBlog = {
+    title: "Default to 0",
+    author: "Alessandro Caula",
+    url: "https://github.com/AlessandroCaula",
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
+  const addedBlog = (await helper.blogsInDb()).find(blog => blog.title === 'Default to 0')
+  assert.strictEqual(addedBlog.likes, 0)
 })
 
 after(async () => {
