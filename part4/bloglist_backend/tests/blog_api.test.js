@@ -11,10 +11,11 @@ const Blog = require('../models/blog')
 // Initialize the test database before every test with the beforeEach function
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog(helper.initialBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(helper.initialBlogs[1])
-  await blogObject.save()
+
+  const blogObjects = helper.initialBlogs
+    .map(blog => new Blog(blog))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
 })
 
 // Check that the returned elements form the database are JSON format.
@@ -29,7 +30,7 @@ test('blogs are returned as json', async () => {
 test('all the blogs are returned', async () => {
   const response = await api.get('/api/blogs')
 
-  assert.strictEqual(response.body.length, 2)
+  assert.strictEqual(response.body.length, 6)
 })
 
 test('a valid blog can be added', async() => {
