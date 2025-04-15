@@ -47,7 +47,7 @@ test('a valid blog can be added', async() => {
     .expect('Content-Type', /application\/json/)
 
   const blogsAtEnd = await helper.blogsInDb()
-  // assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
 
   const contents = blogsAtEnd.map(n => n.title)
   assert(contents.includes('Valid Blog'))
