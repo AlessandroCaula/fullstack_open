@@ -81,6 +81,19 @@ test('missing likes will default to value 0', async () => {
   assert.strictEqual(addedBlog.likes, 0)
 })
 
+// Test that verify that if the title or url properties are missing from the request data, the backend responds to the request status code 404 Bad Request
+test('cannot add blogs without title or url', async () => {
+  const newBlog = {
+    author: 'Alessandro Caula',
+    url: 'https://github.com/AlessandroCaula',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
