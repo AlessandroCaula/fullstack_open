@@ -7,6 +7,7 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const { title } = require('node:process')
 
 // Initialize the test database before every test with the beforeEach function
 beforeEach(async () => {
@@ -84,8 +85,10 @@ test('missing likes will default to value 0', async () => {
 // Test that verify that if the title or url properties are missing from the request data, the backend responds to the request status code 404 Bad Request
 test('cannot add blogs without title or url', async () => {
   const newBlog = {
+    title: 'Test without title or url',
     author: 'Alessandro Caula',
-    url: 'https://github.com/AlessandroCaula',
+    // url: 'https://github.com/AlessandroCaula',
+    likes: 0
   }
 
   await api
