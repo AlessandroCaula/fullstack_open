@@ -42,6 +42,65 @@ describe('when there are some notes saved initially', () => {
     assert(contents.includes('Browser can execute only JavaScript'))
   })
 
+  describe('viewing a specific note', () => {
+    
+    // Testing if it's possible to fetch an existing note
+    test('succeeds with a valid id', async () => {
+      const notesAtStart = await helper.notesInDb()
+
+      const noteToView = notesAtStart[0]
+
+      const resultNote = await api
+        .get(`/api/notes/${noteToView.id}`)
+        .expect(200)
+        .expect('Content-type', /application\/json/)
+
+      assert.deepStrictEqual(resultNote.body, noteToView)
+    })
+
+    // Testing that a non existing note gives the 404 error
+    test('fails with statuscode 404 if note does not exist', async () => {
+      const validNonexistingId = await helper.nonExistingId()
+
+      await api
+        .get(`/api/notes/${validNonexistingId}`)
+        .expect(404)
+    })
+
+    // Testing that fetching a note with a wrong id gives a 400 error
+    test('fails with statuscode 400 id is invalid', async () => {
+      const invalid = '5a3d5da59070081a82a3445'
+
+      await api
+        .get(`/api/notes/${invalid}`)
+        .expect(400)
+    })
+  })
+
+  describe('addition of a new note', () => {
+
+    // Testing that a valid note can be added
+    test('succeeds with valid data', async () => {
+      const newNote = {
+        content: 'async/await simplifies making async calls',
+        important: true
+      }
+
+      await api 
+        .post('/api/notes')
+        .send(newNote)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+      const notesAtEnd = await helper.notesInDb()
+      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length + 1)
+
+      const contents = notesAtEnd.map(n => n.content)
+      assert(contents.includes('async/await simplifies making async calls'))
+    })
+  })
+
+
   // Testing that a new node can be currently added to the database
   test('a valid note can be added', async () => {
     const newNote = {
