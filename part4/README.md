@@ -475,6 +475,8 @@ One best practice is to commit your code every time it is in a stable state. Thi
 
 If you're having issues with _content.body_ being undefined for seemingly no reason, make sure you didn't forget to add _app.use(express.json())_ near the top of the file.
 
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
 ### Testing Node applications
 
 We have completely neglected one essential area of software development, and that is automated testing.
@@ -760,6 +762,8 @@ Define a function called `mostLikes` that receives an array of blogs as its para
 ```
 
 If there are many top bloggers, then it is enough to show any one of them.
+
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
 
 ## Part 4b - Testing the backend
 
@@ -1753,6 +1757,8 @@ Write tests related to creating new blogs via the _/api/blogs_ endpoint, that ve
 
 Make the required changes to the code so that it passes the test.
 
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
 ### Refactoring tests
 
 Our test coverage is currently lacking. Some requests like _GET /api/notes/:id_ and _DELETE /api/notes/:id_ aren't tested when the request is sent with an invalid id. The grouping and organization of tests could also use some improvement, as all tests exist on the same "top level" in the test file. The readability of the test would improve if we group related tests with _describe_ blocks.
@@ -1899,3 +1905,26 @@ This way of testing the API, by making HTTP requests and inspecting the database
 
 You can find the code for our current application in its entirety in the _part4-6 branch_ of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-6).
 
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
+### Exercises 4.13 - 4.14
+
+#### 4.14 Blog List Expansions, step 1
+
+Implement functionality for deleting a single blog post resource.
+
+Use the async/await syntax. Follow [RESTful](../part3/README.md#rest) conventions when defining the HTTP API.
+
+Implement tests for the functionality.
+
+#### 4.14 Blog List Expansions, step 2
+
+Implement functionality for updating the information of an individual blog post.
+
+Use async/await.
+
+The application mostly needs to update the number of likes for a blog post. You can implement this functionality the same way that we implemented updating notes in [part3](../part3/README.md#other-operations).
+
+Implement tests for the functionality.
+
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
