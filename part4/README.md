@@ -1888,3 +1888,14 @@ after(async () => {
   await mongoose.connection.close()
 })
 ```
+
+The test output in the console is grouped according to the describe blocks:
+
+![alt text](assets/image6.png)
+
+There is still room for improvement, but it is time to move forward.
+
+This way of testing the API, by making HTTP requests and inspecting the database with Mongoose, is by no means the only nor the best way of conducting API-level integration tests for server applications. There is no universal best way of writing tests, as it all depends on the application being tested and available resources.
+
+You can find the code for our current application in its entirety in the _part4-6 branch_ of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-6).
+

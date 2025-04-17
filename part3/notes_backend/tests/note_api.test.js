@@ -42,6 +42,7 @@ describe('when there are some notes saved initially', () => {
     assert(contents.includes('Browser can execute only JavaScript'))
   })
 
+  // Describe section - Testing on GET specific notes
   describe('viewing a specific note', () => {
     
     // Testing if it's possible to fetch an existing note
@@ -77,6 +78,7 @@ describe('when there are some notes saved initially', () => {
     })
   })
 
+  // Describe section - Testing on POST
   describe('addition of a new note', () => {
 
     // Testing that a valid note can be added
@@ -98,75 +100,41 @@ describe('when there are some notes saved initially', () => {
       const contents = notesAtEnd.map(n => n.content)
       assert(contents.includes('async/await simplifies making async calls'))
     })
-  })
 
+    test('fails with status code 400 if data invalid', async () => {
+      const newNote = {
+        important: true
+      }
 
-  // Testing that a new node can be currently added to the database
-  test('a valid note can be added', async () => {
-    const newNote = {
-      content: 'async/await simplifies making async calls',
-      important: true,
-    }
+      await api
+        .post('/api/notes')
+        .send(newNote)
+        .expect(400)
 
-    await api
-      .post('/api/notes')
-      .send(newNote)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
+      const notesAtEnd = await helper.notesInDb()
 
-    const notesAtEnd = await helper.notesInDb()
-    assert.strictEqual(notesAtEnd.length, helper.initialNotes.length + 1)
-
-    const contents = notesAtEnd.map(n => n.content)
-    assert(contents.includes('async/await simplifies making async calls'))
-  })
-
-  // Test that verifies that note without content will not saved into the database
-  test('note without content is not added', async () => {
-    const newNote = {
-      importance: true
-    }
-
-    await api
-      .post('/api/notes')
-      .send(newNote)
-      .expect(400)
-
-    const notesAtEnd = await helper.notesInDb()
-
-    assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
-  })
-
-  describe('viewing a specific note', () => {
-    // Test that verifies that a specific note can be fetched
-    test('a specific note can be viewed', async () => {
-      const notesAtStart = await helper.notesInDb()
-
-      const noteToView = notesAtStart[0]
-
-      const resultNote = await api
-        .get(`/api/notes/${noteToView.id}`)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-
-      assert.deepStrictEqual(resultNote.body, noteToView)
+      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
     })
+  })
 
-    // Test that a note can be deleted
-    test('a note can be deleted', async () => {
+  // Describe section - Testing on DELETION
+  describe('deletion of a note', () => {
+
+    // Testing that with a correct id the note is removed correctly
+    test('succeeds with status code 204 if id is valid', async () => {
       const notesAtStart = await helper.notesInDb()
       const noteToDelete = notesAtStart[0]
 
       await api
         .delete(`/api/notes/${noteToDelete.id}`)
         .expect(204)
-
+      
       const notesAtEnd = await helper.notesInDb()
+
+      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length - 1)
 
       const contents = notesAtEnd.map(r => r.content)
       assert(!contents.includes(noteToDelete.content))
-
-      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length - 1)
     })
   })
 })
