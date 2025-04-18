@@ -1,4 +1,5 @@
 const blogsRouter = require('express').Router()
+const { response } = require('../app')
 const Blog = require('../models/blog')
 
 // Retrieving all the blogs
@@ -33,12 +34,35 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 // Deleting a note
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     await Blog.findByIdAndDelete(request.params.id)
     response.status(204).end()
   } catch (exception) {
-    nest(exception)
+    next(exception)
+  }
+})
+
+// Updating the likes of a blog
+blogsRouter.put('/:id', async (request, response, next) => {
+  const blogLikes = request.body
+
+  try {
+    // Retrieve the blog that we want to update by the id
+    blogToUpdate = await Blog.findById(request.params.id)
+
+    if (!blogToUpdate) {
+      return response.status(404).send({ error: 'Blog not found' })
+    }
+
+    // Update the blog likes using the spread operation
+    const updatedBlog = { ...blogToUpdate.toObject(), blogLikes}
+
+    // // Save the updated blog back to the database
+    // const savedBlog = await Blog.findByIdAndUpdate()
+
+  } catch (exception) {
+    next (exception)
   }
 })
 
