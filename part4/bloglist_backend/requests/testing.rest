@@ -18,13 +18,5 @@ Content-Type: application/json
 }
 
 ###
-# Post a new blog
-POST http://localhost:3003/api/blogs
-Content-Type: application/json
-
-{
-    "title": "Blog 3",
-    "author": "Author 3",
-    "url": "url 3",
-    "likes": 8
-}
+# deleting a blog
+DELETE http://localhost:3003/api/blogs/6802c52e29e30728e4d7eed7

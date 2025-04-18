@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
+// Retrieving all the blogs
 blogsRouter.get('/', async (request, response) => {
   try {
     const blogs = await Blog.find({})
@@ -10,6 +11,7 @@ blogsRouter.get('/', async (request, response) => {
   }
 })
 
+// Adding one note
 blogsRouter.post('/', async (request, response, next) => {
   // Retrieve the added blog body
   const body = request.body
@@ -27,6 +29,16 @@ blogsRouter.post('/', async (request, response, next) => {
   } catch (exception) {
     // next(exception)
     response.status(400).end()
+  }
+})
+
+// Deleting a note
+blogsRouter.delete('/:id', async (request, response) => {
+  try {
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch (exception) {
+    nest(exception)
   }
 })
 
