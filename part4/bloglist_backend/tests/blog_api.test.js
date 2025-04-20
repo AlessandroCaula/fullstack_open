@@ -114,6 +114,32 @@ test('note is successfully deleted with status code 204 if id is valid', async (
   assert(!contents.includes(blogToDelete.title))
 })
 
+// Test that the likes of a note can be changed
+test('note likes can be correctly updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+
+  // Define the new number of likes
+  const newNumberOfLikes = 101
+
+  // Send a PUT request to update the likes
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: newNumberOfLikes })
+    .expect(200) // Expect a successful response
+    .expect('Content-Type', /application\/json/)
+
+  // Verify that the response contains the updated likes
+  assert.strictEqual(response.body.likes, newNumberOfLikes)
+
+  // Retrieve the blogs from the database again
+  const blogsAtEnd = await helper.blogsInDb()
+  const updatedBlog = blogsAtEnd.find(blog => blog.id == blogToUpdate.id)
+
+  // Verify that the database reflects the updated likes
+  assert.strictEqual(updatedBlog.likes, newNumberOfLikes)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

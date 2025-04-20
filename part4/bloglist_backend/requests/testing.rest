@@ -11,12 +11,21 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Blog 7",
-    "author": "Author 7",
-    "url": "url 7",
-    "likes": 10
+  "title": "Blog 7",
+  "author": "Author 7",
+  "url": "url 7",
+  "likes": 10
 }
 
 ###
-# deleting a blog
-DELETE http://localhost:3003/api/blogs/6802c52e29e30728e4d7eed7
+# Deleting a blog
+DELETE http://localhost:3003/api/blogs/68050f1e375be96ef95d1c28
+
+###
+# Updating a blog
+PUT http://localhost:3003/api/blogs/67f17c523398011aecf08a36
+Content-Type: application/json
+
+{
+  "likes": 42
+}
