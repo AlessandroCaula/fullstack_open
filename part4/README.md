@@ -2215,3 +2215,127 @@ describe('when there is initially one user in db', () => {
   })
 })
 ```
+
+The tests use the _usersInDb()_ helper function that we implemented in the *tests/test_helper.js* file. The function is used to help us verify the state of the database after a user is created:
+
+```js
+const User = require('../models/user')
+
+// ...
+
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(u => u.toJSON())
+}
+
+module.exports = {
+  initialNotes,
+  nonExistingId,
+  notesInDb,
+  usersInDb,
+}
+```
+
+The _beforeEach_ block adds a user with the username _root_ to the database. We can write a new test that verifies that a new user with the same username can not be created:
+
+```js
+describe('when there is initially one user in db', () => {
+  // ...
+
+  test('creation fails with proper statuscode and message if username already taken', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'salainen',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    assert(result.body.error.includes('expected `username` to be unique'))
+
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+  })
+})
+```
+
+The test case obviously will not pass at this point. We are essentially practicing [test-driven development (TDD)](https://en.wikipedia.org/wiki/Test-driven_development), where tests for new functionality are written before the functionality is implemented.
+
+Mongoose validations do not provide a direct way to check the uniqueness of a field value. However, it is possible to achieve uniqueness by defining [uniqueness index](https://mongoosejs.com/docs/schematypes.html) for a field. The definition is done as follows:
+
+```js
+const mongoose = require('mongoose')
+
+const userSchema = mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true // this ensures the uniqueness of username
+  },
+  name: String,
+  passwordHash: String,
+  notes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Note'
+    }
+  ],
+})
+
+// ...
+```
+
+However, we want to be careful when using the uniqueness index. If there are already documents in the database that violate the uniqueness condition, [no index will be created](https://dev.to/akshatsinghania/mongoose-unique-not-working-16bf). So when adding a uniqueness index, make sure that the database is in a healthy state! The test above added the user with username `root` to the database twice, and these must be removed for the index to be formed and the code to work.
+
+Mongoose validations do not detect the index violation, and instead of `ValidationError` they return an error of type `MongoServerError`. We therefore need to extend the error handler for that case:
+
+```js
+const errorHandler = (error, request, response, next) => {
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+
+  } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
+    return response.status(400).json({ error: 'expected `username` to be unique' })
+  }
+
+  next(error)
+}
+```
+
+After these changes, the tests will pass.
+
+We could also implement other validations into the user creation. We could check that the username is long enough, that the username only consists of permitted characters, or that the password is strong enough. Implementing these functionalities is left as an optional exercise.
+
+Before we move onward, let's add an initial implementation of a route handler that returns all of the users in the database:
+
+```js
+usersRouter.get('/', async (request, response) => {
+  const users = await User.find({})
+  response.json(users)
+})
+```
+
+For making new users in a production or development environment, you may send a POST request to `/api/users/` via Postman or REST Client in the following format:
+
+```js
+{
+  "username": "root",
+  "name": "Superuser",
+  "password": "salainen"
+}
+```
+
+The list looks like this:
+
+![alt text](assets/image8.png)
+
+You can find the code for our current application in its entirety in the _part4-7_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-7).
+

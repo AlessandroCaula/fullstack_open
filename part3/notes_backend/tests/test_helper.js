@@ -1,4 +1,5 @@
 const Note = require('../models/note')
+const User = require('../models/user')
 
 // Initial notes that will be stored in the testNoteApp. Used for testing purposes
 const initialNotes = [
@@ -26,6 +27,15 @@ const notesInDb = async () => {
   return notes.map(note => note.toJSON())
 }
 
+// Return all the users
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(u => u.toJSON())
+}
+
 module.exports = {
-  initialNotes, nonExistingId, notesInDb
+  initialNotes, 
+  nonExistingId, 
+  notesInDb,
+  usersInDb
 }
