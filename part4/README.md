@@ -2115,3 +2115,103 @@ const noteSchema = new mongoose.Schema({
 
 In stark contrast to the conventions of relational databases, _references are now stored in both documents_: the note references the user who created it, and the user has an array of references to all of the notes created by them.
 
+### Creating users
+
+Let's implement a route for creating new users. Users have a unique _username_, a _name_ and something called a _passwordHash_. The password hash is the output of a [one-way hash function](https://en.wikipedia.org/wiki/Cryptographic_hash_function) applied to the user's password. It is never wise to store unencrypted plain text passwords in the database!
+
+Let's install the [bcrypt](https://github.com/kelektiv/node.bcrypt.js) package for generating the password hashes:
+
+```
+npm install bcrypt
+```
+
+Creating new users happens in compliance with the RESTful conventions discussed in [part3](../part3/README.md#rest), by making an HTTP POST request to the users path.
+
+Let's define a separate _router_ for dealing with users in a new _controllers/users.js_ file. Let's take the router into use in our application in the _app.js_ file, so that it handles requests made to the _/api/users_ url:
+
+```js
+const usersRouter = require('./controllers/users')
+
+// ...
+
+app.use('/api/users', usersRouter)
+```
+
+The contents of the file, _controllers/users.js_, that defines the router is as follows:
+
+```js
+const bcrypt = require('bcrypt')
+const usersRouter = require('express').Router()
+const User = require('../models/user')
+
+usersRouter.post('/', async (request, response) => {
+  const { username, name, password } = request.body
+
+  const saltRounds = 10
+  const passwordHash = await bcrypt.hash(password, saltRounds)
+
+  const user = new User({
+    username,
+    name,
+    passwordHash,
+  })
+
+  const savedUser = await user.save()
+
+  response.status(201).json(savedUser)
+})
+
+module.exports = usersRouter
+```
+
+The password sent in the request is _not_ stored in the database. We store the _hash_ of the password that is generated with the `bcrypt.hash` function.
+
+The fundamentals of [storing passwords](https://codahale.com/how-to-safely-store-a-password/) are outside the scope of this course material. We will not discuss what the magic number 10 assigned to the [saltRounds](https://github.com/kelektiv/node.bcrypt.js/#a-note-on-rounds) variable means, but you can read more about it in the linked material.
+
+Our current code does not contain any error handling or input validation for verifying that the username and password are in the desired format.
+
+The new feature can and should initially be tested manually with a tool like Postman. However testing things manually will quickly become too cumbersome, especially once we implement functionality that enforces usernames to be unique.
+
+It takes much less effort to write automated tests, and it will make the development of our application much easier.
+
+Our initial tests could look like this:
+
+```js
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
+
+//...
+
+describe('when there is initially one user in db', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    await user.save()
+  })
+
+  test('creation succeeds with a fresh username', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
+      password: 'salainen',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+
+    const usernames = usersAtEnd.map(u => u.username)
+    assert(usernames.includes(newUser.username))
+  })
+})
+```
