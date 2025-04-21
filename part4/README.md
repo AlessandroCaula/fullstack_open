@@ -2339,3 +2339,57 @@ The list looks like this:
 
 You can find the code for our current application in its entirety in the _part4-7_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-7).
 
+### Creating a new note
+
+The code for creating a new note has to be updated so that the note is assigned to the user who created it.
+
+Let's expand our current implementation in _controllers/notes.js_ so that the information about the user who created a note is sent in the _userId_ field of the request body:
+
+```js
+const User = require('../models/user')
+
+//...
+
+notesRouter.post('/', async (request, response) => {
+  const body = request.body
+
+  const user = await User.findById(body.userId)
+
+  const note = new Note({
+    content: body.content,
+    important: body.important === undefined ? false : body.important,
+    user: user.id
+  })
+
+  const savedNote = await note.save()
+  user.notes = user.notes.concat(savedNote._id)
+  await user.save()
+  
+  response.status(201).json(savedNote)
+})
+```
+
+It's worth noting that the user object also changes. The id of the note is stored in the notes field of the user object:
+
+```js
+const user = await User.findById(body.userId)
+
+// ...
+
+user.notes = user.notes.concat(savedNote._id)
+await user.save()
+```
+
+Let's try to create a new note
+
+![alt text](assets/image9.png)
+
+The operation appears to work. Let's add one more note and then visit the route for fetching all users:
+
+![alt text](assets/image10.png)
+
+We can see that the user has two notes.
+
+Likewise, the ids of the users who created the notes can be seen when we visit the route for fetching all notes:
+
+![alt text](assets/image11.png)
