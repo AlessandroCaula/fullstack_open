@@ -4,7 +4,9 @@ const User = require('../models/user')
 
 // Route handler that returns all of the users in the database
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User
+    .find({}).populate('notes', { content: 1, important: 1 })
+
   response.json(users)
 })
 

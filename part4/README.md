@@ -2393,3 +2393,81 @@ We can see that the user has two notes.
 Likewise, the ids of the users who created the notes can be seen when we visit the route for fetching all notes:
 
 ![alt text](assets/image11.png)
+
+### Populate
+
+We would like our API to work in such a way, that when an HTTP GET request is made to the _/api/users_ route, the user objects would also contain the contents of the user's notes and not just their id. In a relational database, this functionality would be implemented with a _join query_.
+
+As previously mentioned, document databases do not properly support join queries between collections, but the Mongoose library can do some of these joins for us. Mongoose accomplishes the join by doing multiple queries, which is different from join queries in relational databases which are _transactional_, meaning that the state of the database does not change during the time that the query is made. With join queries in Mongoose, nothing can guarantee that the state between the collections being joined is consistent, meaning that if we make a query that joins the user and notes collections, the state of the collections may change during the query.
+
+The Mongoose join is done with the [populate](https://mongoosejs.com/docs/populate.html) method. Let's update the route that returns all users first in _controllers/users.js_ file:
+
+```js
+usersRouter.get('/', async (request, response) => {
+  const users = await User
+    .find({}).populate('notes')
+
+  response.json(users)
+})
+```
+
+The [populate](https://mongoosejs.com/docs/populate.html) method is chained after the find method making the initial query. The argument given to the populate method defines that the _ids_ referencing _note_ objects in the _notes_ field of the _user_ document will be replaced by the referenced _note_ documents.
+
+The result is almost exactly what we wanted:
+
+![alt text](assets/image12.png)
+
+We can use the populate method for choosing the fields we want to include from the documents. In addition to the field _id_ we are now only interested in _content_ and _important_.
+
+The selection of fields is done with the Mongo [syntax](https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/#return-the-specified-fields-and-the-_id-field-only):
+
+```js
+usersRouter.get('/', async (request, response) => {
+  const users = await User
+    .find({}).populate('notes', { content: 1, important: 1 })
+
+  response.json(users)
+})
+```
+
+The result is now exactly like we want it to be:
+
+![alt text](assets/image13.png)
+
+Let's also add a suitable population of user information to notes in the _controllers/notes.js_ file:
+
+```js
+notesRouter.get('/', async (request, response) => {
+  const notes = await Note
+    .find({}).populate('user', { username: 1, name: 1 })
+
+  response.json(notes)
+})
+```
+
+Now the user's information is added to the _user_ field of note objects.
+
+![alt text](assets/image14.png)
+
+It's important to understand that the database does not know that the ids stored in the _user_ field of the notes collection reference documents in the user collection.
+
+The functionality of the _populate_ method of Mongoose is based on the fact that we have defined "types" to the references in the Mongoose schema with the _ref_ option:
+
+```js
+const noteSchema = new mongoose.Schema({
+  content: {
+    type: String,
+    required: true,
+    minlength: 5
+  },
+  important: Boolean,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
+})
+```
+
+You can find the code for our current application in its entirety in the _part4-8_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-8).
+
+NOTE: At this stage, firstly, some tests will fail. We will leave fixing the tests to a non-compulsory exercise. Secondly, in the deployed notes app, the creating a note feature will stop working as user is not yet linked to the frontend.
