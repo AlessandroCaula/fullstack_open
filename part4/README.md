@@ -2471,3 +2471,158 @@ const noteSchema = new mongoose.Schema({
 You can find the code for our current application in its entirety in the _part4-8_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-8).
 
 NOTE: At this stage, firstly, some tests will fail. We will leave fixing the tests to a non-compulsory exercise. Secondly, in the deployed notes app, the creating a note feature will stop working as user is not yet linked to the frontend.
+
+## Part 4d - Token authentication
+
+Users must be able to log into our application, and when a user is logged in, their user information must automatically be attached to any new notes they create.
+
+We will now implement support for [token-based authentication](https://www.digitalocean.com/community/tutorials/the-ins-and-outs-of-token-based-authentication#how-token-based-works) to the backend.
+
+The principles of token-based authentication are depicted in the following sequence diagram:
+
+![alt text](assets/image15.png)
+
+- User starts by logging in using a login form implemented with React
+
+  - We will add the login form to the frontend in [part5](https://fullstackopen.com/en/part5)
+
+- This causes the React code to send the username and the password to the server address _/api/login_ as an HTTP POST request.
+
+- If the username and the password are correct, the server generates a token that somehow identifies the logged-in user.
+
+  - The token is signed digitally, making it impossible to falsify (with cryptographic means)
+
+- The backend responds with a status code indicating the operation was successful and returns the token with the response.
+
+- The browser saves the token, for example to the state of a React application.
+
+- When the user creates a new note (or does some other operation requiring identification), the React code sends the token to the server with the request.
+
+- The server uses the token to identify the user
+
+Let's first implement the functionality for logging in. Install the [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) library, which allows us to generate [JSON web tokens](https://jwt.io/).
+
+```
+npm install jsonwebtoken
+```
+
+The code for login functionality goes to the file controllers/login.js.
+
+```js
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const loginRouter = require('express').Router()
+const User = require('../models/user')
+
+loginRouter.post('/', async (request, response) => {
+  const { username, password } = request.body
+
+  const user = await User.findOne({ username })
+  const passwordCorrect = user === null
+    ? false
+    : await bcrypt.compare(password, user.passwordHash)
+
+  if (!(user && passwordCorrect)) {
+    return response.status(401).json({
+      error: 'invalid username or password'
+    })
+  }
+
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+
+  const token = jwt.sign(userForToken, process.env.SECRET)
+
+  response
+    .status(200)
+    .send({ token, username: user.username, name: user.name })
+})
+
+module.exports = loginRouter
+```
+
+The code starts by searching for the user from the database by the _username_ attached to the request.
+
+```js
+const user = await User.findOne({ username })
+```
+
+Next, it checks the _password_, also attached to the request.
+
+```js
+const passwordCorrect = user === null
+  ? false
+  : await bcrypt.compare(password, user.passwordHash)
+```
+
+Because the passwords themselves are not saved to the database, but _hashes_ calculated from the passwords, the `bcrypt.compare` method is used to check if the password is correct:
+
+```js
+await bcrypt.compare(password, user.passwordHash)
+```
+
+If the user is not found, or the password is incorrect, the request is responded with the status code [401 unauthorized](https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized). The reason for the failure is explained in the response body.
+
+```js
+if (!(user && passwordCorrect)) {
+  return response.status(401).json({
+    error: 'invalid username or password'
+  })
+}
+```
+
+If the password is correct, a token is created with the method `jwt.sign`. The token contains the username and the user id in a digitally signed form.
+
+```js
+const userForToken = {
+  username: user.username,
+  id: user._id,
+}
+
+const token = jwt.sign(userForToken, process.env.SECRET)
+```
+
+The token has been digitally signed using a string from the environment variable _SECRET_ as the _secret_. The digital signature ensures that only parties who know the secret can generate a valid token. The value for the environment variable must be set in the _.env_ file.
+
+A successful request is responded to with the status code _200 OK_. The generated token and the username of the user are sent back in the response body.
+
+```js
+response
+  .status(200)
+  .send({ token, username: user.username, name: user.name })
+```
+
+Now the code for login just has to be added to the application by adding the new router to app.js.
+
+```js
+const loginRouter = require('./controllers/login')
+
+//...
+
+app.use('/api/login', loginRouter)
+```
+
+Let's try logging in using VS Code REST-client:
+
+![alt text](assets/image16.png)
+
+It does not work. The following is printed to the console:
+
+```
+(node:32911) UnhandledPromiseRejectionWarning: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/mluukkai/opetus/_2019fullstack-koodit/osa3/notes-backend/node_modules/jsonwebtoken/sign.js:101:20)
+    at loginRouter.post (/Users/mluukkai/opetus/_2019fullstack-koodit/osa3/notes-backend/controllers/login.js:26:21)
+(node:32911) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 2)
+```
+
+The command `jwt.sign(userForToken, process.env.SECRET)` fails. We forgot to set a value to the environment variable _SECRET_. It can be any string. When we set the value in file _.env_ (and restart the server), the login works.
+
+A successful login returns the user details and the token:
+
+![alt text](assets/image17.png)
+
+A wrong username or password returns an error message and the proper status code:
+
+![alt text](assets/image18.png)

@@ -1,17 +1,39 @@
+# ###
+# # POST a new user
+# POST http://localhost:3001/api/users/
+# Content-Type: application/json
+
+# {
+#   "username": "root",
+#   "name": "Superuser",
+#   "password": "salainen"
+# }
+
 ###
 # POST a new user
 POST http://localhost:3001/api/users/
 Content-Type: application/json
 
 {
-    "username": "root",
-    "name": "Superuser",
-    "password": "salainen"
+  "username": "mluukkai",
+  "name": "Matti Luukkainen",
+  "password": "salainen"
 }
 
 ### 
 # GET all the users
 GET http://localhost:3001/api/users/
+
+# ###
+# # Create a new note from the root user
+# POST http://localhost:3001/api/notes
+# Content-Type: application/json
+
+# {
+#   "content": "User id of the note creator is at the start sent along the request",
+#   "important": true,
+#   "userId": "6806b600812d0eea7f6a1e71"
+# }
 
 ###
 # Create a new note from the root user
@@ -19,7 +41,18 @@ POST http://localhost:3001/api/notes
 Content-Type: application/json
 
 {
-    "content": "User id of the note creator is at the start sent along the request",
-    "important": true,
-    "userId": "6806b600812d0eea7f6a1e71"
+  "content": "Browser can execute only JavaScript",
+  "important": true,
+  "userId": "68080a43b9a24199ef91429c"
+}
+
+###
+# Create a new note from the root user
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+  "content": "The existing code and tests need to be changed when user is added to system",
+  "important": true,
+  "userId": "68080a43b9a24199ef91429c"
 }
