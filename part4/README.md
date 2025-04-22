@@ -2626,3 +2626,55 @@ A successful login returns the user details and the token:
 A wrong username or password returns an error message and the proper status code:
 
 ![alt text](assets/image18.png)
+
+### Limit creating new notes to logged-in user
+
+Let's change creating new notes so that it is only possible if the post request has a valid token attached. The note is then saved to the notes list of the user identified by the token.
+
+There are several ways of sending the token from the browser to the server. We will use the [Authorization](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Authorization) header. The header also tells which [authentication scheme](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication#authentication_schemes) is used. This can be necessary if the server offers multiple ways to authenticate. Identifying the scheme tells the server how the attached credentials should be interpreted.
+
+The _Bearer_ scheme is suitable for our needs.
+
+In practice, this means that if the token is, for example, the string _eyJhbGciOiJIUzI1NiIsInR5c2VybmFtZSI6Im1sdXVra2FpIiwiaW_, the Authorization header will have the value:
+
+```
+Bearer eyJhbGciOiJIUzI1NiIsInR5c2VybmFtZSI6Im1sdXVra2FpIiwiaW
+```
+
+Creating new notes will change like so (_controllers/notes.js_):
+
+```js
+const jwt = require('jsonwebtoken')
+
+// ...
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
+notesRouter.post('/', async (request, response) => {
+  const body = request.body
+
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
+  const note = new Note({
+    content: body.content,
+    important: body.important === undefined ? false : body.important,
+    user: user._id
+  })
+
+  const savedNote = await note.save()
+  user.notes = user.notes.concat(savedNote._id)
+  await user.save()
+
+  response.json(savedNote)
+})
+```
