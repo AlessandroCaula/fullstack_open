@@ -2678,3 +2678,57 @@ notesRouter.post('/', async (request, response) => {
   response.json(savedNote)
 })
 ```
+
+The helper function `getTokenFrom` isolates the token from the _authorization_ header. The validity of the token is checked with `jwt.verify`. The method also decodes the token, or returns the Object which the token was based on.
+
+```js
+const decodedToken = jwt.verify(token, process.env.SECRET)
+```
+
+If the token is missing or it is invalid, the exception _JsonWebTokenError_ is raised. We need to extend the error handling middleware to take care of this particular case:
+
+```js
+const errorHandler = (error, request, response, next) => {
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
+    return response.status(400).json({ error: 'expected `username` to be unique' })
+
+  } else if (error.name ===  'JsonWebTokenError') {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  next(error)
+}
+```
+
+The object decoded from the token contains the _username_ and _id_ fields, which tell the server who made the request.
+
+If the object decoded from the token does not contain the user's identity (`decodedToken.id` is undefined), error status code [401 unauthorized](https://www.rfc-editor.org/rfc/rfc9110.html#name-401-unauthorized) is returned and the reason for the failure is explained in the response body.
+
+```js
+if (!decodedToken.id) {
+  return response.status(401).json({
+    error: 'token invalid'
+  })
+}
+```
+
+When the identity of the maker of the request is resolved, the execution continues as before.
+
+A new note can now be created using Postman if the _authorization_ header is given the correct value, the string _Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ_, where the second value is the token returned by the login operation.
+
+Using Postman this looks as follows:
+
+![alt text](assets/image19.png)
+
+and with Visual Studio Code REST client
+
+![alt text](assets/image21.png)
+
+Current application code can be found on [GitHub](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part4-9), branch _part4-9_.
+
+If the application has multiple interfaces requiring identification, JWT's validation should be separated into its own middleware. An existing library like [express-jwt](https://www.npmjs.com/package/express-jwt) could also be used.
+

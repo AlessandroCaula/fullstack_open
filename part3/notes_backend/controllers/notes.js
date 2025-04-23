@@ -3,12 +3,14 @@ const Note = require('../models/note')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
+// Get all the notes
 notesRouter.get('/', async (request, response) => {
   const notes = await Note
     .find({}).populate('user', { username: 1, name: 1 })
   response.json(notes)
 })
 
+// Get a specific note
 notesRouter.get('/:id', async (request, response) => {
   const note = await Note.findById(request.params.id)
   if (note) {
@@ -26,6 +28,7 @@ const getTokenFrom = request => {
   return null
 }
 
+// Post a new note
 notesRouter.post('/', async (request, response) => {
   const body = request.body
   
@@ -48,11 +51,13 @@ notesRouter.post('/', async (request, response) => {
   response.status(201).json(savedNote)
 })
 
+// Delete a specific note
 notesRouter.delete('/:id', async (request, response) => {
   await Note.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
+// Modify a specific note
 notesRouter.put('/:id', (request, response, next) => {
   const { content, important } = request.body
 
