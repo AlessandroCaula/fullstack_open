@@ -1,8 +1,9 @@
 In this part, we will continue our work on the backend. Our first major theme will be writing unit and integration tests for the backend. After we have covered testing, we will take a look at implementing user authentication and authorization.
 
-# Table of Content
+# Table of Contents
+
 - [Part 4](#part-4)
-  - [Part4a - Structure of backend application, introduction to testing](#part4a---structure-of-backend-application-introduction-to-testing)
+  - [Part 4a - Structure of backend application, introduction to testing](#part-4a---structure-of-backend-application-introduction-to-testing)
     - [Project structure](#project-structure)
     - [Note on exports](#note-on-exports)
     - [Finding the usage of your exports with VS Code](#finding-the-usage-of-your-exports-with-vs-code)
@@ -10,25 +11,43 @@ In this part, we will continue our work on the backend. Our first major theme wi
     - [4.1 Blog List, step 1](#41-blog-list-step-1)
     - [4.2 Blog List, step 2](#42-blog-list-step-2)
   - [Testing Node applications](#testing-node-applications)
-    - [Exercise 4.3 - 4.7](#exercise-43---47)
-      - [4.3: Helper Functions and Unit Tests, step 1](#43-helper-functions-and-unit-tests-step-1)
-      - [4.4: Helper Functions and Unit Tests, step 2](#44-helper-functions-and-unit-tests-step-2)
-      - [4.5: Helper Functions and Unit Tests, step 3](#45-helper-functions-and-unit-tests-step-3)
-      - [4.6: Helper Functions and Unit Tests, step 4](#46-helper-functions-and-unit-tests-step-4)
-      - [4.7: Helper Functions and Unit Tests, step 5](#47-helper-functions-and-unit-tests-step-5)
+  - [Exercise 4.3 - 4.7](#exercise-43---47)
+    - [4.3: Helper Functions and Unit Tests, step 1](#43-helper-functions-and-unit-tests-step-1)
+    - [4.4: Helper Functions and Unit Tests, step 2](#44-helper-functions-and-unit-tests-step-2)
+    - [4.5: Helper Functions and Unit Tests, step 3](#45-helper-functions-and-unit-tests-step-3)
+    - [4.6: Helper Functions and Unit Tests, step 4](#46-helper-functions-and-unit-tests-step-4)
+    - [4.7: Helper Functions and Unit Tests, step 5](#47-helper-functions-and-unit-tests-step-5)
+  - [Supertest](#supertest)
+  - [Initializing the database before tests](#initializing-the-database-before-tests)
+  - [Running tests one by one](#running-tests-one-by-one)
+  - [async/await](#asyncawait)
+  - [async/await in the backend](#asyncawait-in-the-backend)
+  - [More tests and refactoring the backend](#more-tests-and-refactoring-the-backend)
+  - [Error handling and async/await](#error-handling-and-asyncawait)
+  - [Eliminating the try-catch](#eliminating-the-try-catch)
+  - [Optimizing the beforeEach function](#optimizing-the-beforeeach-function)
+  - [A true full stack developer's oath](#a-true-full-stack-developers-oath)
   - [Exercises 4.8 - 4.12](#exercises-48---412)
     - [4.8: Blog List Tests, step 1](#48-blog-list-tests-step-1)
+    - [4.9: Blog List Tests, step 2](#49-blog-list-tests-step-2)
+    - [4.10: Blog List Tests, step 3](#410-blog-list-tests-step-3)
+    - [4.11: Blog List Tests, step 4](#411-blog-list-tests-step-4)
+    - [4.12: Blog List Tests, step 5](#412-blog-list-tests-step-5)
   - [Part 4b - Testing the backend](#part-4b---testing-the-backend)
     - [Test Environment](#test-environment)
-    - [Initializing the database before tests](#initializing-the-database-before-tests)
-    - [Running tests one by one](#running-tests-one-by-one)
-    - [async/await](#asyncawait)
-    - [async/await in the backend](#asyncawait-in-the-backend)
-    - [More tests and refactoring the backend](#more-tests-and-refactoring-the-backend)
-    - [Error handling and async/await](#error-handling-and-asyncawait)
-    - [Eliminating the try-catch](#eliminating-the-try-catch)
-    - [Optimizing the beforeEach function](#optimizing-the-beforeeach-function)
-  - [A true full stack developer's oath](#a-true-full-stack-developers-oath)
+    - [Refactoring tests](#refactoring-tests)
+  - [Exercises 4.13 - 4.14](#exercises-413---414)
+    - [4.13 Blog List Expansions, step 1](#413-blog-list-expansions-step-1)
+    - [4.14 Blog List Expansions, step 2](#414-blog-list-expansions-step-2)
+  - [Part 4c - User administration](#part-4c---user-administration)
+    - [References across collections](#references-across-collections)
+    - [Mongoose schema for users](#mongoose-schema-for-users)
+    - [Creating users](#creating-users)
+    - [Populate](#populate)
+  - [Part 4d - Token authentication](#part-4d---token-authentication)
+    - [Limit creating new notes to logged-in user](#limit-creating-new-notes-to-logged-in-user)
+    - [Problems of Token-based authentication](#problems-of-token-based-authentication)
+  - [Exercises 4.15 - 4.23](#exercises-415---423)
 
 # Part 4
 
@@ -2817,3 +2836,22 @@ Usernames, passwords and applications using token authentication must always be 
 
 __NOTE__: At this stage, in the deployed notes app, it is expected that the creating a note feature will stop working as the backend login feature is not yet linked to the frontend.
 
+<hr style="border: 2px solid rgba(236, 236, 40, 0.89);">
+
+### Exercises 4.15 - 4.23
+
+In the next exercises, the basics of user management will be implemented for the Bloglist application. The safest way is to follow the course material from part 4 chapter [User administration](#part-4c---user-administration) to the chapter [Token authentication](#part-4d---token-authentication). You can of course also use your creativity.
+
+__One more warning__: If you notice you are mixing async/await and `then` calls, it is 99% certain you are doing something wrong. Use either or, never both.
+
+#### Part 4.15: Blog List Expansion, step 3
+
+Implement a way to create new users by doing an HTTP POST request to address _api/users_. Users have a _username_, _password_ and _name_.
+
+Do not save passwords to the database as clear text, but use the _bcrypt_ library like we did in part 4 chapter [Creating users](#creating-users).
+
+Implement a way to see the details of all users by doing a suitable HTTP request.
+
+The list of users can, for example, look as follows:
+
+![alt text](assets/image21.png)
