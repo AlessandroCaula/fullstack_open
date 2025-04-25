@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
+const { error } = require('../../../part3/notes_backend/utils/logger')
 
 // Route handler for retrieving all the users
 usersRouter.get('/', async (request, response) => {
@@ -12,18 +13,43 @@ usersRouter.get('/', async (request, response) => {
 usersRouter.post('/', async( request, response) => {
   const { username, name, password } = request.body
 
-  const saltRounds = 10
-  const passwordHash = await bcrypt.hash(password, saltRounds)
+  try {
+    // Validate the length of the password before is passed to bcrypt to create the passwordHash
+    if (!password) {
+      return response.status(400).json({
+        error: "Missing is password"
+      })
+    } else if (password.length < 3) {
+      return response.status(400).json({
+        error: "Password must be at least 3 characters"
+      })
+    }
 
-  const user = new User({
-      username, 
-      name,
-      passwordHash,
-  })
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(password, saltRounds)
+    
+    const user = new User({
+        username, 
+        name,
+        passwordHash,
+    })
+  
+    const savedUser = await user.save()
+    // Correctly save the new user
+    response.status(201).json(savedUser)
 
-  const savedUser = await user.save()
+  } catch (exception) {
+    // Handling the error
+    const errorMessage = exception.message.includes('minimum')
+      ? 'Username must be at least 3 characters'
+      : exception.message.includes('required')
+      ? 'Missing is username'
+      : 'Incorrect error'
 
-  response.status(201).json(savedUser)
+    response.status(400).json({
+      error: errorMessage
+    })    
+  }
 })
 
 module.exports = usersRouter

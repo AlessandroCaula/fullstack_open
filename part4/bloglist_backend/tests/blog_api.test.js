@@ -5,9 +5,7 @@ const supertest = require('supertest')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
-
 const Blog = require('../models/blog')
-const { title } = require('node:process')
 
 // Initialize the test database before every test with the beforeEach function
 beforeEach(async () => {

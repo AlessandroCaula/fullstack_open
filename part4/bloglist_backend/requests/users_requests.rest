@@ -23,3 +23,14 @@ Content-Type: application/json
 ###
 # Get all the users
 GET http://localhost:3003/api/users/
+
+###
+# POST a new user
+POST http://localhost:3003/api/users/
+Content-Type: application/json
+
+{
+  "username": "ww",
+  "name": "Alessandro Caula",
+  "password": "wwwwdw"
+}
