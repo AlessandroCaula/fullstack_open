@@ -1,11 +1,11 @@
 const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
-const { error } = require('../../../part3/notes_backend/utils/logger')
 
 // Route handler for retrieving all the users
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User
+    .find({}).populate('blogs') //, title: 1, author: 1, id: 1
   response.json(users)
 })
 

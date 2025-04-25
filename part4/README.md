@@ -2868,3 +2868,16 @@ Also, __implement tests__ that ensure invalid users are not created and that an 
 
 __NB__ if you decide to define tests on multiple files, you should note that by default each test file is executed in its own process (see `Test execution model` in the [documentation](https://nodejs.org/api/test.html#test-runner-execution-model)). The consequence of this is that different test files are executed at the same time. Since the tests share the same database, simultaneous execution may cause problems, which can be avoided by executing the tests with the option `--test-concurrency=1`, i.e. defining them to be executed sequentially.
 
+#### 4.17: Blog List Expansion, step 5
+
+Expand blogs so that each blog contains information on the creator of the blog.
+
+Modify adding new blogs so that when a new blog is created, _any_ user from the database is designated as its creator (for example the one found first). Implement this according to part 4 chapter [populate](#populate). Which user is designated as the creator does not matter just yet. The functionality is finished in exercise 4.19.
+
+Modify listing all blogs so that the creator's user information is displayed with the blog:
+
+![alt text](assets/image22.png)
+
+and listing all users also displays the blogs created by each user:
+
+![alt text](assets/image23.png)
