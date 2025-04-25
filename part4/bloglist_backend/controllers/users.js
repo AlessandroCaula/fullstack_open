@@ -12,7 +12,7 @@ usersRouter.get('/', async (request, response) => {
 // Adding a new user
 usersRouter.post('/', async( request, response) => {
   const { username, name, password } = request.body
-
+  
   try {
     // Validate the length of the password before is passed to bcrypt to create the passwordHash
     if (!password) {
@@ -22,6 +22,14 @@ usersRouter.post('/', async( request, response) => {
     } else if (password.length < 3) {
       return response.status(400).json({
         error: "Password must be at least 3 characters"
+      })
+    }
+
+    // Checking that the username is unique. 
+    const users = await User.find({})
+    if (users.map(user => user.username).includes(username)) {
+      return response.status(400).json({
+        error: 'Username must be unique'
       })
     }
 
