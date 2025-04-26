@@ -29,3 +29,16 @@ Content-Type: application/json
 {
   "likes": 42
 }
+
+###
+# Blog post with logged in user
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFjYXVsYSIsImlkIjoiNjgwZDA4MjZkZDAyYzIyN2EzMzRlOWU4IiwiaWF0IjoxNzQ1NjkwNzc4fQ.HeEzmNIhxhqJq785TEagoAhRHbbOQesw32FqmWKhAxo
+
+{
+  "title": "Blog 4",
+  "author": "Author 4",
+  "url": "url 4",
+  "likes": 4
+}

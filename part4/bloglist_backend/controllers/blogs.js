@@ -29,12 +29,17 @@ blogsRouter.post("/", async (request, response, next) => {
     // Retrieve the added blog body
     const body = request.body;
 
-    // Retrieve a random User that has posted this blog
-    const users = await User.find({})
-    // Randomize a number index that will be the user 
-    const randomIdx = Math.floor(Math.random() * users.length)
-    // Retrieve the userId of the random user
-    const user = users[randomIdx]
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid' })
+    }
+    // // Retrieve a random User that has posted this blog
+    // const users = await User.find({})
+    // // Randomize a number index that will be the user 
+    // const randomIdx = Math.floor(Math.random() * users.length)
+    // // Retrieve the userId of the random user
+    // const user = users[randomIdx]
+    const user = await User.findById(decodedToken.id)
 
     const blog = new Blog({
       title: body.title,

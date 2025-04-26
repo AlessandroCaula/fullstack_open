@@ -2886,3 +2886,7 @@ and listing all users also displays the blogs created by each user:
 
 Implement token-based authentication according to part 4 chapter [Token authentication](#part-4d---token-authentication).
 
+#### 4.19: Blog List Expansion, step 7
+
+Modify adding new blogs so that it is only possible if a valid token is sent with the HTTP POST request. The user identified by the token is designated as the creator of the blog.
+
