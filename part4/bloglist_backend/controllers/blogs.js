@@ -5,7 +5,8 @@ const User = require("../models/user");
 // Retrieving all the blogs
 blogsRouter.get("/", async (request, response) => {
   try {
-    const blogs = await Blog.find({});
+    const blogs = await Blog
+      .find({}).populate('user', { username: 1, name: 1, id: 1 })
     response.json(blogs);
   } catch (exception) {
     next(exception);
@@ -33,6 +34,7 @@ blogsRouter.post("/", async (request, response, next) => {
       likes: body.likes || 0,
     });
 
+    // Update the user object. The id of the note is stored in the notes field of the user object.
     const savedBlog = await blog.save();
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()

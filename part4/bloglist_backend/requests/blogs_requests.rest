@@ -11,10 +11,10 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "Blog 11",
-  "author": "Author 11",
-  "url": "url 11",
-  "likes": 60
+  "title": "Blog 3",
+  "author": "Author 3",
+  "url": "url 3",
+  "likes": 3
 }
 
 ###
