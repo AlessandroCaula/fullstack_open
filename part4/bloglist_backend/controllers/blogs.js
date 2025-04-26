@@ -1,6 +1,7 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
+const jwt = require('jsonwebtoken')
 
 // Retrieving all the blogs
 blogsRouter.get("/", async (request, response) => {
@@ -13,12 +14,21 @@ blogsRouter.get("/", async (request, response) => {
   }
 });
 
+// Let's ensure that only logged in users can post new blogs
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
 // Adding one note
 blogsRouter.post("/", async (request, response, next) => {
-  // Retrieve the added blog body
-  const body = request.body;
-
   try {
+    // Retrieve the added blog body
+    const body = request.body;
+
     // Retrieve a random User that has posted this blog
     const users = await User.find({})
     // Randomize a number index that will be the user 
