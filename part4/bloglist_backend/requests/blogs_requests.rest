@@ -34,11 +34,11 @@ Content-Type: application/json
 # Blog post with logged in user
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFjYXVsYSIsImlkIjoiNjgwZDA4MjZkZDAyYzIyN2EzMzRlOWU4IiwiaWF0IjoxNzQ1NjkwNzc4fQ.HeEzmNIhxhqJq785TEagoAhRHbbOQesw32FqmWKhAxo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NjkyNjQ1LCJleHAiOjE3NDU2OTYyNDV9.sahmsCnAmjW-vi6xj8Gvzdhx1HlYD0FFd6llW4n0G_k
 
 {
-  "title": "Blog 4",
-  "author": "Author 4",
-  "url": "url 4",
-  "likes": 4
+  "title": "Blog 5",
+  "author": "Author 5",
+  "url": "url 5",
+  "likes": 5
 }

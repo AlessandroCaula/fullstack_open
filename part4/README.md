@@ -2890,3 +2890,34 @@ Implement token-based authentication according to part 4 chapter [Token authenti
 
 Modify adding new blogs so that it is only possible if a valid token is sent with the HTTP POST request. The user identified by the token is designated as the creator of the blog.
 
+#### 4.20*: Blog List Expansion, step 8
+
+[This example](#limit-creating-new-notes-to-logged-in-user) from part 4 shows taking the token from the header with the `getTokenFrom` helper function in _controllers/blogs.js_.
+
+If you used the same solution, refactor taking the token to a middleware. The middleware should take the token from the _Authorization_ header and assign it to the token field of the _request_ object.
+
+In other words, if you register this middleware in the _app.js_ file before all routes
+
+```js
+app.use(middleware.tokenExtractor)
+```
+
+Routes can access the token with `request.token`:
+
+```js
+blogsRouter.post('/', async (request, response) => {
+  // ..
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  // ..
+})
+```
+
+Remember that a normal [middleware function](../part3/README.md#middleware) is a function with three parameters, that at the end calls the last parameter _next_ to move the control to the next middleware:
+
+```js
+const tokenExtractor = (request, response, next) => {
+  // code that extracts the token
+
+  next()
+}
+```

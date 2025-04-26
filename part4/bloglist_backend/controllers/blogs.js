@@ -14,22 +14,22 @@ blogsRouter.get("/", async (request, response) => {
   }
 });
 
-// Let's ensure that only logged in users can post new blogs
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
+// // Let's ensure that only logged in users can post new blogs
+// const getTokenFrom = request => {
+//   const authorization = request.get('authorization')
+//   if (authorization && authorization.startsWith('Bearer ')) {
+//     return authorization.replace('Bearer ', '')
+//   }
+//   return null
+// }
 
 // Adding one note
-blogsRouter.post("/", async (request, response, next) => {
+blogsRouter.post("/", async (request, response) => {
   try {
     // Retrieve the added blog body
     const body = request.body;
 
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+    const decodedToken = jwt.verify(request.token, process.env.SECRET) // getTokenFrom(request)
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token invalid' })
     }
