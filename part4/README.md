@@ -48,7 +48,15 @@ In this part, we will continue our work on the backend. Our first major theme wi
     - [Limit creating new notes to logged-in user](#limit-creating-new-notes-to-logged-in-user)
     - [Problems of Token-based authentication](#problems-of-token-based-authentication)
   - [Exercises 4.15 - 4.23](#exercises-415---423)
-
+    - [4.15 Blog List Expansion, step 3](#415-blog-list-expansion-step-3)
+    - [4.16 Blog List Expansion, step 4](#416-blog-list-expansion-step-4)
+    - [4.17 Blog List Expansion, step 5](#417-blog-list-expansion-step-5)
+    - [4.18 Blog List Expansion, step 6](#418-blog-list-expansion-step-6)
+    - [4.19 Blog List Expansion, step 7](#419-blog-list-expansion-step-7)
+    - [4.20 Blog List Expansion, step 8](#420-blog-list-expansion-step-8)
+    - [4.21 Blog List Expansion, step 9](#421-blog-list-expansion-step-9)
+    - [4.22 Blog List Expansion, step 10](#422-blog-list-expansion-step-10)
+    - [4.23 Blog List Expansion, step 11](#423-blog-list-expansion-step-11)
 # Part 4
 
 ## Part 4a - Structure of backend application, introduction to testing
