@@ -1,5 +1,6 @@
 const logger = require('./logger')
 const jwt = require('jsonwebtoken')
+const User = require("../models/user");
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -21,16 +22,18 @@ const tokenExtractor = (request, response, next) => {
 }
 
 // Extract the user associated to the token
-const userExtractor = (request, response, next) => {
+const userExtractor = async (request, response, next) => {
   if (!request.token) {
     request.user = null // No token provided
     return next() // skip further processing
   }
-  
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log('MIDDLEWARE', decodedToken.id)
+  const user = await User.findById(decodedToken.id)
+
+  console.log('MIDDLEWARE', user)
+
   if (decodedToken.id) {
-    request.user = decodedToken.id // Assign the user id to the request
+    request.user = user // Assign the user id to the request
   } else {
     request.user = null // Assign null if no user is found
   }

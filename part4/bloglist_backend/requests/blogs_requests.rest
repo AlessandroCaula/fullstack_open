@@ -34,16 +34,16 @@ Content-Type: application/json
 # Blog post with logged in user
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzQ1MjY5LCJleHAiOjE3NDU3NDg4Njl9.HL6azsJsXXmtGQapTj6iy3jh6-Y8al00zU1QPYLomIY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzY5ODAyLCJleHAiOjE3NDU3NzM0MDJ9.SgteCM2h3h5G1VoJCOSCeLCWrdZgDgskvd92h6Sfv3A
 
 {
-  "title": "Blog 5",
-  "author": "Author 5",
-  "url": "url 5",
-  "likes": 5
+  "title": "Blog 7",
+  "author": "Author 7",
+  "url": "url 7",
+  "likes": 7
 }
 
 ###
 # Deleting a blog. Can be deleted only by the user that posted it. 
-DELETE http://localhost:3003/api/blogs/680df5844954ad7dbdc319bf
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzQ1MjY5LCJleHAiOjE3NDU3NDg4Njl9.HL6azsJsXXmtGQapTj6iy3jh6-Y8al00zU1QPYLomIY
+DELETE http://localhost:3003/api/blogs/680e57957f9b4726760a48d9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzY5ODAyLCJleHAiOjE3NDU3NzM0MDJ9.SgteCM2h3h5G1VoJCOSCeLCWrdZgDgskvd92h6Sfv3A

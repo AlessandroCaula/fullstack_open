@@ -39,7 +39,10 @@ blogsRouter.post("/", async (request, response) => {
     // const randomIdx = Math.floor(Math.random() * users.length)
     // // Retrieve the userId of the random user
     // const user = users[randomIdx]
-    const user = await User.findById(decodedToken.id)
+    // const user = await User.findById(decodedToken.id)
+
+    // Retrieving the user from the middleware
+    const user = request.user
 
     const blog = new Blog({
       title: body.title,
@@ -70,7 +73,8 @@ blogsRouter.delete("/:id", async (request, response, next) => {
       return response.status(401).json({ error: 'token invalid' })
     }
     // Retrieve the user that sent the delete request
-    const user = await User.findById(decodedToken.id)
+    // const user = await User.findById(decodedToken.id)
+    const user = request.user
     // Retrieve the blog that we want to delete
     const blog = await Blog.findById(request.params.id)
     // Check if the user that wants to delete the blog is the same that posted it.
