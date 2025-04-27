@@ -2,7 +2,6 @@ const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const jwt = require('jsonwebtoken');
-const { tokenExtractor } = require("../utils/middleware");
 
 // Retrieving all the blogs
 blogsRouter.get("/", async (request, response) => {
@@ -67,6 +66,9 @@ blogsRouter.delete("/:id", async (request, response, next) => {
   try {
     // Check the logged in user. Only the user that posts the blog can delete it.
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid' })
+    }
     // Retrieve the user that sent the delete request
     const user = await User.findById(decodedToken.id)
     // Retrieve the blog that we want to delete
