@@ -6,11 +6,35 @@ const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+// Declare a variable to store the token
+let token
 
 // Initialize the test database before every test with the beforeEach function
 beforeEach(async () => {
-  await Blog.deleteMany({})
+  await Blog.deleteMany({}) // Clear all the blogs before every test is run
+  await User.deleteMany({}) // Clear all the users before every test is run
 
+  // Create a new user and generate a token
+  const newUser = {
+    username: 'testUser',
+    name: 'Test User',
+    password: '12345'
+  }
+  // Add the user to the database
+  await api
+    .post('/api/users')
+    .send(newUser)
+  
+  // Log in to get the token 
+  const loginResponse = await api
+    .post('/api/login')
+    .send({ username: newUser.username, password: newUser.password })
+  
+  token = loginResponse.body.token // Extract the token from the login response
+
+  // Initialize the Blogs
   const blogObjects = helper.initialBlogs
     .map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
@@ -41,6 +65,7 @@ test('a valid blog can be added', async() => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`) // Add the token to the Authorization header
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -72,6 +97,7 @@ test('missing likes will default to value 0', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`) // Add the token to the Authorization header
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -97,11 +123,28 @@ test('cannot add blogs without title or url', async () => {
 
 // Test for checking if the deletion of a blog works with a correct id
 test('note is successfully deleted with status code 204 if id is valid', async () => {
+  // Adding a new blog that will be then deleted
+  const newBlog = {
+    title: "Valid Blog",
+    author: "Alessandro Caula",
+    url: "https://github.com/AlessandroCaula",
+    likes: 0,
+  }
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`) // Add the token to the Authorization header
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
   const blogsAtStart = await helper.blogsInDb()
-  const blogToDelete = blogsAtStart[0]
+  // Deleting the last added valid blog. The one above
+  const blogToDelete = blogsAtStart[blogsAtStart.length - 1]
 
+  // Deleting the blog
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set('Authorization', `Bearer ${token}`) // Add the token to the Authorization header
     .expect(204)
   
   const blogsAtEnd = await helper.blogsInDb()
