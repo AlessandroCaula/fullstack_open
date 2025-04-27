@@ -1,7 +1,8 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { tokenExtractor } = require("../utils/middleware");
 
 // Retrieving all the blogs
 blogsRouter.get("/", async (request, response) => {
@@ -64,8 +65,24 @@ blogsRouter.post("/", async (request, response) => {
 // Deleting a note
 blogsRouter.delete("/:id", async (request, response, next) => {
   try {
-    await Blog.findByIdAndDelete(request.params.id);
-    response.status(204).end();
+    // Check the logged in user. Only the user that posts the blog can delete it.
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    // Retrieve the user that sent the delete request
+    const user = await User.findById(decodedToken.id)
+    // Retrieve the blog that we want to delete
+    const blog = await Blog.findById(request.params.id)
+    // Check if the user that wants to delete the blog is the same that posted it.
+    if (user.id.toString() === blog.user.toString()) {
+      await Blog.findByIdAndDelete(blog.id)
+      response.status(204).end()
+    } else {
+      response.status(400).json({
+        error: 'Only user that post the blog can delete it'
+      })
+    }
+
+    // await Blog.findByIdAndDelete(request.params.id);
+    // response.status(204).end();
   } catch (exception) {
     next(exception);
   }
