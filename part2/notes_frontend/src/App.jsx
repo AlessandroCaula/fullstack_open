@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import Note from "./components/Note"
 import noteService from './services/notes'
 import Notification from "./components/Notification"
+import loginService from './services/login'
 
 // Bottom block component, a Footer component.
 const Footer = () => {
@@ -32,6 +33,26 @@ const App = () => {
   // Handling login
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [user, setUser] = useState(null)
+
+  // Handling login
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    
+    try {
+      const user = await loginService.login({
+        username, password,
+      })
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (exception) {
+      setErrorMessage('Wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
 
   // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
   useEffect(() => {
@@ -114,41 +135,60 @@ const App = () => {
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
 
-  // Handling login
-  const handleLogin = (event) => {
-    event.preventDefault()
-    console.log('logging in with', username, password)
-  }
+  const loginForm = () => (
+    <form onSubmit={handleLogin}>
+      <div>
+        username
+        <input 
+          type="text"
+          value={username}
+          name="Username"
+          onChange={({ target }) => setUsername(target.value)}
+        />
+      </div>
+      <div>
+        password
+        <input 
+          type="password"
+          value={password}
+          name="Password"
+          onChange={({ target }) => setPassword(target.value)}
+        />
+      </div>
+      <button type="submit">login</button>
+    </form>
+  )
+
+  const noteForm = () => (
+    // Adding an HTML form that will be used for adding new notes.
+    <form onSubmit={addNote}>
+      <input 
+        value={newNote}
+        // Register an event handler to the onChange attribute of the form's input element
+        onChange={handleNoteChange}
+      />
+      <button type="submit">save</button>
+    </form>
+  )
 
   return (
     <div>
-
       <h1>Notes</h1>
 
       <Notification message={errorMessage} />
 
-      {/* Forms for login */}
-      <form onSubmit={handleLogin}>
+      {/* {user === null && loginForm()}
+      {user !== null && noteForm()} */}
+
+      {user === null ? 
+        loginForm() : 
         <div>
-          username 
-          <input 
-            type="text"
-            value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
+          <p>{user.name} logged</p>
+          {noteForm()}
         </div>
-        <div>
-          password
-          <input
-            type="password"
-            value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </div>
-        <button type="submit">login</button>
-      </form>
+      }
+
+      <h2>Notes</h2>
 
       <div>
         {/* Invert the value of the showAll state */}
@@ -167,16 +207,6 @@ const App = () => {
           />
         )}
       </ul>
-      {/* Adding an HTML form that will be used for adding new notes. */}
-      <form onSubmit={addNote}>
-        <input
-          placeholder="a new note..."
-          value={newNote}
-          // Register an event handler to the onChange attribute of the form's input element
-          onChange={handleNoteChange}
-        />
-        <button type="submit">save</button>
-      </form>
 
       <Footer />
 
