@@ -29,6 +29,9 @@ const App = () => {
   const [showAll, setShowAll] = useState(true)
   // Error message useState hook
   const [errorMessage, setErrorMessage] = useState('some error happened...')
+  // Handling login
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
   // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
   useEffect(() => {
@@ -111,12 +114,41 @@ const App = () => {
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
 
+  // Handling login
+  const handleLogin = (event) => {
+    event.preventDefault()
+    console.log('logging in with', username, password)
+  }
+
   return (
     <div>
 
       <h1>Notes</h1>
 
       <Notification message={errorMessage} />
+
+      {/* Forms for login */}
+      <form onSubmit={handleLogin}>
+        <div>
+          username 
+          <input 
+            type="text"
+            value={username}
+            name="Username"
+            onChange={({ target }) => setUsername(target.value)}
+          />
+        </div>
+        <div>
+          password
+          <input
+            type="password"
+            value={password}
+            name="Password"
+            onChange={({ target }) => setPassword(target.value)}
+          />
+        </div>
+        <button type="submit">login</button>
+      </form>
 
       <div>
         {/* Invert the value of the showAll state */}
