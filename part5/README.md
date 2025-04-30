@@ -386,3 +386,114 @@ const handleLogin = async (event) => {
 
 And now adding new notes works again!
 
+### Saving the token to the browser's local storage
+
+Our application has a small flaw: if the browser is refreshed (eg. pressing F5), the user's login information disappears.
+
+This problem is easily solved by saving the login details to [local storage](https://developer.mozilla.org/en-US/docs/Web/API/Storage). Local Storage is a [key-value database](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) in the browser.
+
+It is very easy to use. A _value_ corresponding to a certain _key_ is saved to the database with the method [setItem](https://developer.mozilla.org/en-US/docs/Web/API/Storage/setItem). For example:
+
+```js
+window.localStorage.setItem('name', 'juha tauriainen')
+```
+
+saves the string given as the second parameter as the value of the key _name_.
+
+The value of a key can be found with the method [getItem](https://developer.mozilla.org/en-US/docs/Web/API/Storage/getItem):
+
+```js
+window.localStorage.getItem('name')
+```
+
+while [removeItem](https://developer.mozilla.org/en-US/docs/Web/API/Storage/removeItem) removes a key.
+
+Values in the local storage are persisted even when the page is _re-rendered_. The storage is [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin)-specific so each web application has its own storage.
+
+Let's extend our application so that it saves the details of a logged-in user to the local storage.
+
+Values saved to the storage are [DOMstrings](https://docs.w3cub.com/dom/domstring), so we cannot save a JavaScript object as it is. The object has to be parsed to JSON first, with the method `JSON.stringify`. Correspondingly, when a JSON object is read from the local storage, it has to be parsed back to JavaScript with `JSON.parse`.
+
+Changes to the login method are as follows:
+
+```js
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      const user = await loginService.login({
+        username, password,
+      })
+
+      window.localStorage.setItem(
+        'loggedNoteappUser', JSON.stringify(user)
+      ) 
+      noteService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (exception) {
+      // ...
+    }
+  }
+```
+
+The details of a logged-in user are now saved to the local storage, and they can be viewed on the console (by typing `window.localStorage` in it):
+
+![alt text](assets/image2.png)
+
+You can also inspect the local storage using the developer tools. On Chrome, go to the _Application_ tab and select _Local Storage_ (more details [here](https://developer.chrome.com/docs/devtools/storage/localstorage)). On Firefox go to the _Storage_ tab and select _Local Storage_ (details [here](https://firefox-source-docs.mozilla.org/devtools-user/storage_inspector/index.html)).
+
+We still have to modify our application so that when we enter the page, the application checks if user details of a logged-in user can already be found on the local storage. If they are there, the details are saved to the state of the application and to _noteService_.
+
+The right way to do this is with an [effect hook](https://react.dev/reference/react/useEffect): a mechanism we first encountered in part 2, and used to fetch notes from the server.
+
+We can have multiple effect hooks, so let's create a second one to handle the first loading of the page:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState([]) 
+  const [newNote, setNewNote] = useState('')
+  const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [username, setUsername] = useState('') 
+  const [password, setPassword] = useState('') 
+  const [user, setUser] = useState(null) 
+
+  useEffect(() => {
+    noteService
+      .getAll().then(initialNotes => {
+        setNotes(initialNotes)
+      })
+  }, [])
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      noteService.setToken(user.token)
+    }
+  }, [])
+
+  // ...
+}
+```
+
+The empty array as the parameter of the effect ensures that the effect is executed only when the component is rendered [for the first time](https://react.dev/reference/react/useEffect#parameters).
+
+Now a user stays logged in to the application forever. We should probably add a _logout_ functionality, which removes the login details from the local storage. We will however leave it as an exercise.
+
+It's possible to log out a user using the console, and that is enough for now. You can log out with the command:
+
+```js
+window.localStorage.removeItem('loggedNoteappUser')
+```
+
+or with the command which empties localstorage completely:
+
+```js
+window.localStorage.clear()
+```
+
+The current application code can be found on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-3), in the branch _part5-3_.
+
