@@ -305,3 +305,84 @@ Our main component _App_ is at the moment way too large. The changes we did now 
 
 The current application code can be found on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-2), in the branch _part5-2_.
 
+### Creating new notes
+
+The token returned with a successful login is saved to the application's state - the _user_'s field _token_:
+
+```js
+const handleLogin = async (event) => {
+  event.preventDefault()
+  try {
+    const user = await loginService.login({
+      username, password,
+    })
+
+    setUser(user)
+    setUsername('')
+    setPassword('')
+  } catch (exception) {
+    // ...
+  }
+}
+```
+
+Let's fix creating new notes so it works with the backend. This means adding the token of the logged-in user to the Authorization header of the HTTP request.
+
+The _noteService_ module changes like so:
+
+```js
+import axios from 'axios'
+const baseUrl = '/api/notes'
+
+let token = null
+
+const setToken = newToken => {
+  token = `Bearer ${newToken}`
+}
+
+const getAll = () => {
+  const request = axios.get(baseUrl)
+  return request.then(response => response.data)
+}
+
+const create = async newObject => {
+  const config = {
+    headers: { Authorization: token },
+  }
+
+  const response = await axios.post(baseUrl, newObject, config)
+  return response.data
+}
+
+const update = (id, newObject) => {
+  const request = axios.put(`${ baseUrl }/${id}`, newObject)
+  return request.then(response => response.data)
+}
+
+export default { getAll, create, update, setToken }
+```
+
+The noteService module contains a private variable called `token`. Its value can be changed with the `setToken` function, which is exported by the module. `create`, now with async/await syntax, sets the token to the _Authorization_ header. The header is given to axios as the third parameter of the _post_ method.
+
+The event handler responsible for login must be changed to call the method `noteService.setToken(user.token)` with a successful login:
+
+```js
+const handleLogin = async (event) => {
+  event.preventDefault()
+  try {
+    const user = await loginService.login({
+      username, password,
+    })
+
+    noteService.setToken(user.token)
+    setUser(user)
+    setUsername('')
+    setPassword('')
+  } catch (exception) {
+    // ...
+  }
+}
+```
+
+And now adding new notes works again!
+
