@@ -521,3 +521,14 @@ git clone https://github.com/fullstack-hy2020/bloglist-frontend
 
 _Remove the git configuration of the cloned application_
 
+```
+cd bloglist-frontend   // go to cloned repository
+rm -rf .git
+```
+
+The application is started the usual way, but you have to install its dependencies first:
+
+```
+npm install
+npm run dev
+```
