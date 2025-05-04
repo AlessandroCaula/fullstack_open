@@ -497,3 +497,27 @@ window.localStorage.clear()
 
 The current application code can be found on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-3), in the branch _part5-3_.
 
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
+
+### Exercise 5.1-5.4
+
+We will now create a frontend for the blog list backend we created in the last part. You can use [this application](https://github.com/fullstack-hy2020/bloglist-frontend) from GitHub as the base of your solution. You need to connect your backend with a proxy as shown in [part 3](/part3/README.md#proxy).
+
+It is enough to submit your finished solution. You can commit after each exercise, but that is not necessary.
+
+The first few exercises revise everything we have learned about React so far. They can be challenging, especially if your backend is incomplete. It might be best to use the backend that we marked as the answer for part 4.
+
+While doing the exercises, remember all of the debugging methods we have talked about, especially keeping an eye on the console.
+
+__Warning__: If you notice you are mixing in the `async/await` and then commands, it's 99.9% certain you are doing something wrong. Use either or, never both.
+
+#### 5.1: Blog List Frontend, step 1
+
+Clone the application from [GitHub](https://github.com/fullstack-hy2020/bloglist-frontend) with the command:
+
+```
+git clone https://github.com/fullstack-hy2020/bloglist-frontend
+```
+
+_Remove the git configuration of the cloned application_
+
