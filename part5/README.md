@@ -569,3 +569,12 @@ __NB__ You can implement the conditional rendering of the login form like this f
   )
 }
 ```
+
+#### Exercise 5.2: Blog List Frontend, step 2
+
+Make the login 'permanent' by using the local storage. Also, implement a way to log out.
+
+![alt text](assets/image5.png)
+
+Ensure the browser does not remember the details of the user after logging out.
+

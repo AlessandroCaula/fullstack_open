@@ -10,10 +10,21 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
+  // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs)
     )  
+  }, [])
+
+  // Use effect to check if a user is already logged in at first DOM load
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedUser')
+    // If it exist, set the user
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+    }
   }, [])
 
   const handleLogin = async (event) => {
@@ -23,6 +34,10 @@ const App = () => {
       const user = await loginService.login({
         username, password
       })
+      // Saving the logged in user to the local storage
+      window.localStorage.setItem(
+        'loggedUser', JSON.stringify(user)
+      )
       setUser(user)
       setUsername('')
       setPassword('')
@@ -31,11 +46,17 @@ const App = () => {
     }
   }
 
+  const handleLogout = () => {
+    window.localStorage.clear()
+    setUser(null)
+  }
+
   // If the user is not logged in, return the login form
   if (!user) {
     return (
       <div>
         <h2>Log in to application</h2>
+
         <form onSubmit={handleLogin}>
           {/* Username field */}
           <div>
@@ -67,6 +88,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+
       {/* Filter and select only the blogs belonging to the login user */}
       {blogs
         .filter(blog => 
@@ -75,7 +97,10 @@ const App = () => {
           <Blog key={blog.id} blog={blog} />
         )}
       {console.log(blogs)}
-    </div>
+
+      {/* Button for logging out */}
+      <button onClick={handleLogout}>Log out</button>
+    </div>    
   )
 }
 
