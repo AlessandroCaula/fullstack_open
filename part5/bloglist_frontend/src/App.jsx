@@ -9,12 +9,24 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  // New blog
+  const [blogTitle, setBlogTitle] = useState('')
+  const [blogAuthor, setBlogAuthor] = useState('')
+  const [blogUrl, setBlogUrl] = useState('')
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    // blogService.getAll().then(blogs =>
+    //   setBlogs(blogs)
+    // )
+
+    // Since you cannot directly use an async function inside the useEffect hook. 
+    // We should define an async function inside the useEffect and call it.
+    const fetchBlogs = async () => {
+      const blogs = await blogService.getAll()
       setBlogs(blogs)
-    )  
+    }
+    fetchBlogs()
   }, [])
 
   // Use effect to check if a user is already logged in at first DOM load
@@ -24,6 +36,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -38,6 +51,8 @@ const App = () => {
       window.localStorage.setItem(
         'loggedUser', JSON.stringify(user)
       )
+      // Setting the token for the logged in user.
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -49,6 +64,26 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.clear()
     setUser(null)
+  }
+
+  const handleAddNewBlog = async (event) => {
+    event.preventDefault()
+
+    try {
+      const newBlog = {
+        title: blogTitle, 
+        author: blogAuthor, 
+        url: blogUrl
+      }
+      const newBlogAdded = await blogService.create(newBlog)
+      // console.log(newBlogAdded)
+      const updatedBlogs = blogs.concat(newBlogAdded)
+      // console.log(updatedBlogs)
+      setBlogs(updatedBlogs)
+    } catch (exception) {
+      alert('Blog cannot be created')
+    }
+    // console.log(blogTitle, blogAuthor, blogUrl)
   }
 
   // If the user is not logged in, return the login form
@@ -88,15 +123,53 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <p>{user.name} logged in</p>
+      
+      {/* Allowing new user to add new blogs  */}
+      <h2>Create new</h2>
+      <form onSubmit={handleAddNewBlog}> 
+        {/* Blog title */}
+        <div>
+          Title:
+          <input 
+            type='text'
+            value={blogTitle}
+            name='BlogTitle'
+            onChange={({ target }) => setBlogTitle(target.value)}
+          />
+        </div>
+        {/* Blog author */}
+        <div>
+          Author: 
+          <input 
+            type='text'
+            value={blogAuthor}
+            name='BlogAuthor'
+            onChange={({ target }) => setBlogAuthor(target.value)}
+          />
+        </div>
+        {/* Blog url */}
+        <div>
+          Url:
+          <input 
+            type='text'
+            value={blogUrl}
+            name='BlogUrl'
+            onChange={({ target }) => setBlogUrl(target.value)}
+          />
+        </div>
+        <button type='submit'>Create</button>
+      </form>
 
       {/* Filter and select only the blogs belonging to the login user */}
+      {console.log(blogs)}
+      {console.log(user)}
       {blogs
         .filter(blog => 
-          blog.user && blog.user.username.toLowerCase() === user.username.toLowerCase())
+          blog.user && (blog.user.id === user.id || blog.user === user.id))
         .map(blog =>
           <Blog key={blog.id} blog={blog} />
-        )}
-      {console.log(blogs)}
+      )}
 
       {/* Button for logging out */}
       <button onClick={handleLogout}>Log out</button>

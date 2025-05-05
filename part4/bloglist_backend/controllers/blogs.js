@@ -48,11 +48,11 @@ blogsRouter.post("/", async (request, response) => {
       title: body.title,
       author: body.author,
       url: body.url,
-      user: user.id,
+      user: user._id,
       likes: body.likes || 0,
     });
 
-    // Update the user object. The id of the note is stored in the notes field of the user object.
+    // Update the user object. The id of the blog is stored in the notes field of the user object.
     const savedBlog = await blog.save();
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
