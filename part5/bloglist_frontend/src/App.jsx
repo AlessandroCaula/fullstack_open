@@ -21,7 +21,7 @@ const App = () => {
 
     try {
       const user = await loginService.login({
-        username, password,
+        username, password
       })
       setUser(user)
       setUsername('')
@@ -67,9 +67,14 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {/* Filter and select only the blogs belonging to the login user */}
+      {blogs
+        .filter(blog => 
+          blog.user && blog.user.username.toLowerCase() === user.username.toLowerCase())
+        .map(blog =>
+          <Blog key={blog.id} blog={blog} />
+        )}
+      {console.log(blogs)}
     </div>
   )
 }
