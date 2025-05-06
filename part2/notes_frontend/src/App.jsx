@@ -3,6 +3,7 @@ import Note from "./components/Note"
 import noteService from './services/notes'
 import Notification from "./components/Notification"
 import loginService from './services/login'
+import LoginForm from "./components/LoginForm"
 
 // Bottom block component, a Footer component.
 const Footer = () => {
@@ -29,11 +30,13 @@ const App = () => {
   // Let's add a new functionality to our application that allows us to only view the important notes. 
   const [showAll, setShowAll] = useState(true)
   // Error message useState hook
-  const [errorMessage, setErrorMessage] = useState('some error happened...')
+  const [errorMessage, setErrorMessage] = useState('')
   // Handling login
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  // Login form
+  const [loginVisible, setLoginVisible] = useState(false)
 
   // Handling login
   const handleLogin = async (event) => {
@@ -148,29 +151,31 @@ const App = () => {
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+
+    console.log(hideWhenVisible)
+    console.log(showWhenVisible)
+  
+    return (
       <div>
-        username
-        <input 
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
       </div>
-      <div>
-        password
-        <input 
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
-    </form>
-  )
+    )
+  }
 
   const noteForm = () => (
     // Adding an HTML form that will be used for adding new notes.
@@ -188,7 +193,7 @@ const App = () => {
     <div>
       <h1>Notes</h1>
 
-      <Notification message={errorMessage} />
+      {errorMessage && <Notification message={errorMessage} />}
 
       {/* {user === null && loginForm()}
       {user !== null && noteForm()} */}
@@ -202,7 +207,6 @@ const App = () => {
       }
 
       <h2>Notes</h2>
-
       <div>
         {/* Invert the value of the showAll state */}
         <button onClick={() => setShowAll(!showAll)}>

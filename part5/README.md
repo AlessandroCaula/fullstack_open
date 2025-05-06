@@ -613,3 +613,153 @@ It has been suggested that the identity of a signed-in user should be saved as [
 However, it is good to notice that even the use of httpOnly cookies does not guarantee anything. It has even been suggested that httpOnly cookies are [not any safer than](https://academind.com/tutorials/localstorage-vs-cookies-xss/) the use of local storage.
 
 So no matter the used solution the most important thing is to [minimize the risk](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html) of XSS attacks altogether.
+
+## Part 5b - props.children and proptypes
+
+### Displaying the login form only when appropriate
+
+Let's modify the application so that the login form is not displayed by default:
+
+![alt text](assets/image10.png)
+
+The login form appears when the user presses the _login_ button:
+
+![alt text](assets/image11.png)
+
+The user can close the login form by clicking the _cancel_ button.
+
+Let's start by extracting the login form into its own component:
+
+```js
+const LoginForm = ({
+   handleSubmit,
+   handleUsernameChange,
+   handlePasswordChange,
+   username,
+   password
+  }) => {
+  return (
+    <div>
+      <h2>Login</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          username
+          <input
+            value={username}
+            onChange={handleUsernameChange}
+          />
+        </div>
+        <div>
+          password
+          <input
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+        </div>
+        <button type="submit">login</button>
+      </form>
+    </div>
+  )
+}
+
+export default LoginForm
+```
+
+The state and all the functions related to it are defined outside of the component and are passed to the component as props.
+
+Notice that the props are assigned to variables through _destructuring_, which means that instead of writing:
+
+```js
+const LoginForm = (props) => {
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={props.handleSubmit}>
+        <div>
+          username
+          <input
+            value={props.username}
+            onChange={props.handleChange}
+            name="username"
+          />
+        </div>
+        // ...
+        <button type="submit">login</button>
+      </form>
+    </div>
+  )
+}
+```
+
+where the properties of the `props` object are accessed through e.g. `props.handleSubmit`, the properties are assigned directly to their own variables.
+
+One fast way of implementing the functionality is to change the `loginForm` function of the _App_ component like so:
+
+```js
+const App = () => {
+  const [loginVisible, setLoginVisible] = useState(false)
+
+  // ...
+
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
+      </div>
+    )
+  }
+
+  // ...
+}
+```
+
+The _App_ component state now contains the boolean _loginVisible_, which defines if the login form should be shown to the user or not.
+
+The value of `loginVisible` is toggled with two buttons. Both buttons have their event handlers defined directly in the component:
+
+```js
+<button onClick={() => setLoginVisible(true)}>log in</button>
+
+<button onClick={() => setLoginVisible(false)}>cancel</button>
+```
+
+The visibility of the component is defined by giving the component an [inline](../part2/README.md#inline-styles) style rule, where the value of the [display](https://developer.mozilla.org/en-US/docs/Web/CSS/display) property is _none_ if we do not want the component to be displayed:
+
+```js
+const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+const showWhenVisible = { display: loginVisible ? '' : 'none' }
+
+<div style={hideWhenVisible}>
+  // button
+</div>
+
+<div style={showWhenVisible}>
+  // button
+</div>
+```
+
+We are once again using the "question mark" ternary operator. If `loginVisible` is _true_, then the CSS rule of the component will be:
+
+```js
+display: 'none';
+```
+
+If `loginVisible` is _false_, then _display_ will not receive any value related to the visibility of the component.
+
