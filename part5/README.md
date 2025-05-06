@@ -584,3 +584,15 @@ Expand your application to allow a logged-in user to add new blogs:
 
 ![alt text](assets/image6.png)
 
+#### Exercise 5.4: Blog List Frontend, step 4
+
+Implement notifications that inform the user about successful operations at the top of the page. For example, when a new blog is added, the following notification can be shown:
+
+![alt text](assets/image7.png)
+
+Failed login can shown the following notification:
+
+![alt text](assets/image8.png)
+
+The notification must be visible for a few seconds. It is not compulsory to add colors. 
+

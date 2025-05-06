@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -13,6 +14,9 @@ const App = () => {
   const [blogTitle, setBlogTitle] = useState('')
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
+  // Notification message
+  const [notificationMessage, setNotificationMessage] = useState('')
+  const [notificationColor, setNotificationColor] = useState('')
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
@@ -57,7 +61,9 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      alert('Wrong credentials')
+      // alert('Wrong credentials')
+      const message = 'Wrong username or password'
+      handleNotificationShow(message, 'red')
     }
   }
 
@@ -80,10 +86,30 @@ const App = () => {
       const updatedBlogs = blogs.concat(newBlogAdded)
       // console.log(updatedBlogs)
       setBlogs(updatedBlogs)
+      // set Notification message and color
+      const message = `A new blog: ${blogTitle} by ${blogAuthor} added`
+      handleNotificationShow(message, 'green')
+      // Reset the states
+      setBlogTitle('')
+      setBlogAuthor('')
+      setBlogUrl('')
     } catch (exception) {
-      alert('Blog cannot be created')
+      // alert('Blog cannot be created')
+      const message = 'Blog cannot be created'
+      handleNotificationShow(message, 'red')
     }
     // console.log(blogTitle, blogAuthor, blogUrl)
+  }
+
+  // Handle notification 
+  const handleNotificationShow = (message, color) => {
+    setNotificationMessage(message)
+    setNotificationColor(color)
+    // Set the timer, after which the Notification will disappear
+    setTimeout(() => {
+      setNotificationMessage('')
+      setNotificationColor('')
+    }, 2000)
   }
 
   // If the user is not logged in, return the login form
@@ -92,6 +118,9 @@ const App = () => {
       <div>
         <h2>Log in to application</h2>
 
+        {/* Show the notification if there is some message */}
+        {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
+        
         <form onSubmit={handleLogin}>
           {/* Username field */}
           <div>
@@ -123,6 +152,10 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+
+      {/* Show the notification if there is some message */}
+      {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
+
       <p>{user.name} logged in</p>
       
       {/* Allowing new user to add new blogs  */}
@@ -161,9 +194,6 @@ const App = () => {
         <button type='submit'>Create</button>
       </form>
 
-      {/* Filter and select only the blogs belonging to the login user */}
-      {console.log(blogs)}
-      {console.log(user)}
       {blogs
         .filter(blog => 
           blog.user && (blog.user.id === user.id || blog.user === user.id))
