@@ -882,3 +882,83 @@ Next let's define the form component inside of a Togglable component:
 
 You can find the code for our current application in its entirety in the _part5-4_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-4).
 
+### State of the forms
+
+The state of the application currently is in the `App` component.
+
+React documentation says the [following](https://react.dev/learn/sharing-state-between-components) about where to place the state:
+
+_Sometimes, you want the state of two components to always change together. To do it, remove state from both of them, move it to their closest common parent, and then pass it down to them via props. This is known as lifting state up, and it’s one of the most common things you will do writing React code._
+
+If we think about the state of the forms, so for example the contents of a new note before it has been created, the `App` component does not need it for anything. We could just as well move the state of the forms to the corresponding components.
+
+The component for creating a new note changes like so:
+
+```js
+import { useState } from 'react'
+
+const NoteForm = ({ createNote }) => {
+  const [newNote, setNewNote] = useState('')
+
+  const addNote = (event) => {
+    event.preventDefault()
+    createNote({
+      content: newNote,
+      important: true
+    })
+
+    setNewNote('')
+  }
+
+  return (
+    <div>
+      <h2>Create a new note</h2>
+
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={event => setNewNote(event.target.value)}
+        />
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+
+export default NoteForm
+```
+
+__NOTE__ At the same time, we changed the behavior of the application so that new notes are important by default, i.e. the field _important_ gets the value _true_.
+
+The _newNote_ state variable and the event handler responsible for changing it have been moved from the `App` component to the component responsible for the note form.
+
+There is only one prop left, the `createNote` function, which the form calls when a new note is created.
+
+The `App` component becomes simpler now that we have got rid of the _newNote_ state and its event handler. The `addNote` function for creating new notes receives a new note as a parameter, and the function is the only prop we send to the form:
+
+```js
+const App = () => {
+  // ...
+
+  const addNote = (noteObject) => {
+    noteService
+      .create(noteObject)
+      .then(returnedNote => {
+        setNotes(notes.concat(returnedNote))
+      })
+  }
+  // ...
+  const noteForm = () => (
+    <Togglable buttonLabel='new note'>
+      <NoteForm createNote={addNote} />
+    </Togglable>
+  )
+
+  // ...
+}
+```
+
+We could do the same for the log in form, but we'll leave that for an optional exercise.
+
+The application code can be found on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-5), branch _part5-5_.
+
