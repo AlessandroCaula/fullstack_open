@@ -763,3 +763,122 @@ display: 'none';
 
 If `loginVisible` is _false_, then _display_ will not receive any value related to the visibility of the component.
 
+### The component children, aka. props.children 
+
+The code related to managing the visibility of the login form could be considered to be its own logical entity, and for this reason, it would be good to extract it from the _App_ component into a separate component.
+
+Our goal is to implement a new _Togglable_ component that can be used in the following way:
+
+```js
+<Togglable buttonLabel='login'>
+  <LoginForm
+    username={username}
+    password={password}
+    handleUsernameChange={({ target }) => setUsername(target.value)}
+    handlePasswordChange={({ target }) => setPassword(target.value)}
+    handleSubmit={handleLogin}
+  />
+</Togglable>
+```
+
+The way that the component is used is slightly different from our previous components. The component has both opening and closing tags that surround a _LoginForm_ component. In React terminology _LoginForm_ is a child component of _Togglable_.
+
+We can add any React elements we want between the opening and closing tags of _Togglable_, like this for example:
+
+```js
+<Togglable buttonLabel="reveal">
+  <p>this line is at start hidden</p>
+  <p>also this is hidden</p>
+</Togglable>
+```
+
+The code for the _Togglable_ component is shown below:
+
+```js
+import { useState } from 'react'
+
+const Togglable = (props) => {
+  const [visible, setVisible] = useState(false)
+
+  const hideWhenVisible = { display: visible ? 'none' : '' }
+  const showWhenVisible = { display: visible ? '' : 'none' }
+
+  const toggleVisibility = () => {
+    setVisible(!visible)
+  }
+
+  return (
+    <div>
+      <div style={hideWhenVisible}>
+        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+      </div>
+      <div style={showWhenVisible}>
+        {props.children}
+        <button onClick={toggleVisibility}>cancel</button>
+      </div>
+    </div>
+  )
+}
+
+export default Togglable
+```
+
+The new and interesting part of the code is [props.children](https://react.dev/learn/passing-props-to-a-component#passing-jsx-as-children), which is used for referencing the child components of the component. The child components are the React elements that we define between the opening and closing tags of a component.
+
+This time the children are rendered in the code that is used for rendering the component itself:
+
+```js
+<div style={showWhenVisible}>
+  {props.children}
+  <button onClick={toggleVisibility}>cancel</button>
+</div>
+```
+
+Unlike the "normal" props we've seen before, _children_ is automatically added by React and always exists. If a component is defined with an automatically closing `/>` tag, like this:
+
+```js
+<Note
+  key={note.id}
+  note={note}
+  toggleImportance={() => toggleImportanceOf(note.id)}
+/>
+```
+
+Then _props.children_ is an empty array.
+
+The _Togglable_ component is reusable and we can use it to add similar visibility toggling functionality to the form that is used for creating new notes.
+
+Before we do that, let's extract the form for creating notes into a component:
+
+```js
+const NoteForm = ({ onSubmit, handleChange, value}) => {
+  return (
+    <div>
+      <h2>Create a new note</h2>
+
+      <form onSubmit={onSubmit}>
+        <input
+          value={value}
+          onChange={handleChange}
+        />
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+```
+
+Next let's define the form component inside of a Togglable component:
+
+```js
+<Togglable buttonLabel="new note">
+  <NoteForm
+    onSubmit={addNote}
+    value={newNote}
+    handleChange={handleNoteChange}
+  />
+</Togglable>
+```
+
+You can find the code for our current application in its entirety in the _part5-4_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-4).
+
