@@ -1095,3 +1095,40 @@ We create _three separate instances of the component_ that all have their separa
 
 The _ref_ attribute is used for assigning a reference to each of the components in the variables _togglable1_, _togglable2_ and _togglable3_.
 
+### The updated full stack developer's oath
+
+The number of moving parts increases. At the same time, the likelihood of ending up in a situation where we are looking for a bug in the wrong place increases. So we need to be even more systematic.
+
+So we should once more extend our oath:
+
+Full stack development is _extremely hard_, that is why I will use all the possible means to make it easier
+
+- I will have my browser developer console open all the time
+- I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+- I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+- I will keep an eye on the database: does the backend save data there in the right format
+- I progress with small steps
+- _when I suspect that there is a bug in the frontend, I'll make sure that the backend works as expected_
+- _when I suspect that there is a bug in the backend, I'll make sure that the frontend works as expected_
+- I will write lots of `console.log` statements to make sure I understand how the code and the tests behave and to help pinpoint problems
+- If my code does not work, I will not write more code. Instead, I'll start deleting it until it works or will just return to a state where everything was still working
+- If a test does not pass, I'll make sure that the tested functionality works properly in the application
+
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
+
+### Exercises 5.5 - 5.11
+
+#### 5.5 Blog List Frontend, step 5
+
+Change the form for creating blog posts so that it is only displayed when appropriate. Use functionality similar to what was shown [earlier in this part of the course material](#part-5b---propschildren-and-proptypes). If you wish to do so, you can use the _Toggable_ component defined in part 5.
+
+By default the form is not visible
+
+![alt text](assets/image13.png)
+
+It expands when button create _new blog_ is clicked
+
+![alt text](assets/image14.png)
+
+The form hides again after a new blog is created.
+

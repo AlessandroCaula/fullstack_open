@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -10,20 +12,12 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  // New blog
-  const [blogTitle, setBlogTitle] = useState('')
-  const [blogAuthor, setBlogAuthor] = useState('')
-  const [blogUrl, setBlogUrl] = useState('')
   // Notification message
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
-    // blogService.getAll().then(blogs =>
-    //   setBlogs(blogs)
-    // )
-
     // Since you cannot directly use an async function inside the useEffect hook. 
     // We should define an async function inside the useEffect and call it.
     const fetchBlogs = async () => {
@@ -70,35 +64,6 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.clear()
     setUser(null)
-  }
-
-  const handleAddNewBlog = async (event) => {
-    event.preventDefault()
-
-    try {
-      const newBlog = {
-        title: blogTitle, 
-        author: blogAuthor, 
-        url: blogUrl
-      }
-      const newBlogAdded = await blogService.create(newBlog)
-      // console.log(newBlogAdded)
-      const updatedBlogs = blogs.concat(newBlogAdded)
-      // console.log(updatedBlogs)
-      setBlogs(updatedBlogs)
-      // set Notification message and color
-      const message = `A new blog: ${blogTitle} by ${blogAuthor} added`
-      handleNotificationShow(message, 'green')
-      // Reset the states
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
-    } catch (exception) {
-      // alert('Blog cannot be created')
-      const message = 'Blog cannot be created'
-      handleNotificationShow(message, 'red')
-    }
-    // console.log(blogTitle, blogAuthor, blogUrl)
   }
 
   // Handle notification 
@@ -148,6 +113,17 @@ const App = () => {
     )
   }
 
+  // Rendering the Add new blog form
+  const blogForm = () => (
+    <Togglable buttonLabel="New Blog">
+      <BlogForm 
+        handleNotificationShow={handleNotificationShow}
+        blogs={blogs}
+        setBlogs={setBlogs}
+      />
+    </Togglable>
+  )
+
   // If the user has logged in, return the blogs posted by the user
   return (
     <div>
@@ -155,44 +131,11 @@ const App = () => {
 
       {/* Show the notification if there is some message */}
       {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
-
-      <p>{user.name} logged in</p>
       
-      {/* Allowing new user to add new blogs  */}
-      <h2>Create new</h2>
-      <form onSubmit={handleAddNewBlog}> 
-        {/* Blog title */}
-        <div>
-          Title:
-          <input 
-            type='text'
-            value={blogTitle}
-            name='BlogTitle'
-            onChange={({ target }) => setBlogTitle(target.value)}
-          />
-        </div>
-        {/* Blog author */}
-        <div>
-          Author: 
-          <input 
-            type='text'
-            value={blogAuthor}
-            name='BlogAuthor'
-            onChange={({ target }) => setBlogAuthor(target.value)}
-          />
-        </div>
-        {/* Blog url */}
-        <div>
-          Url:
-          <input 
-            type='text'
-            value={blogUrl}
-            name='BlogUrl'
-            onChange={({ target }) => setBlogUrl(target.value)}
-          />
-        </div>
-        <button type='submit'>Create</button>
-      </form>
+      <p>{user.name} logged in</p>
+
+      {/* Rendering the toggle for the new blog creation */}
+      {blogForm()}
 
       {blogs
         .filter(blog => 
