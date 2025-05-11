@@ -962,3 +962,7 @@ We could do the same for the log in form, but we'll leave that for an optional e
 
 The application code can be found on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-5), branch _part5-5_.
 
+### References to components with red
+
+Our current implementation is quite good; it has one aspect that could be improved.
+
