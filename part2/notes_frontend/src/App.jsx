@@ -35,38 +35,6 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  // Handling login
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-
-      window.localStorage.setItem(
-        'loggedNoteappUser', JSON.stringify(user)
-      )
-      noteService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch {
-      setErrorMessage('Wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
-  }
-
-  // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
-  useEffect(() => {
-    noteService
-      .getAll()
-      .then(initialNotes => {
-        setNotes(initialNotes)
-      })
-  }, [])
-
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
     if (loggedUserJSON) {
@@ -74,6 +42,15 @@ const App = () => {
       setUser(user)
       noteService.setToken(user.token)
     }
+  }, [])
+
+    // Use the useEffect hook to fetch and retrieve the notes data from teh db.json server (http://localhost:3001/notes) (npm run server)
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
+      })
   }, [])
 
   // Do not render anything if notes is still null
@@ -107,6 +84,29 @@ const App = () => {
       })
   }
 
+  // Handling login
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      const user = await loginService.login({
+        username, password,
+      })
+
+      window.localStorage.setItem(
+        'loggedNoteappUser', JSON.stringify(user)
+      )
+      noteService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch {
+      setErrorMessage('Wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
   // Define an event handler that will be called when the form is submitted, by clicking the submit button.
   // the event parameter is the event that triggers the call to the event handler function.
   const addNote = (noteObject) => {
@@ -122,7 +122,7 @@ const App = () => {
   const notesToShow = showAll
     ? notes
     : notes.filter(note => note.important === true) // filter and retrieve only the notes that are important.
-
+  
   // Render the login form
   const loginForm = () => (
     // Rendering the login form within a toggable component that will show or hide the component
@@ -141,8 +141,7 @@ const App = () => {
   const noteForm = () => (
     // Rendering an HTML form that will be used for adding new notes. Inside the togglable component
     <Toggable buttonLabel="new note">
-      <NoteForm createNote={addNote}
-      />
+      <NoteForm createNote={addNote} />
     </Toggable>
   )
 
