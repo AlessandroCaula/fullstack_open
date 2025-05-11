@@ -1061,3 +1061,37 @@ There are also [other use cases](https://react.dev/learn/manipulating-the-dom-wi
 
 You can find the code for our current application in its entirety in the _part5-6_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-6).
 
+### One point about components
+
+When we define a component in React:
+
+```js
+const Togglable = () => ...
+  // ...
+}
+```
+
+And use it like this:
+
+```js
+<div>
+  <Togglable buttonLabel="1" ref={togglable1}>
+    first
+  </Togglable>
+
+  <Togglable buttonLabel="2" ref={togglable2}>
+    second
+  </Togglable>
+
+  <Togglable buttonLabel="3" ref={togglable3}>
+    third
+  </Togglable>
+</div>
+```
+
+We create _three separate instances of the component_ that all have their separate state:
+
+![alt text](assets/image12.png)
+
+The _ref_ attribute is used for assigning a reference to each of the components in the variables _togglable1_, _togglable2_ and _togglable3_.
+
