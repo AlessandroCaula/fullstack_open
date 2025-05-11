@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Note from "./components/Note"
 import noteService from './services/notes'
 import Notification from "./components/Notification"
@@ -25,7 +25,7 @@ const Footer = () => {
 
 const App = () => {
   // Define the a useState for storing the notes, so that the page is updated when a new note is added. Initialize it with the notes array fetched from the server.
-  const [notes, setNotes] = useState(null)
+  const [notes, setNotes] = useState([])
   // Let's add a new functionality to our application that allows us to only view the important notes. 
   const [showAll, setShowAll] = useState(true)
   // Error message useState hook
@@ -34,6 +34,8 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
+  const noteFormRef = useRef()
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
@@ -52,11 +54,6 @@ const App = () => {
         setNotes(initialNotes)
       })
   }, [])
-
-  // Do not render anything if notes is still null
-  if (!notes) {
-    return null
-  }
 
   // Define the function that will be passed to toggle the importance of each of the notes. To make it important or not important.
   const toggleImportanceOf = (id) => {
@@ -110,6 +107,8 @@ const App = () => {
   // Define an event handler that will be called when the form is submitted, by clicking the submit button.
   // the event parameter is the event that triggers the call to the event handler function.
   const addNote = (noteObject) => {
+    // By referencing to the noteForm hide toggle its visibility when a new note it created.
+    noteFormRef.current.toggleVisibility()
     noteService
       .create(noteObject)
       .then(returnedNote => {
@@ -140,7 +139,7 @@ const App = () => {
   // Render the note form
   const noteForm = () => (
     // Rendering an HTML form that will be used for adding new notes. Inside the togglable component
-    <Toggable buttonLabel="new note">
+    <Toggable buttonLabel="new note" ref={noteFormRef}>
       <NoteForm createNote={addNote} />
     </Toggable>
   )
@@ -151,9 +150,6 @@ const App = () => {
 
       {errorMessage && <Notification message={errorMessage} />}
 
-      {/* {user === null && loginForm()}
-      {user !== null && noteForm()} */}
-
       {user === null ? 
         loginForm() : 
         <div>
@@ -161,14 +157,6 @@ const App = () => {
           {noteForm()}
         </div>
       }
-
-      {/* {user === null ? 
-        loginForm() : 
-        <div>
-          <p>{user.name} logged</p>
-          {noteForm()}
-        </div>
-      } */}
 
       <h2>Notes</h2>
       <div>
