@@ -42,7 +42,6 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-
     try {
       const user = await loginService.login({
         username, password
@@ -81,6 +80,23 @@ const App = () => {
     } catch (exception) {
       // alert('Blog cannot be created')
       const message = 'Blog cannot be created'
+      handleNotificationShow(message, 'red')
+    }
+  }
+
+  const handleBlogDeletion = async (id) => {
+    try {
+      const deletedBlog = blogs.find(s => s.id === id)
+      // Deleting the blog from the database
+      const blogDelete = await blogService.deleteBlog(id)
+      // Deleting the blog from the blogs collection and update it
+      const blogsAfterDeletion = blogs.filter(s => s.id !== id)
+      setBlogs(blogsAfterDeletion)
+      // Show Notification message
+      const message = `${deletedBlog.title} successfully deleted`
+      handleNotificationShow(message, 'green')
+    } catch (exception) {
+      const message = 'Not able to delete the blog'
       handleNotificationShow(message, 'red')
     }
   }
@@ -158,7 +174,11 @@ const App = () => {
         .filter(blog => 
           blog.user && (blog.user.id === user.id || blog.user === user.id))
         .map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog 
+            key={blog.id} 
+            blog={blog} 
+            blogDeletion={() => handleBlogDeletion(blog.id)}
+          />
       )}
 
       {/* Button for logging out */}

@@ -86,9 +86,6 @@ blogsRouter.delete("/:id", async (request, response, next) => {
         error: 'Only user that post the blog can delete it'
       })
     }
-
-    // await Blog.findByIdAndDelete(request.params.id);
-    // response.status(204).end();
   } catch (exception) {
     next(exception);
   }
