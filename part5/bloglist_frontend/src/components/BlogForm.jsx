@@ -1,43 +1,29 @@
 import { useState } from "react"
-import blogService from '../services/blogs'
 
-const BlogForm = ({ handleNotificationShow, blogs, setBlogs }) => {
+const BlogForm = ({ createBlog }) => {
   // New blog
   const [blogTitle, setBlogTitle] = useState('')
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
 
-  const handleAddNewBlog = async (event) => {
+  // Function called on Form submission for the creation of a new blog. 
+  const addNewBlog = (event) => {
     event.preventDefault()
-
-    try {
-      const newBlog = {
-        title: blogTitle, 
-        author: blogAuthor, 
-        url: blogUrl
-      }
-      const newBlogAdded = await blogService.create(newBlog)
-      const updatedBlogs = blogs.concat(newBlogAdded)
-      setBlogs(updatedBlogs)
-      // set Notification message and color
-      const message = `A new blog: ${blogTitle} by ${blogAuthor} added`
-      handleNotificationShow(message, 'green')
-      // Reset the states
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
-    } catch (exception) {
-      // alert('Blog cannot be created')
-      const message = 'Blog cannot be created'
-      handleNotificationShow(message, 'red')
-    }
+    createBlog({
+      title: blogTitle, 
+      author: blogAuthor, 
+      url: blogUrl
+    })
+    setBlogTitle('')
+    setBlogAuthor('')
+    setBlogUrl('')
   }
 
   return (
     <div>
       {/* Allowing new user to add new blogs */}
       <h2>Create new</h2>
-      <form onSubmit={handleAddNewBlog}> 
+      <form onSubmit={addNewBlog}> 
         {/* Blog title */}
         <div>
           Title:

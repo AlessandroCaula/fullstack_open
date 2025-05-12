@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -15,6 +15,8 @@ const App = () => {
   // Notification message
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
+  // Reference
+  const blogFormRef = useRef()
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
@@ -66,6 +68,23 @@ const App = () => {
     setUser(null)
   }
 
+  const addNewBlog = async (newBlog) => {
+    try {
+      // Use the Ref to close the newBlog form creation
+      blogFormRef.current.toggleVisibility()
+      const newBlogAdded = await blogService.create(newBlog)
+      const updatedBlogs = blogs.concat(newBlogAdded)
+      setBlogs(updatedBlogs)
+      // set Notification message and color
+      const message = `A new blog: ${newBlog.title} by ${newBlog.author} added`
+      handleNotificationShow(message, 'green')
+    } catch (exception) {
+      // alert('Blog cannot be created')
+      const message = 'Blog cannot be created'
+      handleNotificationShow(message, 'red')
+    }
+  }
+
   // Handle notification 
   const handleNotificationShow = (message, color) => {
     setNotificationMessage(message)
@@ -89,7 +108,7 @@ const App = () => {
         <form onSubmit={handleLogin}>
           {/* Username field */}
           <div>
-            username
+            Username
             <input 
               type='text'
               value={username}
@@ -115,11 +134,9 @@ const App = () => {
 
   // Rendering the Add new blog form
   const blogForm = () => (
-    <Togglable buttonLabel="New Blog">
+    <Togglable buttonLabel="New Blog" ref={blogFormRef}>
       <BlogForm 
-        handleNotificationShow={handleNotificationShow}
-        blogs={blogs}
-        setBlogs={setBlogs}
+        createBlog={addNewBlog}
       />
     </Togglable>
   )
