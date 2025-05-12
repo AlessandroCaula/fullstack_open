@@ -22,7 +22,7 @@ const BlogForm = ({ createBlog }) => {
   return (
     <div>
       {/* Allowing new user to add new blogs */}
-      <h2>Create new</h2>
+      <h2>Create new blog</h2>
       <form onSubmit={addNewBlog}> 
         {/* Blog title */}
         <div>
