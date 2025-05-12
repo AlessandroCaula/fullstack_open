@@ -1132,3 +1132,8 @@ It expands when button create _new blog_ is clicked
 
 The form hides again after a new blog is created.
 
+#### 5.6 Blog List Frontend, step 6
+
+Separate the form for creating a new blog into its own component (if you have not already done so), and move all the states required for creating a new blog to this component. 
+
+The component must work like the _NoteForm_ component from the [material](#state-of-the-forms) of this part 
