@@ -1118,7 +1118,7 @@ Full stack development is _extremely hard_, that is why I will use all the possi
 
 ### Exercises 5.5 - 5.11
 
-#### 5.5 Blog List Frontend, step 5
+#### 5.5: Blog List Frontend, step 5
 
 Change the form for creating blog posts so that it is only displayed when appropriate. Use functionality similar to what was shown [earlier in this part of the course material](#part-5b---propschildren-and-proptypes). If you wish to do so, you can use the _Toggable_ component defined in part 5.
 
@@ -1132,13 +1132,13 @@ It expands when button create _new blog_ is clicked
 
 The form hides again after a new blog is created.
 
-#### 5.6 Blog List Frontend, step 6
+#### 5.6: Blog List Frontend, step 6
 
 Separate the form for creating a new blog into its own component (if you have not already done so), and move all the states required for creating a new blog to this component. 
 
 The component must work like the _NoteForm_ component from the [material](#state-of-the-forms) of this part.
 
-#### 5.7 Blog List Frontend, step 7
+#### 5.7: Blog List Frontend, step 7
 
 Let's add a button to each blog, which controls whether all of the details about the blog are shown or not.
 
@@ -1176,7 +1176,7 @@ const Blog = ({ blog }) => {
 
 __NB__: Even though the functionality implemented in this part is almost identical to the functionality provided by the _Togglable_ component, it can't be used directly to achieve the desired behavior. The easiest solution would be to add a state to the blog component that controls if the details are being displayed or not.
 
-#### 5.8 Blog List Frontend, step 8
+#### 5.8: Blog List Frontend, step 8
 
 Implement the functionality for the like button. Likes are increased by making an HTTP `PUT` request to the unique address of the blog post in the backend.
 
@@ -1211,7 +1211,7 @@ You would have to make an HTTP PUT request to the address _/api/blogs/5a43fde2cb
 
 The backend has to be updated too to handle the user reference.
 
-#### 5.9 Blog List Frontend, step 9
+#### 5.9: Blog List Frontend, step 9
 
 We notice that something is wrong. When a blog is liked in the app, the name of the user that added the blog is not shown in its details:
 
@@ -1221,3 +1221,11 @@ When the browser is reloaded, the information of the person is displayed. This i
 
 Of course, it is possible that you have already done everything correctly and the problem does not occur in your code. In that case, you can move on.
 
+#### 5.10: Blog List Frontend, step 10
+
+Modify the application to sort the blog posts by the number of _likes_. The Sorting can be done with the array [sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) method.
+
+
+
+
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">

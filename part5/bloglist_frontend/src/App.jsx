@@ -175,6 +175,17 @@ const App = () => {
     </Togglable>
   )
 
+  // Extracting and rearranging the blogs to be displayed
+  const blogToRender = () => {
+    // Filter the blogs to displayed based on the logged user
+    const userBlogs = blogs.filter(
+      blog => blog.user && (blog.user.id === user.id || blog.user === user.id)
+    )
+    // Sort the blogs based on likes count
+    const sortedBlogs = userBlogs.sort((a, b) => b.likes - a.likes)
+    return sortedBlogs
+  }
+
   // If the user has logged in, return the blogs posted by the user
   return (
     <div>
@@ -189,10 +200,7 @@ const App = () => {
       {/* Rendering the toggle for the new blog creation */}
       {blogForm()}
 
-      {blogs
-        .filter(blog => 
-          blog.user && (blog.user.id === user.id || blog.user === user.id))
-        .map(blog =>
+      {blogToRender().map(blog =>
           <Blog 
             key={blog.id} 
             blog={blog} 
