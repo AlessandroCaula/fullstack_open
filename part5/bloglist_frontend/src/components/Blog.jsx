@@ -6,8 +6,8 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   const blogStyle = {
     display: 'flex',
     flexDirection: 'column',
-    paddingLeft: '2px',
-    marginBottom: '4px',
+    padding: '2px',
+    marginBottom: '5px',
     border: 'solid',
     borderWidth: 1,
   }
@@ -24,18 +24,18 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
         <button onClick={blogLikesUpdate}>Like</button>
       </div>
       <div>{blog.user.name}</div>
+      <button style={{color: 'red'}} onClick={blogDeletion}>Delete</button>
     </>
   )
 
   return (
     <div style={blogStyle}>
-      <div style={{ display: 'flex', gap: '5px', paddingTop: '5px' }}>
+      <div style={{ display: 'flex', gap: '5px' }}>
         {blog.title} {blog.author}
         <button onClick={handleVisibility}>
           {/* Show hide button when details are visible and vice-versa */}
           {isDetailVisible ? 'Hide' : 'View details'}
         </button>
-        <button onClick={blogDeletion}>Delete</button>
       </div>
       <div>
         {/* Show blog details */}

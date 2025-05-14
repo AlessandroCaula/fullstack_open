@@ -26,7 +26,7 @@ const create = async (newObject) => {
 }
 
 // Deleting the blog. Only logged in user can delete them
-const deleteBlog = async (id) => {
+const remove = async (id) => {
   const config = {
     headers: { Authorization: token },
   }
@@ -40,4 +40,4 @@ const update = async (id, newObject) => {
   return response.data
 }
 
-export default { getAll, create, setToken, deleteBlog, update }
+export default { getAll, create, setToken, remove, update }

@@ -85,10 +85,15 @@ const App = () => {
   }
 
   const handleBlogDeletion = async (id) => {
+    const confirmation = window.confirm('Are you sure you want to remove the blog?')
+    if (!confirmation) {
+      return 
+    }
+
     try {
       const deletedBlog = blogs.find(s => s.id === id)
       // Deleting the blog from the database
-      await blogService.deleteBlog(id)
+      await blogService.remove(id)
       // Deleting the blog from the blogs collection and update it
       const blogsAfterDeletion = blogs.filter(s => s.id !== id)
       setBlogs(blogsAfterDeletion)
@@ -176,7 +181,7 @@ const App = () => {
   )
 
   // Extracting and rearranging the blogs to be displayed
-  const blogToRender = () => {
+  const blogsToRender = () => {
     // Filter the blogs to displayed based on the logged user
     const userBlogs = blogs.filter(
       blog => blog.user && (blog.user.id === user.id || blog.user === user.id)
@@ -200,7 +205,7 @@ const App = () => {
       {/* Rendering the toggle for the new blog creation */}
       {blogForm()}
 
-      {blogToRender().map(blog =>
+      {blogsToRender().map(blog =>
           <Blog 
             key={blog.id} 
             blog={blog} 

@@ -1225,7 +1225,16 @@ Of course, it is possible that you have already done everything correctly and th
 
 Modify the application to sort the blog posts by the number of _likes_. The Sorting can be done with the array [sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) method.
 
+#### 5.11: Blog List Frontend, step 11
 
+Add a new button for deleting blog posts. Also, implement the logic for deleting blog posts in the frontend.
 
+Your application could look something like this:
+
+![alt text](assets/image17.png)
+
+The confirmation dialog for deleting a blog post is easy to implement with the [window.confirm](https://developer.mozilla.org/en-US/docs/Web/API/Window/confirm) function.
+
+Show the button for deleting a blog post only if the blog post was added by the user.
 
 <hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
