@@ -1176,7 +1176,7 @@ const Blog = ({ blog }) => {
 
 __NB__: Even though the functionality implemented in this part is almost identical to the functionality provided by the _Togglable_ component, it can't be used directly to achieve the desired behavior. The easiest solution would be to add a state to the blog component that controls if the details are being displayed or not.
 
-#### 5.8 Blog List frontend, step 8
+#### 5.8 Blog List Frontend, step 8
 
 Implement the functionality for the like button. Likes are increased by making an HTTP `PUT` request to the unique address of the blog post in the backend.
 
@@ -1210,4 +1210,14 @@ You would have to make an HTTP PUT request to the address _/api/blogs/5a43fde2cb
 ```
 
 The backend has to be updated too to handle the user reference.
+
+#### 5.9 Blog List Frontend, step 9
+
+We notice that something is wrong. When a blog is liked in the app, the name of the user that added the blog is not shown in its details:
+
+![alt text](assets/image16.png)
+
+When the browser is reloaded, the information of the person is displayed. This is not acceptable, find out where the problem is and make the necessary correction.
+
+Of course, it is possible that you have already done everything correctly and the problem does not occur in your code. In that case, you can move on.
 
