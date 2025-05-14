@@ -105,15 +105,14 @@ const App = () => {
     try {
       // Find the blog that we want to update
       const blogToUpdate = blogs.find(b => b.id === id)
-      // console.log(blogToUpdate)
+      // Compute the new number of likes
       const updatedLikes = blogToUpdate.likes + 1
       // Creating the new blog object, with the likes count updated by on
       const updatedBlog = { ...blogToUpdate, likes: updatedLikes }
-      console.log(updatedBlog)
       // Updating the blog in the backend service
       await blogService.update(id, updatedBlog)
-      // console.log(returnedUpdatedBlog)
-      
+      // Update the blogs collection hook
+      setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
     } catch (exception) {
       const message = 'Likes cannot be updated'
       handleNotificationShow(message, 'red')
