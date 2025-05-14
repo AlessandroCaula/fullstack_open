@@ -1,12 +1,13 @@
 import { useState } from "react"
 
-const Blog = ({ blog, blogDeletion }) => {
+const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   const [isDetailVisible, setIsDetailVisible] = useState(false)
 
   const blogStyle = {
     display: 'flex',
     flexDirection: 'column',
     paddingLeft: '2px',
+    marginBottom: '4px',
     border: 'solid',
     borderWidth: 1,
   }
@@ -20,7 +21,7 @@ const Blog = ({ blog, blogDeletion }) => {
       <div>{blog.url}</div>
       <div>
         likes {blog.likes}
-        <button>Like</button>
+        <button onClick={blogLikesUpdate}>Like</button>
       </div>
     </>
   )

@@ -88,7 +88,7 @@ const App = () => {
     try {
       const deletedBlog = blogs.find(s => s.id === id)
       // Deleting the blog from the database
-      const blogDelete = await blogService.deleteBlog(id)
+      await blogService.deleteBlog(id)
       // Deleting the blog from the blogs collection and update it
       const blogsAfterDeletion = blogs.filter(s => s.id !== id)
       setBlogs(blogsAfterDeletion)
@@ -97,6 +97,25 @@ const App = () => {
       handleNotificationShow(message, 'green')
     } catch (exception) {
       const message = 'Not able to delete the blog'
+      handleNotificationShow(message, 'red')
+    }
+  }
+
+  const handleBlogLikesUpdate = async (id) => {
+    try {
+      // Find the blog that we want to update
+      const blogToUpdate = blogs.find(b => b.id === id)
+      // console.log(blogToUpdate)
+      const updatedLikes = blogToUpdate.likes + 1
+      // Creating the new blog object, with the likes count updated by on
+      const updatedBlog = { ...blogToUpdate, likes: updatedLikes }
+      console.log(updatedBlog)
+      // Updating the blog in the backend service
+      await blogService.update(id, updatedBlog)
+      // console.log(returnedUpdatedBlog)
+      
+    } catch (exception) {
+      const message = 'Likes cannot be updated'
       handleNotificationShow(message, 'red')
     }
   }
@@ -160,11 +179,12 @@ const App = () => {
   // If the user has logged in, return the blogs posted by the user
   return (
     <div>
+
       <h2>blogs</h2>
 
       {/* Show the notification if there is some message */}
       {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
-      
+
       <p>{user.name} logged in</p>
 
       {/* Rendering the toggle for the new blog creation */}
@@ -178,11 +198,13 @@ const App = () => {
             key={blog.id} 
             blog={blog} 
             blogDeletion={() => handleBlogDeletion(blog.id)}
+            blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
           />
       )}
 
       {/* Button for logging out */}
       <button onClick={handleLogout}>Log out</button>
+
     </div>    
   )
 }
