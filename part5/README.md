@@ -1,6 +1,36 @@
 In this part we return to the frontend, first looking at different possibilities for testing the React code. We will also implement token based authentication which will enable users to log in to our application.
 
 # Table of Contents
+- [Part 5](#part-5)
+  - [Part 5a - Login in fronted](#part-5a---login-in-fronted)
+    - [Handling login](#handling-login)
+    - [Creating new notes](#creating-new-notes)
+    - [Saving the token to the browser's local storage](#saving-the-token-to-the-browsers-local-storage)
+    - [Exercise 5.1-5.4](#exercise-51-54)
+      - [5.1: Blog List Frontend, step 1](#51-blog-list-frontend-step-1)
+      - [5.2: Blog List Frontend, step 2](#52-blog-list-frontend-step-2)
+      - [5.3: Blog List Frontend, step 3](#53-blog-list-frontend-step-3)
+      - [5.4: Blog List Frontend, step 4](#54-blog-list-frontend-step-4)
+    - [A note on using local storage](#a-note-on-using-local-storage)
+  - [Part 5b - props.children and proptypes](#part-5b---propschildren-and-proptypes)
+    - [Displaying the login form only when appropriate](#displaying-the-login-form-only-when-appropriate)
+    - [The component children, aka. props.children](#the-component-children-aka-propschildren)
+    - [State of the forms](#state-of-the-forms)
+    - [References to components with ref](#references-to-components-with-ref)
+    - [One point about components](#one-point-about-components)
+    - [The updated full stack developer's oath](#the-updated-full-stack-developers-oath)
+    - [Exercises 5.5 - 5.11](#exercises-55---511)
+      - [5.5: Blog List Frontend, step 5](#55-blog-list-frontend-step-5)
+      - [5.6: Blog List Frontend, step 6](#56-blog-list-frontend-step-6)
+      - [5.7: Blog List Frontend, step 7](#57-blog-list-frontend-step-7)
+      - [5.8: Blog List Frontend, step 8](#58-blog-list-frontend-step-8)
+      - [5.9: Blog List Frontend, step 9](#59-blog-list-frontend-step-9)
+      - [5.10: Blog List Frontend, step 10](#510-blog-list-frontend-step-10)
+      - [5.11: Blog List Frontend, step 11](#511-blog-list-frontend-step-11)
+    - [PropTypes](#proptypes)
+    - [ESlint](#eslint)
+    - [Exercise 5.12](#exercise-512)
+      - [5.12: Blog List Frontend, step 12](#512-blog-list-frontend-step-12)
 
 # Part 5
 
