@@ -1409,3 +1409,14 @@ export default Togglable
 
 You can find the code for our current application in its entirety in the _part5-7_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-7).
 
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
+
+### Exercise 5.12
+
+#### 5.12: Blog List Frontend, step 12
+
+Define PropTypes for one of the components of your application, and add ESlint to the project. Define the configuration according to your liking. Fix all of the linter errors.
+
+Vite has installed ESlint to the project by default, so all that's left for you to do is define your desired configuration in the _.eslintrc.cjs_ file.
+
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
