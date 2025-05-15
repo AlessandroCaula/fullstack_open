@@ -4,7 +4,7 @@ import noteService from './services/notes'
 import Notification from "./components/Notification"
 import loginService from './services/login'
 import LoginForm from "./components/LoginForm"
-import Toggable from "./components/Toggable"
+import Togglable from "./components/Togglable"
 import NoteForm from "./components/NoteForm"
 
 // Bottom block component, a Footer component.
@@ -125,7 +125,7 @@ const App = () => {
   // Render the login form
   const loginForm = () => (
     // Rendering the login form within a toggable component that will show or hide the component
-    <Toggable buttonLabel='login'>
+    <Togglable buttonLabel='login'>
       <LoginForm
         username={username}
         password={password}
@@ -133,15 +133,15 @@ const App = () => {
         handlePasswordChange={({ target }) => setPassword(target.value)}
         handleSubmit={handleLogin}
       />
-    </Toggable>
+    </Togglable>
   )
 
   // Render the note form
   const noteForm = () => (
     // Rendering an HTML form that will be used for adding new notes. Inside the togglable component
-    <Toggable buttonLabel="new note" ref={noteFormRef}>
+    <Togglable buttonLabel="new note" ref={noteFormRef}>
       <NoteForm createNote={addNote} />
-    </Toggable>
+    </Togglable>
   )
 
   return (
