@@ -1304,3 +1304,108 @@ LoginForm.propTypes = {
 If the type of a passed prop is wrong, e.g. if we try to define the _handleSubmit_ prop as a string, then this will result in the following warning:
 
 ![alt text](assets/image19.png)
+
+### ESlint
+
+In part 3 we configured the [ESlint](/part3/README.md#lint) code style tool to the backend. Let's take ESlint to use in the frontend as well.
+
+Vite has installed ESlint to the project by default, so all that's left for us to do is define our desired configuration in the _.eslintrc.cjs_ file.
+
+Let's create a _.eslintrc.cjs_ file with the following contents:
+
+```js
+module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    es2020: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:react-hooks/recommended',
+  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+  settings: { react: { version: '18.2' } },
+  plugins: ['react-refresh'],
+  rules: {
+    "indent": [
+        "error",
+        2  
+    ],
+    "linebreak-style": [
+        "error",
+        "unix"
+    ],
+    "quotes": [
+        "error",
+        "single"
+    ],
+    "semi": [
+        "error",
+        "never"
+    ],
+    "eqeqeq": "error",
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": [
+        "error", "always"
+    ],
+    "arrow-spacing": [
+        "error", { "before": true, "after": true }
+    ],
+    "no-console": 0,
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": 0,
+    "no-unused-vars": 0    
+  },
+}
+```
+
+NOTE: If you are using Visual Studio Code together with ESLint plugin, you might need to add a workspace setting for it to work. If you are seeing `Failed to load plugin react: Cannot find module 'eslint-plugin-react'` additional configuration is needed. Adding the line `"eslint.workingDirectories": [{ "mode": "auto" }]` to settings.json in the workspace seems to work. See [here](https://github.com/microsoft/vscode-eslint/issues/880#issuecomment-578052807) for more information.
+
+Let's create [.eslintignore](https://eslint.org/docs/latest/use/configure/ignore#the-eslintignore-file) file with the following contents to the repository root
+
+```
+node_modules
+dist
+.eslintrc.cjs
+vite.config.js
+```
+
+Now the directories `dist` and `node_modules` will be skipped when linting.
+
+As usual, you can perform the linting either from the command line with the command
+
+```
+npm run lint
+```
+
+or using the editor's Eslint plugin.
+
+Component `Togglable` causes a nasty-looking warning _Component definition is missing display name_:
+
+![alt text](assets/image20.png)
+
+The react-devtools also reveals that the component does not have a name:
+
+![alt text](assets/image21.png)
+
+Fortunately, this is easy to fix
+
+```js
+import { useState, useImperativeHandle } from 'react'
+import PropTypes from 'prop-types'
+
+const Togglable = React.forwardRef((props, ref) => {
+  // ...
+})
+
+Togglable.displayName = 'Togglable'
+
+export default Togglable
+```
+
+You can find the code for our current application in its entirety in the _part5-7_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-7).
+
