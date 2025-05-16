@@ -1450,3 +1450,148 @@ Define PropTypes for one of the components of your application, and add ESlint t
 Vite has installed ESlint to the project by default, so all that's left for you to do is define your desired configuration in the _.eslintrc.cjs_ file.
 
 <hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
+
+## Part 5c - Testing React apps
+
+There are many different ways of testing React applications. Let's take a look at them next.
+
+The course previously used the [Jest](http://jestjs.io/) library developed by Facebook to test React components. We are now using the new generation of testing tools from Vite developers called [Vitest](https://vitest.dev/). Apart from the configurations, the libraries provide the same programming interface, so there is virtually no difference in the test code.
+
+Let's start by installing Vitest and the [jsdom](https://github.com/jsdom/jsdom) library simulating a web browser:
+
+```
+npm install --save-dev vitest jsdom
+```
+
+In addition to Vitest, we also need another testing library that will help us render components for testing purposes. The current best option for this is [react-testing-library](https://github.com/testing-library/react-testing-library) which has seen rapid growth in popularity in recent times. It is also worth extending the expressive power of the tests with the library [jest-dom](https://github.com/testing-library/jest-dom).
+
+Let's install the libraries with the command:
+
+```
+npm install --save-dev @testing-library/react @testing-library/jest-dom
+```
+
+Before we can do the first test, we need some configurations.
+
+We add a script to the package.json file to run the tests:
+
+```js
+{
+  "scripts": {
+    // ...
+    "test": "vitest run"
+  }
+  // ...
+}
+```
+
+Let's create a file `testSetup.js` in the project root with the following content
+
+```js
+import { afterEach } from 'vitest'
+import { cleanup } from '@testing-library/react'
+import '@testing-library/jest-dom/vitest'
+
+afterEach(() => {
+  cleanup()
+})
+```
+
+Now, after each test, the function `cleanup` is executed to reset jsdom, which is simulating the browser.
+
+Expand the `vite.config.js` file as follows
+
+```js
+export default defineConfig({
+  // ...
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './testSetup.js', 
+  }
+})
+```
+
+With `globals: true`, there is no need to import keywords such as `describe`, `test` and `expect` into the tests.
+
+Let's first write tests for the component that is responsible for rendering a note:
+
+```js
+const Note = ({ note, toggleImportance }) => {
+  const label = note.important
+    ? 'make not important'
+    : 'make important'
+
+  return (
+    <li className='note'>
+      {note.content}
+      <button onClick={toggleImportance}>{label}</button>
+    </li>
+  )
+}
+```
+
+Notice that the _li_ element has the value _note_ for the [CSS](https://react.dev/learn#adding-styles) attribute className, that could be used to access the component in our tests.
+
+### Rendering the component for tests
+
+We will write our test in the _src/components/Note.test.jsx_ file, which is in the same directory as the component itself.
+
+The first test verifies that the component renders the contents of the note:
+
+```js
+import { render, screen } from '@testing-library/react'
+import Note from './Note'
+
+test('renders content', () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.getByText('Component testing is done with react-testing-library')
+  expect(element).toBeDefined()
+})
+```
+
+After the initial configuration, the test renders the component with the [render](https://testing-library.com/docs/react-testing-library/api#render) function provided by the react-testing-library:
+
+```js
+render(<Note note={note} />)
+```
+
+Normally React components are rendered to the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model). The render method we used renders the components in a format that is suitable for tests without rendering them to the DOM.
+
+We can use the object [screen](https://testing-library.com/docs/queries/about#screen) to access the rendered component. We use screen's method [getByText](https://testing-library.com/docs/queries/bytext) to search for an element that has the note content and ensure that it exists:
+
+```js
+const element = screen.getByText('Component testing is done with react-testing-library')
+expect(element).toBeDefined()
+```
+
+The existence of an element is checked using Vitest's [expect](https://vitest.dev/api/expect.html#expect) command. Expect generates an assertion for its argument, the validity of which can be tested using various condition functions. Now we used [toBeDefined](https://vitest.dev/api/expect.html#tobedefined) which tests whether the `element` argument of expect exists.
+
+Run the test with command `npm test`:
+
+```
+$ npm test
+
+> notes-frontend@0.0.0 test
+> vitest
+
+
+ DEV  v1.3.1 /Users/mluukkai/opetus/2024-fs/part3/notes-frontend
+
+ ✓ src/components/Note.test.jsx (1)
+   ✓ renders content
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  17:05:37
+   Duration  812ms (transform 31ms, setup 220ms, collect 11ms, tests 14ms, environment 395ms, prepare 70ms)
+
+
+ PASS  Waiting for file changes...
+```
