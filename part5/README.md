@@ -1830,4 +1830,208 @@ The calls to the mock function are saved to the array [mock.calls](https://vites
 
 In our example, the mock function is a perfect choice since it can be easily used for verifying that the method gets called exactly once.
 
+### Tests for the _Toggable_ component
 
+Let's write a few tests for the _Togglable_ component. Let's add the _togglableContent_ CSS classname to the div that returns the child components.
+
+```js
+const Togglable = forwardRef((props, ref) => {
+  // ...
+
+  return (
+    <div>
+      <div style={hideWhenVisible}>
+        <button onClick={toggleVisibility}>
+          {props.buttonLabel}
+        </button>
+      </div>
+      <div style={showWhenVisible} className="togglableContent">
+        {props.children}
+        <button onClick={toggleVisibility}>cancel</button>
+      </div>
+    </div>
+  )
+})
+```
+
+The tests are shown below:
+
+```js
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import Togglable from './Togglable'
+
+describe('<Togglable />', () => {
+  let container
+
+  beforeEach(() => {
+    container = render(
+      <Togglable buttonLabel="show...">
+        <div className="testDiv" >
+          togglable content
+        </div>
+      </Togglable>
+    ).container
+  })
+
+  test('renders its children', async () => {
+    await screen.findAllByText('togglable content')
+  })
+
+  test('at start the children are not displayed', () => {
+    const div = container.querySelector('.togglableContent')
+    expect(div).toHaveStyle('display: none')
+  })
+
+  test('after clicking the button, children are displayed', async () => {
+    const user = userEvent.setup()
+    const button = screen.getByText('show...')
+    await user.click(button)
+
+    const div = container.querySelector('.togglableContent')
+    expect(div).not.toHaveStyle('display: none')
+  })
+})
+```
+
+The `beforeEach` function gets called before each test, which then renders the _Togglable_ component and saves the field `container` of the returned value.
+
+The first test verifies that the _Togglable_ component renders its child component
+
+```js
+<div className="testDiv">
+  togglable content
+</div>
+```
+
+The remaining tests use the [toHaveStyle](https://www.npmjs.com/package/@testing-library/jest-dom#tohavestyle) method to verify that the child component of the _Togglable_ component is not visible initially, by checking that the style of the _div_ element contains `{ display: 'none' }`. Another test verifies that when the button is pressed the component is visible, meaning that the style for hiding it _is no longer_ assigned to the component.
+
+Let's also add a test that can be used to verify that the visible content can be hidden by clicking the second button of the component:
+
+```js
+describe('<Togglable />', () => {
+
+  // ...
+
+  test('toggled content can be closed', async () => {
+    const user = userEvent.setup()
+    const button = screen.getByText('show...')
+    await user.click(button)
+
+    const closeButton = screen.getByText('cancel')
+    await user.click(closeButton)
+
+    const div = container.querySelector('.togglableContent')
+    expect(div).toHaveStyle('display: none')
+  })
+})
+```
+
+### Testing the forms
+
+We already used the `click` function of the [user-event](https://testing-library.com/docs/user-event/intro) in our previous tests to click buttons.
+
+```js
+const user = userEvent.setup()
+const button = screen.getByText('show...')
+await user.click(button)
+```
+
+We can also simulate text input with _userEvent_.
+
+Let's make a test for the _NoteForm_ component. The code of the component is as follows.
+
+```js
+import { useState } from 'react'
+
+const NoteForm = ({ createNote }) => {
+  const [newNote, setNewNote] = useState('')
+
+  const handleChange = (event) => {
+    setNewNote(event.target.value)
+  }
+
+  const addNote = (event) => {
+    event.preventDefault()
+    createNote({
+      content: newNote,
+      important: true,
+    })
+
+    setNewNote('')
+  }
+
+  return (
+    <div className="formDiv">
+      <h2>Create a new note</h2>
+
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={handleChange}
+        />
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+
+export default NoteForm
+```
+
+The form works by calling the function received as props `createNote`, with the details of the new note.
+
+The test is as follows:
+
+```js
+import { render, screen } from '@testing-library/react'
+import NoteForm from './NoteForm'
+import userEvent from '@testing-library/user-event'
+
+test('<NoteForm /> updates parent state and calls onSubmit', async () => {
+  const createNote = vi.fn()
+  const user = userEvent.setup()
+
+  render(<NoteForm createNote={createNote} />)
+
+  const input = screen.getByRole('textbox')
+  const sendButton = screen.getByText('save')
+
+  await user.type(input, 'testing a form...')
+  await user.click(sendButton)
+
+  expect(createNote.mock.calls).toHaveLength(1)
+  expect(createNote.mock.calls[0][0].content).toBe('testing a form...')
+})
+```
+
+Tests get access to the input field using the function [getByRole](https://testing-library.com/docs/queries/byrole).
+
+The method [type](https://testing-library.com/docs/user-event/utility#type) of the userEvent is used to write text to the input field.
+
+The first test expectation ensures that submitting the form calls the `createNote` method. The second expectation checks that the event handler is called with the right parameters - that a note with the correct content is created when the form is filled.
+
+It's worth noting that the good old `console.log` works as usual in the tests. For example, if you want to see what the calls stored by the mock-object look like, you can do the following
+
+```js
+test('<NoteForm /> updates parent state and calls onSubmit', async() => {
+  const user = userEvent.setup()
+  const createNote = vi.fn()
+
+  render(<NoteForm createNote={createNote} />)
+
+  const input = screen.getByRole('textbox')
+  const sendButton = screen.getByText('save')
+
+  await user.type(input, 'testing a form...')
+  await user.click(sendButton)
+
+  console.log(createNote.mock.calls)
+})
+```
+
+In the middle of running the tests, the following is printed in the console:
+
+```
+[ [ { content: 'testing a form...', important: true } ] ]
+```
