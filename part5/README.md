@@ -1595,3 +1595,239 @@ $ npm test
 
  PASS  Waiting for file changes...
 ```
+
+Eslint complains about the keywords `test` and `expect` in the tests. The problem can be solved by installing [eslint-plugin-vitest-globals](https://www.npmjs.com/package/eslint-plugin-vitest-globals):
+
+```
+npm install --save-dev eslint-plugin-vitest-globals
+```
+
+and enable the plugin by editing the `.eslintrc.cjs` file as follows:
+
+```js
+module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    es2020: true,
+
+    "vitest-globals/env": true
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:react-hooks/recommended',
+
+    'plugin:vitest-globals/recommended',
+  ],
+  // ...
+}
+```
+
+### Test file location
+
+In React there are (at least) [two different conventions](https://medium.com/@JeffLombardJr/organizing-tests-in-jest-17fc431ff850) for the test file's location. We created our test files according to the current standard by placing them in the same directory as the component being tested.
+
+The other convention is to store the test files "normally" in a separate `test` directory. Whichever convention we choose, it is almost guaranteed to be wrong according to someone's opinion.
+
+I do not like this way of storing tests and application code in the same directory. The reason we choose to follow this convention is that it is configured by default in applications created by Vite or create-react-app.
+
+### Searching for a content in a component
+
+The react-testing-library package offers many different ways of investigating the content of the component being tested. In reality, the `expect` in our test is not needed at all:
+
+```js
+import { render, screen } from '@testing-library/react'
+import Note from './Note'
+
+test('renders content', () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.getByText('Component testing is done with react-testing-library')
+
+  expect(element).toBeDefined()
+})
+```
+
+Test fails if `getByText` does not find the element it is looking for.
+
+We could also use [CSS-selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) to find rendered elements by using the method [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) of the object [container](https://testing-library.com/docs/react-testing-library/api/#container-1) that is one of the fields returned by the render:
+
+```js
+import { render, screen } from '@testing-library/react'
+import Note from './Note'
+
+test('renders content', () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+
+  const { container } = render(<Note note={note} />)
+
+  const div = container.querySelector('.note')
+  expect(div).toHaveTextContent(
+    'Component testing is done with react-testing-library'
+  )
+})
+```
+
+__NB__: A more consistent way of selecting elements is using a [data attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*) that is specifically defined for testing purposes. Using `react-testing-library`, we can leverage the [getByTestId](https://testing-library.com/docs/queries/bytestid/) method to select elements with a specified `data-testid` attribute.
+
+### Debugging tests
+
+We typically run into many different kinds of problems when writing our tests.
+
+Object `screen` has method [debug](https://testing-library.com/docs/dom-testing-library/api-debugging#screendebug) that can be used to print the HTML of a component to the terminal. If we change the test as follows:
+
+```js
+import { render, screen } from '@testing-library/react'
+import Note from './Note'
+
+test('renders content', () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  screen.debug()
+
+  // ...
+
+})
+```
+
+the HTML gets printed to the console:
+
+```js
+console.log
+  <body>
+    <div>
+      <li
+        class="note"
+      >
+        Component testing is done with react-testing-library
+        <button>
+          make not important
+        </button>
+      </li>
+    </div>
+  </body>
+```
+
+It is also possible to use the same method to print a wanted element to console:
+
+```js
+import { render, screen } from '@testing-library/react'
+import Note from './Note'
+
+test('renders content', () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.getByText('Component testing is done with react-testing-library')
+
+  screen.debug(element)
+
+  expect(element).toBeDefined()
+})
+```
+
+Now the HTML of the wanted element gets printed:
+
+```js
+<li
+  class="note"
+>
+  Component testing is done with react-testing-library
+  <button>
+    make not important
+  </button>
+</li>
+```
+
+### Clicking buttons in tests
+
+In addition to displaying content, the _Note_ component also makes sure that when the button associated with the note is pressed, the `toggleImportance` event handler function gets called.
+
+Let us install a library [user-event](https://testing-library.com/docs/user-event/intro) that makes simulating user input a bit easier:
+
+```
+npm install --save-dev @testing-library/user-event
+```
+
+Testing this functionality can be accomplished like this:
+
+```js
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import Note from './Note'
+
+// ...
+
+test('clicking the button calls event handler once', async () => {
+  const note = {
+    content: 'Component testing is done with react-testing-library',
+    important: true
+  }
+  
+  const mockHandler = vi.fn()
+
+  render(
+    <Note note={note} toggleImportance={mockHandler} />
+  )
+
+  const user = userEvent.setup()
+  const button = screen.getByText('make not important')
+  await user.click(button)
+
+  expect(mockHandler.mock.calls).toHaveLength(1)
+})
+```
+
+There are a few interesting things related to this test. The event handler is a [mock](https://vitest.dev/api/mock) function defined with Vitest:
+
+```
+const mockHandler = vi.fn()
+```
+
+A [session](https://testing-library.com/docs/user-event/setup/) is started to interact with the rendered component:
+
+```
+const user = userEvent.setup()
+```
+
+The test finds the button _based on the text_ from the rendered component and clicks the element:
+
+```js
+const button = screen.getByText('make not important')
+await user.click(button)
+```
+
+Clicking happens with the method [click](https://testing-library.com/docs/user-event/convenience/#click) of the userEvent-library.
+
+The expectation of the test uses [toHaveLength](https://vitest.dev/api/expect.html#tohavelength) to verify that the _mock function_ has been called exactly once:
+
+```js
+expect(mockHandler.mock.calls).toHaveLength(1)
+```
+
+The calls to the mock function are saved to the array [mock.calls](https://vitest.dev/api/mock#mock-calls) within the mock function object.
+
+[Mock objects and functions](https://en.wikipedia.org/wiki/Mock_object) are commonly used [stub](https://en.wikipedia.org/wiki/Method_stub) components in testing that are used for replacing dependencies of the components being tested. Mocks make it possible to return hardcoded responses, and to verify the number of times the mock functions are called and with what parameters.
+
+In our example, the mock function is a perfect choice since it can be easily used for verifying that the method gets called exactly once.
+
+
