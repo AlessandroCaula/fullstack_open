@@ -12,21 +12,21 @@ test('Renders only Title and Author content', () => {
   }
 
   const { container } = render(<Blog blog={blog} />)
-  screen.debug(container)
+  // screen.debug(container)
 
   // Finding element with CSS-selectors
-  const divAuthorTitle = container.querySelector('.blog') // blog-author-title
+  const divBlog = container.querySelector('.blog') // blog-author-title
   // screen.debug(divAuthorTitle)
 
   // Check that the blog Title is rendered
-  expect(divAuthorTitle).toHaveTextContent('Blog Test')
+  expect(divBlog).toHaveTextContent('Blog Test')
   // Check that the blog Author is rendered
-  expect(divAuthorTitle).toHaveTextContent('Author Tes')
+  expect(divBlog).toHaveTextContent('Author Tes')
 
   // Check that the Url is not rendered
-  expect(divAuthorTitle).not.toHaveTextContent('Url Test')
+  expect(divBlog).not.toHaveTextContent('Url Test')
   // Check that the number of Likes is not rendered
-  expect(divAuthorTitle).not.toHaveTextContent('likes')
+  expect(divBlog).not.toHaveTextContent('likes')
 })
 
 test('Clicking the details button show Url and Title', async () => {
@@ -34,18 +34,26 @@ test('Clicking the details button show Url and Title', async () => {
     title: "Blog Test",
     author: "Author Test",
     url: "Url Test",
-    likes: 3
+    likes: 3,
+    user: {
+      name: "Alessandro Caula"
+    }
   }
 
   const { container } = render(<Blog blog={blog} />)
-  screen.debug(container)
+  // screen.debug(container)
   
   // Start a session to interact with the rendered component
   const user = userEvent.setup()
-  // const buttonDetails = screen.getByText('View details')
-  const buttonDetails = container.querySelector('.blog-button')
-  // screen.debug(buttonDetails)
+  // Get the button 
+  const buttonDetails = screen.getByText('View details')
   // Click the button
   await user.click(buttonDetails)
-  screen.debug(container)
+  // screen.debug(container)
+  
+  // Now check if the Url and Title information are rendered
+  const divDetails = container.querySelector('.blog-url-likes')
+  // screen.debug(divDetails)
+  expect(divDetails).toHaveTextContent('Url Test')
+  expect(divDetails).toHaveTextContent('likes')
 })
