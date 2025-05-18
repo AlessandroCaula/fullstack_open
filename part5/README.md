@@ -31,6 +31,23 @@ In this part we return to the frontend, first looking at different possibilities
     - [ESlint](#eslint)
     - [Exercise 5.12](#exercise-512)
       - [5.12: Blog List Frontend, step 12](#512-blog-list-frontend-step-12)
+  - [Part 5c - Testing React apps](#part-5c---testing-react-apps)
+  - [Rendering the component for tests](#rendering-the-component-for-tests)
+  - [Test file location](#test-file-location)
+  - [Searching for a content in a component](#searching-for-a-content-in-a-component)
+  - [Debugging tests](#debugging-tests)
+  - [Clicking buttons in tests](#clicking-buttons-in-tests)
+  - [Tests for the _Toggable_ component](#tests-for-the-togglable-component)
+  - [Testing the forms](#testing-the-forms)
+  - [About finding the elements](#about-finding-the-elements)
+  - [Test coverage](#test-coverage)
+  - [Exercise 5.13 - 5.16](#exercise-513---516)
+    - [5.13: Blog List Tests, step 1](#513-blog-list-tests-step-1)
+    - [5.14: Blog List Tests, step 2](#514-blog-list-tests-step-2)
+    - [5.15: Blog List Tests, step 3](#515-blog-list-tests-step-3)
+    - [5.16: Blog List Tests, step 4](#516-blog-list-tests-step-4)
+  - [Frontend integration tests](#frontend-integration-tests)
+  - [Snapshot testing](#snapshot-testing)
 
 # Part 5
 
