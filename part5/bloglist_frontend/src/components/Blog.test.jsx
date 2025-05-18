@@ -1,7 +1,7 @@
-import { expect } from "chai";
 import Blog from "./Blog";
 import { render, screen } from '@testing-library/react'
 import userEvent from "@testing-library/user-event"
+import { expect, test, vi } from 'vitest'
 
 // Testing that 
 test('Renders only Title and Author content', () => {

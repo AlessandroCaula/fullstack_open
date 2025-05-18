@@ -2270,3 +2270,6 @@ Make a test, which checks that the blog's URL and number of likes are shown when
 
 Make a test, which ensures that if the _like_ button is clicked twice, the event handler the component received as props is called twice.
 
+#### 5.16: Blog List Tests, step 4
+
+Make a test for the new blog form. The test should check, that the form calls the event handler it received as props with the right details when a new blog is created.
