@@ -2252,3 +2252,13 @@ A HTML report will be generated to the _coverage_ directory. The report will tel
 
 You can find the code for our current application in its entirety in the _part5-8_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-8).
 
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
+
+### Exercise 5.13 - 5.16
+
+#### 5.13: Blog List Tests, step 1
+
+Make a test, which checks that the component displaying a blog renders the blog's title and author, but does not render its URL or number of likes by default.
+
+Add CSS classes to the component to help the testing as necessary.
+

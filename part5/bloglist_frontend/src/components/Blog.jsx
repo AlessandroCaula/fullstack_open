@@ -29,15 +29,15 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   )
 
   return (
-    <div style={blogStyle}>
-      <div style={{ display: 'flex', gap: '5px' }}>
+    <div style={blogStyle} className="blog">
+      <div style={{ display: 'flex', gap: '5px' }} className="blog-author-title">
         {blog.title} {blog.author}
         <button onClick={handleVisibility}>
           {/* Show hide button when details are visible and vice-versa */}
           {isDetailVisible ? 'Hide' : 'View details'}
         </button>
       </div>
-      <div>
+      <div className="blog-url-likes">
         {/* Show blog details */}
         {isDetailVisible && showBlogDetails()}
       </div>
