@@ -2035,3 +2035,220 @@ In the middle of running the tests, the following is printed in the console:
 ```
 [ [ { content: 'testing a form...', important: true } ] ]
 ```
+
+### About finding the elements
+
+Let us assume that the form has two input fields
+
+```js
+const NoteForm = ({ createNote }) => {
+  // ...
+
+  return (
+    <div className="formDiv">
+      <h2>Create a new note</h2>
+
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={handleChange}
+        />
+        <input
+          value={...}
+          onChange={...}
+        />
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+```
+
+Now the approach that our test uses to find the input field
+
+```js
+const input = screen.getByRole('textbox')
+```
+
+would cause an error:
+
+![alt text](assets/image22.png)
+
+The error message suggests using getAllByRole. The test could be fixed as follows:
+
+```js
+const inputs = screen.getAllByRole('textbox')
+
+await user.type(inputs[0], 'testing a form...')
+```
+
+Method _getAllByRole_ now returns an array and the right input field is the first element of the array. However, this approach is a bit suspicious since it relies on the order of the input fields.
+
+Quite often input fields have a placeholder text that hints user what kind of input is expected. Let us add a placeholder to our form:
+
+```js
+const NoteForm = ({ createNote }) => {
+  // ...
+
+  return (
+    <div className="formDiv">
+      <h2>Create a new note</h2>
+
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={handleChange}
+          placeholder='write note content here'
+        />
+        <input
+          value={...}
+          onChange={...}
+        />    
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+```
+
+Now finding the right input field is easy with the method [getByPlaceholderText](https://testing-library.com/docs/queries/byplaceholdertext):
+
+```js
+test('<NoteForm /> updates parent state and calls onSubmit', () => {
+  const createNote = vi.fn()
+
+  render(<NoteForm createNote={createNote} />) 
+
+  const input = screen.getByPlaceholderText('write note content here')
+  const sendButton = screen.getByText('save')
+
+  userEvent.type(input, 'testing a form...')
+  userEvent.click(sendButton)
+
+  expect(createNote.mock.calls).toHaveLength(1)
+  expect(createNote.mock.calls[0][0].content).toBe('testing a form...')
+})
+```
+
+The most flexible way of finding elements in tests is the method _querySelector_ of the `container` object, which is returned by `render`, as was mentioned [earlier in this part](#searching-for-a-content-in-a-component). Any CSS selector can be used with this method for searching elements in tests.
+
+Consider eg. that we would define a unique `id` to the input field:
+
+```js
+const NoteForm = ({ createNote }) => {
+  // ...
+
+  return (
+    <div className="formDiv">
+      <h2>Create a new note</h2>
+
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={handleChange}
+          id='note-input'
+        />
+        <input
+          value={...}
+          onChange={...}
+        />    
+        <button type="submit">save</button>
+      </form>
+    </div>
+  )
+}
+```
+
+The input element could now be found in the test as follows:
+
+```js
+const { container } = render(<NoteForm createNote={createNote} />)
+
+const input = container.querySelector('#note-input')
+```
+
+However, we shall stick to the approach of using `getByPlaceholderText` in the test.
+
+Let us look at a couple of details before moving on. Let us assume that a component would render text to an HTML element as follows:
+
+```js
+const Note = ({ note, toggleImportance }) => {
+  const label = note.important
+    ? 'make not important' : 'make important'
+
+  return (
+    <li className='note'>
+      Your awesome note: {note.content}
+      <button onClick={toggleImportance}>{label}</button>
+    </li>
+  )
+}
+
+export default Note
+```
+
+the `getByText` method that the test uses does not find the element
+
+```js
+test('renders content', () => {
+  const note = {
+    content: 'Does not work anymore :(',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.getByText('Does not work anymore :(')
+
+  expect(element).toBeDefined()
+})
+```
+
+The `getByText` method looks for an element that has the __same text__ that it has as a parameter, and nothing more. If we want to look for an element that _contains_ the text, we could use an extra option:
+
+```js
+const element = screen.getByText(
+  'Does not work anymore :(', { exact: false }
+)
+```
+
+or we could use the findByText method:
+
+```js
+const element = await screen.findByText('Does not work anymore :(')
+```
+
+It is important to notice that, unlike the other `ByText` methods, `findByText` returns a promise!
+
+There are situations where yet another form of the `queryByText` method is useful. The method returns the element but _it does not cause an exception_ if it is not found.
+
+We could eg. use the method to ensure that something _is not rendered_ to the component:
+
+```js
+test('does not render this', () => {
+  const note = {
+    content: 'This is a reminder',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.queryByText('do not want this thing to be rendered')
+  expect(element).toBeNull()
+})
+```
+
+### Test coverage 
+
+We can easily find out the [coverage](https://vitest.dev/guide/coverage.html#coverage) of our tests by running them with the command.
+
+```
+npm test -- --coverage
+```
+
+A HTML report will be generated to the _coverage_ directory. The report will tell us the lines of untested code in each component:
+
+![alt text](assets/image23.png)
+
+You can find the code for our current application in its entirety in the _part5-8_ branch of [this GitHub repository](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-8).
+

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import NoteForm from './NoteForm'
 import userEvent from '@testing-library/user-event'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 test('<NoteForm /> updates parent state and calls onSubmit', async () => {
   const createNote = vi.fn()
