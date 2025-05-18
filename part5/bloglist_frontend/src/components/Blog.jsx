@@ -32,7 +32,7 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
     <div style={blogStyle} className="blog">
       <div style={{ display: 'flex', gap: '5px' }} className="blog-author-title">
         {blog.title} {blog.author}
-        <button onClick={handleVisibility}>
+        <button onClick={handleVisibility} className="blog-button">
           {/* Show hide button when details are visible and vice-versa */}
           {isDetailVisible ? 'Hide' : 'View details'}
         </button>

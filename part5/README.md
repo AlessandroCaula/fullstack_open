@@ -2262,3 +2262,7 @@ Make a test, which checks that the component displaying a blog renders the blog'
 
 Add CSS classes to the component to help the testing as necessary.
 
+#### 5.14: Blog List Tests, step 2
+
+Make a test, which checks that the blog's URL and number of likes are shown when the button controlling the shown details has been clicked.
+
