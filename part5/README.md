@@ -2308,3 +2308,47 @@ Vitest offers a completely different alternative to "traditional" testing called
 The fundamental principle is to compare the HTML code defined by the component after it has changed to the HTML code that existed before it was changed.
 
 If the snapshot notices some change in the HTML defined by the component, then either it is new functionality or a "bug" caused by accident. Snapshot tests notify the developer if the HTML code of the component changes. The developer has to tell Vitest if the change was desired or undesired. If the change to the HTML code is unexpected, it strongly implies a bug, and the developer can become aware of these potential issues easily thanks to snapshot testing.
+
+## Part 5d - End to end testing: Playwright
+
+So far we have tested the backend as a whole on an API level using integration tests and tested some frontend components using unit tests.
+
+Next, we will look into one way to test the [system as a whole](https://en.wikipedia.org/wiki/System_testing) using End to End (E2E) tests.
+
+We can do E2E testing of a web application using a browser and a testing library. There are multiple libraries available. One example is [Selenium](http://www.seleniumhq.org/), which can be used with almost any browser. Another browser option is so-called [headless browsers](https://en.wikipedia.org/wiki/Headless_browser), which are browsers with no graphical user interface. For example, Chrome can be used in headless mode.
+
+E2E tests are potentially the most useful category of tests because they test the system through the same interface as real users use.
+
+They do have some drawbacks too. Configuring E2E tests is more challenging than unit or integration tests. They also tend to be quite slow, and with a large system, their execution time can be minutes or even hours. This is bad for development because during coding it is beneficial to be able to run tests as often as possible in case of code [regressions](https://en.wikipedia.org/wiki/Regression_testing).
+
+E2E tests can also be [flaky](https://hackernoon.com/flaky-tests-a-war-that-never-ends-9aa32fdef359). Some tests might pass one time and fail another, even if the code does not change at all.
+
+Perhaps the two easiest libraries for End to End testing at the moment are [Cypress](https://www.cypress.io/) and [Playwright](https://playwright.dev/).
+
+From the statistics on [npmtrends.com](https://npmtrends.com/cypress-vs-playwright) we see that Cypress, which dominated the market for the last five years, is still clearly the number one, but Playwright is on a rapid rise:
+
+![alt text](assets/image24.png)
+
+This course has been using Cypress for years. Now Playwright is a new addition. You can choose whether to complete the E2E testing part of the course with Cypress or Playwright. The operating principles of both libraries are very similar, so your choice is not very important. However, Playwright is now the preferred E2E library for the course.
+
+If your choice is Playwright, please proceed. If you end up using Cypress, go [here](https://fullstackopen.com/en/part5/end_to_end_testing_cypress).
+
+### Playwright
+
+So [Playwright](https://playwright.dev/) is a newcomer to the End to End tests, which started to explode in popularity towards the end of 2023. Playwright is roughly on a par with Cypress in terms of ease of use. The libraries are slightly different in terms of how they work. Cypress is radically different from most libraries suitable for E2E testing, as Cypress tests are run entirely within the browser. Playwright's tests, on the other hand, are executed in the Node process, which is connected to the browser via programming interfaces.
+
+It is difficult to say which library is better. One advantage of Playwright is its browser support; Playwright supports Chrome, Firefox and Webkit-based browsers like Safari. Currently, Cypress includes support for all these browsers, although Webkit support is experimental and does not support all of Cypress features. At the time of writing (1.3.2024), my personal preference leans slightly towards Playwright.
+
+Now let's explore Playwright.
+
+### Initializing tests
+
+Unlike the backend tests or unit tests done on the React front-end, End to End tests do not need to be located in the same npm project where the code is. Let's make a completely separate project for the E2E tests with the `npm init` command. Then install Playwright by running in the new project directory the command:
+
+```
+npm init playwright@latest
+```
+
+The installation script will ask a few questions, answer them as follows:
+
+![alt text](assets/image25.png)
