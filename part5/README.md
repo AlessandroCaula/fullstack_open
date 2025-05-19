@@ -2467,3 +2467,93 @@ test('get started link', async ({ page }) => {
 
 The first line of the test functions says that the tests are testing the page at https://playwright.dev/.
 
+### Testing our own code
+
+Now let's remove the sample tests and start testing our own application.
+
+Playwright tests assume that the system under test is running when the tests are executed. Unlike, for example, backend integration tests, Playwright tests _do not start_ the system under test during testing.
+
+Let's make an npm script for the _backend_, which will enable it to be started in testing mode, i.e. so that _NODE_ENV_ gets the value _test_.
+
+```json
+{
+  // ...
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
+    "build:ui": "rm -rf build && cd ../frontend/ && npm run build && cp -r build ../backend",
+    "deploy": "fly deploy",
+    "deploy:full": "npm run build:ui && npm run deploy",
+    "logs:prod": "fly logs",
+    "lint": "eslint .",
+    "test": "NODE_ENV=test node --test",
+    "start:test": "NODE_ENV=test node index.js"
+  },
+  // ...
+}
+```
+
+Let's start the frontend and backend, and create the first test file for the application `tests/note_app.spec.js`:
+
+```js
+const { test, expect } = require('@playwright/test')
+
+test('front page can be opened', async ({ page }) => {
+  await page.goto('http://localhost:5173')
+
+  const locator = await page.getByText('Notes')
+  await expect(locator).toBeVisible()
+  await expect(page.getByText('Note app, Department of Computer Science, University of Helsinki 2023')).toBeVisible()
+})
+```
+
+First, the test opens the application with the method [page.goto](https://playwright.dev/docs/writing-tests#navigation). After this, it uses the [page.getByText](https://playwright.dev/docs/api/class-page#page-get-by-text) to get a [locator](https://playwright.dev/docs/locators) that corresponds to the element where the text _Notes_ is found.
+
+The method [toBeVisible](https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-be-visible) ensures that the element corresponding to the locator is visible at the page.
+
+The second check is done without using the auxiliary variable.
+
+We notice that the year has changed. Let's change the test as follows:
+
+```js
+const { test, expect } = require('@playwright/test')
+
+test('front page can be opened', async ({ page }) => {
+  await page.goto('http://localhost:5173')
+
+  const locator = await page.getByText('Notes')
+  await expect(locator).toBeVisible()
+
+  await expect(page.getByText('Note app, Department of Computer Science, University of Helsinki 2025')).toBeVisible()
+})
+```
+
+As expected, the test fails. Playwright opens the test report in the browser and it becomes clear that Playwright has actually performed the tests with three different browsers: Chrome, Firefox and Webkit, i.e. the browser engine used by Safari:
+
+![alt text](assets/image26.png)
+
+By clicking on the report of one of the browsers, we can see a more detailed error message:
+
+![alt text](assets/image27.png)
+
+In the big picture, it is of course a very good thing that the testing takes place with all three commonly used browser engines, but this is slow, and when developing the tests it is probably best to carry them out mainly with only one browser. You can define the browser engine to be used with the command line parameter:
+
+```bash
+npm test -- --project chromium
+```
+
+Before we move on, let's break the tests one more time. We notice that the execution of the tests is quite fast when they pass, but much slower if the they do not pass. The reason for this is that Playwright's policy is to wait for searched elements until [they are rendered and ready for action](https://playwright.dev/docs/actionability). If the element is not found, a `TimeoutError` is raised and the test fails. Playwright waits for elements by default for 5 or 30 seconds [depending on the functions used in testing](https://playwright.dev/docs/test-timeouts#introduction).
+
+When developing tests, it may be wiser to reduce the waiting time to a few seconds. According to the [documentation](https://playwright.dev/docs/test-timeouts), this can be done by changing the file `playwright.config.js` as follows:
+
+```js
+module.exports = defineConfig({
+  timeout: 3000,
+  fullyParallel: false,
+  workers: 1,
+  // ...
+})
+```
+
+We also made two other changes to the file, and specified that all tests [be executed one at a time](https://playwright.dev/docs/test-parallel). With the default configuration, the execution happens in parallel, and since our tests use a database, parallel execution causes problems.
+

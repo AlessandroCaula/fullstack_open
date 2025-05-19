@@ -8,7 +8,8 @@
     "test": "cross-env NODE_ENV=test node --test",
     "lint": "eslint .",
     "build:ui": "rm -rf dist && cd ../../part2/notes_frontend && npm run build && cp -r dist ../../part3/notes_backend",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
+    "start:test": "NODE_ENV=test node index.js"
   },
   "author": "Alessandro Caula",
   "license": "MIT",
