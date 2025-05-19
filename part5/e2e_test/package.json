@@ -1,0 +1,13 @@
+{
+  "name": "e2e_test",
+  "version": "1.0.0",
+  "description": "E2E Test",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Alessandro Caula",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.19"
+  }
+}
