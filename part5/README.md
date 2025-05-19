@@ -2352,3 +2352,118 @@ npm init playwright@latest
 The installation script will ask a few questions, answer them as follows:
 
 ![alt text](assets/image25.png)
+
+Note that when installing Playwright your operating system may not support all of the browsers Playwright offers and you may see an error message like below:
+
+```
+Webkit 18.0 (playwright build v2070) downloaded to /home/user/.cache/ms-playwright/webkit-2070
+Playwright Host validation warning: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libicudata.so.66                                 ║
+║     libicui18n.so.66                                 ║
+║     libicuuc.so.66                                   ║
+║     libjpeg.so.8                                     ║
+║     libwebp.so.6                                     ║
+║     libpcre.so.3                                     ║
+║     libffi.so.7                                      ║
+╚══════════════════════════════════════════════════════╝
+```
+
+If this is the case you can either specify specific browsers to test with `--project=` in your `package.json`:
+
+```json
+"test": "playwright test --project=chromium --project=firefox",
+```
+
+or remove the entry for any problematic browsers from your `playwright.config.js` file:
+
+```js
+projects: [
+  // ...
+  //{
+  //  name: 'webkit',
+  //  use: { ...devices['Desktop Safari'] },
+  //},
+```
+
+Let's define an npm script for running tests and test reports in `package.json`:
+
+```json
+{
+  // ...
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  // ...
+}
+```
+
+During installation, the following is printed to the console:
+
+```
+And check out the following files:
+  - ./tests/example.spec.js - Example end-to-end test
+  - ./tests-examples/demo-todo-app.spec.js - Demo Todo App end-to-end tests
+  - ./playwright.config.js - Playwright Test configuration
+```
+
+that is, the location of a few example tests for the project that the installation has created.
+
+Let's run the tests:
+
+```bash
+$ npm test
+
+> notes-e2e@1.0.0 test
+> playwright test
+
+
+Running 6 tests using 5 workers
+  6 passed (3.9s)
+
+To open last HTML report run:
+
+  npx playwright show-report
+```
+
+The tests pass. A more detailed test report can be opened either with the command suggested by the output, or with the npm script we just defined:
+
+```
+npm run test:report
+```
+
+Tests can also be run via the graphical UI with the command:
+
+```
+npm run test -- --ui
+```
+
+Sample tests look like this:
+
+```js
+const { test, expect } = require('@playwright/test');
+
+test('has title', async ({ page }) => {
+
+  await page.goto('https://playwright.dev/');
+
+  // Expect a title "to contain" a substring.
+  await expect(page).toHaveTitle(/Playwright/);
+});
+
+test('get started link', async ({ page }) => {
+  await page.goto('https://playwright.dev/');
+
+  // Click the get started link.
+  await page.getByRole('link', { name: 'Get started' }).click();
+
+  // Expects page to have a heading with the name of Installation.
+  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+});
+```
+
+The first line of the test functions says that the tests are testing the page at https://playwright.dev/.
+

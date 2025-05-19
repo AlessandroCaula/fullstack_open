@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "E2E Test",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
   "author": "Alessandro Caula",
   "license": "ISC",
   "devDependencies": {
