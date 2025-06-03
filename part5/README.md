@@ -2557,3 +2557,188 @@ module.exports = defineConfig({
 
 We also made two other changes to the file, and specified that all tests [be executed one at a time](https://playwright.dev/docs/test-parallel). With the default configuration, the execution happens in parallel, and since our tests use a database, parallel execution causes problems.
 
+### Writing on the form 
+
+Let's write a new test that tries to log into the application. Let's assume that a user is stored in the database, with username _mluukkai_ and password _salainen_.
+
+Let's start by opening the login form.
+
+```js
+describe('Note app', () => {
+  // ...
+
+  test('login form can be opened', async ({ page }) => {
+    await page.goto('http://localhost:5173')
+
+    await page.getByRole('button', { name: 'log in' }).click()
+  })
+})
+```
+
+The test first uses the method [page.getByRole](https://playwright.dev/docs/api/class-page#page-get-by-role) to retrieve the button based on its text. The method returns the [Locator](https://playwright.dev/docs/api/class-locator) corresponding to the Button element. Pressing the button is performed using the Locator method [click](https://playwright.dev/docs/api/class-locator#locator-click).
+
+When developing tests, you could use Playwright's [UI mode](https://playwright.dev/docs/test-ui-mode), i.e. the user interface version. Let's start the tests in UI mode as follows:
+
+```
+npm test -- --ui
+```
+
+![alt text](assets/image28.png)
+
+After clicking, the form will appear
+
+![alt text](assets/image29.png)
+
+When the form is opened, the test should look for the text fields and enter the username and password in them. Let's make the first attempt using the method [page.getByRole](https://playwright.dev/docs/api/class-page#page-get-by-role):
+
+```js
+describe('Note app', () => {
+  // ...
+
+  test('login form can be opened', async ({ page }) => {
+    await page.goto('http://localhost:5173')
+
+    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByRole('textbox').fill('mluukkai')
+  })
+})
+```
+
+This results to an error:
+
+```js
+Error: locator.fill: Error: strict mode violation: getByRole('textbox') resolved to 2 elements:
+  1) <input value=""/> aka locator('div').filter({ hasText: /^username$/ }).getByRole('textbox')
+  2) <input value="" type="password"/> aka locator('input[type="password"]')
+```
+
+The problem now is that `getByRole` finds two text fields, and calling the [fill](https://playwright.dev/docs/api/class-locator#locator-fill) method fails, because it assumes that there is only one text field found. One way around the problem is to use the methods [first](https://playwright.dev/docs/api/class-locator#locator-first) and [last](https://playwright.dev/docs/api/class-locator#locator-last):
+
+```js
+describe('Note app', () => {
+  // ...
+
+  test('login form can be opened', async ({ page }) => {
+    await page.goto('http://localhost:5173')
+
+    await page.getByRole('button', { name: 'log in' }).click()
+
+    await page.getByRole('textbox').first().fill('mluukkai')
+    await page.getByRole('textbox').last().fill('salainen')
+    await page.getByRole('button', { name: 'login' }).click()
+  
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+})
+```
+
+After writing in the text fields, the test presses the `login` button and checks that the application renders the logged-in user's information on the screen.
+
+If there were more than two text fields, using the methods `first` and `last` would not be enough. One possibility would be to use the [all](https://playwright.dev/docs/api/class-locator#locator-all) method, which turns the found locators into an array that can be indexed:
+
+```js
+describe('Note app', () => {
+  // ...
+  test('login form can be opened', async ({ page }) => {
+    await page.goto('http://localhost:5173')
+
+    await page.getByRole('button', { name: 'log in' }).click()
+
+    const textboxes = await page.getByRole('textbox').all()
+    await textboxes[0].fill('mluukkai')
+    await textboxes[1].fill('salainen')
+
+    await page.getByRole('button', { name: 'login' }).click()
+  
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })  
+})
+```
+
+Both this and the previous version of the test work. However, both are problematic to the extent that if the registration form is changed, the tests may break, as they rely on the fields to be on the page in a certain order.
+
+A better solution is to define unique test id attributes for the fields, to search for them in the tests using the method [getByTestId](https://playwright.dev/docs/api/class-page#page-get-by-test-id).
+
+Let's expand the login form as follows
+
+```js
+const LoginForm = ({ ... }) => {
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          username
+          <input
+            data-testid='username'
+            value={username}
+            onChange={handleUsernameChange}
+          />
+        </div>
+        <div>
+          password
+          <input
+            data-testid='password'
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+        </div>
+        <button type="submit">
+          login
+        </button>
+      </form>
+    </div>
+  )
+}
+```
+
+Test changes as follows:
+
+```js
+describe('Note app', () => {
+  // ...
+
+  test('login form can be opened', async ({ page }) => {
+    await page.goto('http://localhost:5173')
+
+    await page.getByRole('button', { name: 'log in' }).click()
+
+    await page.getByTestId('username').fill('mluukkai')
+    await page.getByTestId('password').fill('salainen')
+  
+    await page.getByRole('button', { name: 'login' }).click() 
+  
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+})
+```
+
+Note that passing the test at this stage requires that there is a user in the test database of the backend with username _mluukkai_ and password _salainen_. Create a user if needed!
+
+Since both tests start in the same way, i.e. by opening the page http://localhost:5173, it is recommended to isolate the common part in the _beforeEach_ block that is executed before each test:
+
+```js
+const { test, describe, expect, beforeEach } = require('@playwright/test')
+
+describe('Note app', () => {
+
+  beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:5173')
+  })
+
+  test('front page can be opened', async ({ page }) => {
+    const locator = await page.getByText('Notes')
+    await expect(locator).toBeVisible()
+    await expect(page.getByText('Note app, Department of Computer Science, University of Helsinki 2024')).toBeVisible()
+  })
+
+  test('login form can be opened', async ({ page }) => {
+    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByTestId('username').fill('mluukkai')
+    await page.getByTestId('password').fill('salainen')
+    await page.getByRole('button', { name: 'login' }).click()
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+})
+```
