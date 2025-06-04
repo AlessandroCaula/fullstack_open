@@ -125,7 +125,7 @@ const App = () => {
   // Render the login form
   const loginForm = () => (
     // Rendering the login form within a toggable component that will show or hide the component
-    <Togglable buttonLabel='login'>
+    <Togglable buttonLabel='log in'>
       <LoginForm
         username={username}
         password={password}

@@ -2825,3 +2825,127 @@ describe('Note app', () => {
 
 Since we have prevented the tests from running in parallel, Playwright runs the tests in the order they appear in the test code. That is, first the test _user can log in_, where the user logs into the application, is performed. After this the test _a new note can be created_ gets executed, which also does a log in, in the _beforeEach_ block. Why is this done, isn't the user already logged in thanks to the previous test? No, because the execution of _each_ test starts from the browser's "zero state", all changes made to the browser's state by the previous tests are reset.
 
+### Controlling the state of the database
+
+If the tests need to be able to modify the server's database, the situation immediately becomes more complicated. Ideally, the server's database should be the same each time we run the tests, so our tests can be reliably and easily repeatable.
+
+As with unit and integration tests, with E2E tests it is best to empty the database and possibly format it before the tests are run. The challenge with E2E tests is that they do not have access to the database.
+
+The solution is to create API endpoints for the backend tests. We can empty the database using these endpoints. Let's create a new router for the tests inside the _controllers_ folder, in the _testing.js_ file
+
+```js
+const router = require('express').Router()
+const Note = require('../models/note')
+const User = require('../models/user')
+
+router.post('/reset', async (request, response) => {
+  await Note.deleteMany({})
+  await User.deleteMany({})
+
+  response.status(204).end()
+})
+
+module.exports = router
+```
+
+and add it to the backend only _if the application is run in test-mode_:
+
+```js
+// ...
+
+app.use('/api/login', loginRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/notes', notesRouter)
+
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
+
+module.exports = app
+```
+
+After the changes, an HTTP POST request to the _/api/testing/reset_ endpoint empties the database. Make sure your backend is running in test mode by starting it with this command (previously configured in the package.json file):
+
+```
+npm run start:test
+```
+
+The modified backend code can be found on the [GitHub](https://github.com/fullstack-hy2020/part3-notes-backend/tree/part5-1) branch _part5-1_.
+
+Next, we will change the `beforeEach` block so that it empties the server's database before tests are run.
+
+Currently, it is not possible to add new users through the frontend's UI, so we add a new user to the backend from the beforeEach block.
+
+```js
+describe('Note app', () => {
+  beforeEach(async ({ page, request }) => {
+    await request.post('http://localhost:3001/api/testing/reset')
+    await request.post('http://localhost:3001/api/users', {
+      data: {
+        name: 'Matti Luukkainen',
+        username: 'mluukkai',
+        password: 'salainen'
+      }
+    })
+
+    await page.goto('http://localhost:5173')
+  })
+  
+  test('front page can be opened',  () => {
+    // ...
+  })
+
+  test('user can login', () => {
+    // ...
+  })
+
+  describe('when logged in', () => {
+    // ...
+  })
+})
+```
+
+During initialization, the test makes HTTP requests to the backend with the method [post](https://playwright.dev/docs/api/class-apirequestcontext#api-request-context-post) of the parameter `request`.
+
+Unlike before, now the testing of the backend always starts from the same state, i.e. there is one user and no notes in the database.
+
+Let's make a test that checks that the importance of the notes can be changed.
+
+There are a few different approaches to taking the test.
+
+In the following, we first look for a note and click on its button that has text _make not important_. After this, we check that the note contains the button with _make important_.
+
+```js
+describe('Note app', () => {
+  // ...
+
+  describe('when logged in', () => {
+    // ...
+
+    describe('and a note exists', () => {
+      beforeEach(async ({ page }) => {
+        await page.getByRole('button', { name: 'new note' }).click()
+        await page.getByRole('textbox').fill('another note by playwright')
+        await page.getByRole('button', { name: 'save' }).click()
+      })
+  
+      test('importance can be changed', async ({ page }) => {
+        await page.getByRole('button', { name: 'make not important' }).click()
+        await expect(page.getByText('make important')).toBeVisible()
+      })
+    })
+  })
+})
+```
+
+The first command first searches for the component where there is the text _another note by playwright_ and inside it the button _make not important_ and clicks on it.
+
+The second command ensures that the text of the same button has changed to _make important_.
+
+The current code for the tests is on [GitHub](https://github.com/fullstack-hy2020/notes-e2e/tree/part5-1), in branch _part5-1_.
+
+
