@@ -2742,3 +2742,86 @@ describe('Note app', () => {
   })
 })
 ```
+
+### Testing note creation
+
+Next, Let's create a test that adds a new note to the application. 
+
+```js
+const { test, describe, expect, beforeEach } = require('@playwright/test')
+
+describe('Note app', () => {
+  // ...
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByRole('button', { name: 'log in' }).click()
+      await page.getByTestId('username').fill('mluukkai')
+      await page.getByTestId('password').fill('salainen')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new note can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'new note' }).click()
+      await page.getByRole('textbox').fill('a note created by playwright')
+      await page.getByRole('button', { name: 'save' }).click()
+      await expect(page.getByText('a note created by playwright')).toBeVisible()
+    })
+  })  
+})
+```
+
+The test is defined in its own `describe` block. Creating a note requires that the user is logged in, which is handled in the `beforeEach` block.
+
+The test trusts that when creating a new note, there is only one input field on the page, so it searches for it as follows:
+
+```js
+page.getByRole('textbox')
+```
+
+If there were more fields, the test would break. Because of this, it would be better to add a test-id to the form input and search for it in the test based on this id.
+
+__Note__: the test will only pass the first time. The reason for this is that its expectation
+
+```js
+await expect(page.getByText('a note created by playwright')).toBeVisible()
+```
+
+causes problems when the same note is created in the application more than once. The problem will be solved in the next chapter.
+
+The structure of the tests looks like this:
+
+```js
+const { test, describe, expect, beforeEach } = require('@playwright/test')
+
+describe('Note app', () => {
+  // ....
+
+  test('user can log in', async ({ page }) => {
+    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByTestId('username').fill('mluukkai')
+    await page.getByTestId('password').fill('salainen')
+    await page.getByRole('button', { name: 'login' }).click()
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByRole('button', { name: 'log in' }).click()
+      await page.getByTestId('username').fill('mluukkai')
+      await page.getByTestId('password').fill('salainen')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new note can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'new note' }).click()
+      await page.getByRole('textbox').fill('a note created by playwright')
+      await page.getByRole('button', { name: 'save' }).click()
+      await expect(page.getByText('a note created by playwright')).toBeVisible()
+    })
+  })  
+})
+```
+
+Since we have prevented the tests from running in parallel, Playwright runs the tests in the order they appear in the test code. That is, first the test _user can log in_, where the user logs into the application, is performed. After this the test _a new note can be created_ gets executed, which also does a log in, in the _beforeEach_ block. Why is this done, isn't the user already logged in thanks to the previous test? No, because the execution of _each_ test starts from the browser's "zero state", all changes made to the browser's state by the previous tests are reset.
+
