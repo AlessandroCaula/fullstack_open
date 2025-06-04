@@ -2948,4 +2948,90 @@ The second command ensures that the text of the same button has changed to _make
 
 The current code for the tests is on [GitHub](https://github.com/fullstack-hy2020/notes-e2e/tree/part5-1), in branch _part5-1_.
 
+### Test for failed login
 
+Now let's do a test that ensures that the login attempt fails if the password is wrong.
+
+The first version of the test looks like this:
+
+```js
+describe('Note app', () => {
+  // ...
+
+  test('login fails with wrong password', async ({ page }) => {
+    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByTestId('username').fill('mluukkai')
+    await page.getByTestId('password').fill('wrong')
+    await page.getByRole('button', { name: 'login' }).click()
+
+    await expect(page.getByText('wrong credentials')).toBeVisible()
+  })
+
+  // ...
+)}
+```
+
+The test verifies with the method [page.getByText](https://playwright.dev/docs/api/class-page#page-get-by-text) that the application prints an error message.
+
+The application renders the error message to an element containing the CSS class _error_:
+
+```js
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="error">
+      {message}
+    </div>
+  )
+}
+```
+
+We could refine the test to ensure that the error message is printed exactly in the right place, i.e. in the element containing the CSS class _error_:
+
+```js
+  test('login fails with wrong password', async ({ page }) => {
+  // ...
+
+  const errorDiv = await page.locator('.error')
+  await expect(errorDiv).toContainText('wrong credentials')
+})
+```
+
+So the test uses the [page.locator](https://playwright.dev/docs/api/class-page#page-locator) method to find the component containing the CSS class _error_ and stores it in a variable. The correctness of the text associated with the component can be verified with the expectation [toContainText](https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-contain-text). Note that the [CSS class selector](https://developer.mozilla.org/en-US/docs/Web/CSS/Class_selectors) starts with a dot, so the _error_ class selector is _.error_.
+
+It is possible to test the application's CSS styles with matcher [toHaveCSS](https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-have-css). We can, for example, make sure that the color of the error message is red, and that there is a border around it:
+
+```js
+  test('login fails with wrong password', async ({ page }) => {
+  // ...
+
+    const errorDiv = await page.locator('.error')
+    await expect(errorDiv).toContainText('wrong credentials')
+
+    await expect(errorDiv).toHaveCSS('border-style', 'solid')
+    await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
+})
+```
+
+Colors must be defined to Playwright as [rgb](https://rgbcolorcode.com/color/red) codes.
+
+Let's finalize the test so that it also ensures that the application __does not render__ the text describing a successful login _'Matti Luukkainen logged in'_:
+
+```js
+test('login fails with wrong password', async ({ page }) =>{
+  await page.getByRole('button', { name: 'log in' }).click()
+  await page.getByTestId('username').fill('mluukkai')
+  await page.getByTestId('password').fill('wrong')
+  await page.getByRole('button', { name: 'login' }).click()
+
+  const errorDiv = await page.locator('.error')
+  await expect(errorDiv).toContainText('wrong credentials')
+  await expect(errorDiv).toHaveCSS('border-style', 'solid')
+  await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
+
+  await expect(page.getByText('Matti Luukkainen logged in')).not.toBeVisible()
+})
+```
