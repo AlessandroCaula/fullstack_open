@@ -3035,3 +3035,33 @@ test('login fails with wrong password', async ({ page }) =>{
   await expect(page.getByText('Matti Luukkainen logged in')).not.toBeVisible()
 })
 ```
+
+### Running tests one by one
+
+By default, Playwright always runs all tests, and as the number of tests increases, it becomes time-consuming. When developing a new test or debugging a broken one, the test can be defined instead than with the command test, with the command _test.only_, in which case Playwright will run only that test:
+
+```js
+describe(() => {
+  // this is the only test executed!
+
+  test.only('login fails with wrong password', async ({ page }) => {
+    // ...
+  })
+
+  // this test is skipped...
+  test('user can login with correct credentials', async ({ page }) => {
+    // ...
+  }
+
+  // ...
+})
+```
+
+When the test is ready, _only_ can and __should__ be deleted.
+
+Another option to run a single test is to use a command line parameter:
+
+```
+npm test -- -g "login fails with wrong password"
+```
+
