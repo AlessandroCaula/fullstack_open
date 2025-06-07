@@ -1,0 +1,16 @@
+{
+  "name": "e2e_test_bloglist",
+  "version": "1.0.0",
+  "description": "e2e Test for Bloglist",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "author": "Alessandro Caula",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.30"
+  }
+}

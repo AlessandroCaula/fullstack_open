@@ -144,7 +144,7 @@ const App = () => {
         {/* Show the notification if there is some message */}
         {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
         
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} data-testid='login form'>
           {/* Username field */}
           <div>
             Username

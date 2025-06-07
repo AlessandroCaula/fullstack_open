@@ -3529,4 +3529,30 @@ The final version of the tests is in full on [GitHub](https://github.com/fullsta
 
 The final version of the frontend code is in its entirety on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-9), in branch _part5-9_.
 
+<hr style="border: 2px solid rgba(171, 40, 236, 0.81);">
 
+### Exercise 5.17 - 5.23
+
+In the last exercises of this part, let's do some E2E tests for the blog application. The material above should be enough to do most of the exercises. However, you should definitely read Playwright's [documentation](https://playwright.dev/docs/intro) and [API description](https://playwright.dev/docs/api/class-playwright), at least the sections mentioned at the end of the previous chapter.
+
+#### 7.17: Blog List End to End Testing, step 1
+
+Create a new npm project for tests and configure Playwright there.
+
+Make a test to ensure that the application displays the login form by default.
+
+The body of the test should be as follows:
+
+```js
+const { test, expect, beforeEach, describe } = require('@playwright/test')
+
+describe('Blog app', () => {
+  beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:5173')
+  })
+
+  test('Login form is shown', async ({ page }) => {
+    // ...
+  })
+})
+```
