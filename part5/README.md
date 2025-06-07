@@ -3065,3 +3065,212 @@ Another option to run a single test is to use a command line parameter:
 npm test -- -g "login fails with wrong password"
 ```
 
+### Helper functions for tests
+
+Our application tests currently look like this:
+
+```js
+const { test, describe, expect, beforeEach } = require('@playwright/test')
+
+describe('Note app', () => {
+  // ...
+
+  test('user can login with correct credentials', async ({ page }) => {
+    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByTestId('username').fill('mluukkai')
+    await page.getByTestId('password').fill('salainen')
+    await page.getByRole('button', { name: 'login' }).click()
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+
+  test('login fails with wrong password', async ({ page }) =>{
+    // ...
+  })
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page, request }) => {
+      await page.getByRole('button', { name: 'log in' }).click()
+      await page.getByTestId('username').fill('mluukkai')
+      await page.getByTestId('password').fill('salainen')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new note can be created', async ({ page }) => {
+      // ...
+    })
+  
+    // ...
+  })  
+})
+```
+
+First, the login function is tested. After this, another `describe` block contains a set of tests that assume that the user is logged in, the login is handled inside the initializing `beforeEach` block.
+
+As already stated earlier, each test is executed starting from the initial state (where the database is cleared and one user is created there), so even though the test is defined after another test in the code, it does not start from the same state where the tests in the code executed earlier have left!
+
+It is also worth striving for having non-repetitive code in tests. Let's isolate the code that handles the login as a helper function, which is placed e.g. in the file `tests/helper.js`:
+
+```js
+const loginWith = async (page, username, password)  => {
+  await page.getByRole('button', { name: 'log in' }).click()
+  await page.getByTestId('username').fill(username)
+  await page.getByTestId('password').fill(password)
+  await page.getByRole('button', { name: 'login' }).click()
+}
+
+export { loginWith }
+```
+
+The test becomes simpler and clearer:
+
+```js
+const { loginWith } = require('./helper')
+
+describe('Note app', () => {
+  test('user can log in', async ({ page }) => {
+
+    await loginWith(page, 'mluukkai', 'salainen')
+    await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+  })
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+
+      await loginWith(page, 'mluukkai', 'salainen')
+    })
+
+  test('a new note can be created', () => {
+    // ...
+  })
+
+  // ...
+})
+```
+
+Playwright also offers a [solution](https://playwright.dev/docs/auth) where the login is performed once before the tests, and each test starts from a state where the application is already logged in. In order for us to take advantage of this method, the initialization of the application's test data should be done a bit differently than now. In the current solution, the database is reset before each test, and because of this, logging in just once before the tests is impossible. In order for us to use the pre-test login provided by Playwright, the user should be initialized only once before the tests. We stick to our current solution for the sake of simplicity.
+
+The corresponding repeating code actually also applies to creating a new note. For that, there is a test that creates a note using a form. Also in the `beforeEach` initialization block of the test that tests changing the importance of the note, a note is created using the form:
+
+```js
+describe('Note app', function() {
+  // ...
+
+  describe('when logged in', () => {
+    test('a new note can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'new note' }).click()
+      await page.getByRole('textbox').fill('a note created by playwright')
+      await page.getByRole('button', { name: 'save' }).click()
+      await expect(page.getByText('a note created by playwright')).toBeVisible()
+    })
+  
+    describe('and a note exists', () => {
+      beforeEach(async ({ page }) => {
+        await page.getByRole('button', { name: 'new note' }).click()
+        await page.getByRole('textbox').fill('another note by playwright')
+        await page.getByRole('button', { name: 'save' }).click()
+      })
+  
+      test('it can be made important', async ({ page }) => {
+        // ...
+      })
+    })
+  })
+})
+```
+
+Creation of a note is also isolated as its helper function. The file `tests/helper.js` expands as follows:
+
+```js
+const loginWith = async (page, username, password)  => {
+  await page.getByRole('button', { name: 'log in' }).click()
+  await page.getByTestId('username').fill(username)
+  await page.getByTestId('password').fill(password)
+  await page.getByRole('button', { name: 'login' }).click()
+}
+
+const createNote = async (page, content) => {
+  await page.getByRole('button', { name: 'new note' }).click()
+  await page.getByRole('textbox').fill(content)
+  await page.getByRole('button', { name: 'save' }).click()
+}
+
+export { loginWith, createNote }
+```
+
+The tests are simplified as follows:
+
+```js
+describe('Note app', () => {
+  // ...
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'mluukkai', 'salainen')
+    })
+
+    test('a new note can be created', async ({ page }) => {
+
+      await createNote(page, 'a note created by playwright')
+      await expect(page.getByText('a note created by playwright')).toBeVisible()
+    })
+
+    describe('and a note exists', () => {
+      beforeEach(async ({ page }) => {
+
+        await createNote(page, 'another note by playwright')
+      })
+  
+      test('importance can be changed', async ({ page }) => {
+        await page.getByRole('button', { name: 'make not important' }).click()
+        await expect(page.getByText('make important')).toBeVisible()
+      })
+    })
+  })
+})
+```
+
+There is one more annoying feature in our tests. The frontend address _http:localhost:5173_ and the backend address _http:localhost:3001_ are hardcoded for tests. Of these, the address of the backend is actually useless, because a proxy has been defined in the Vite configuration of the frontend, which forwards all requests made by the frontend to the address _http:localhost:5173/api_ to the backend:
+
+```js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    }
+  },
+  // ...
+})
+```
+
+So we can replace all the addresses in the tests from http://localhost:3001/api/ to http://localhost:5173/api/
+
+We can now define the `baseUrl` for the application in the tests configuration file _playwright.config.js_:
+
+```js
+module.exports = defineConfig({
+  // ...
+  use: {
+    baseURL: 'http://localhost:5173',
+  },
+  // ...
+}
+```
+
+All the commands in the tests that use the application url, e.g.
+
+```js
+await page.goto('http://localhost:5173')
+await page.post('http://localhost:5173/api/tests/reset')
+```
+
+can be transformed into:
+
+```js
+await page.goto('/')
+await page.post('/api/tests/reset')
+```
+
+The current code for the tests is on [GitHub](https://github.com/fullstack-hy2020/notes-e2e/tree/part5-2), branch _part5-2_ (branch _part-5.9_ on this project).
