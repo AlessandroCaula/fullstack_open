@@ -29,10 +29,11 @@ const BlogForm = ({ createBlog }) => {
           Title:
           <input 
             type='text'
+            // data-testid='blogTitle'
             value={blogTitle}
             name='BlogTitle'
             onChange={({ target }) => setBlogTitle(target.value)}
-            placeholder="Blog title"
+            placeholder="Blog Title"
           />
         </div>
         {/* Blog author */}
@@ -40,10 +41,11 @@ const BlogForm = ({ createBlog }) => {
           Author: 
           <input 
             type='text'
+            // data-testid='blogAuthor'
             value={blogAuthor}
             name='BlogAuthor'
             onChange={({ target }) => setBlogAuthor(target.value)}
-            placeholder="Blog author"
+            placeholder="Blog Author"
           />
         </div>
         {/* Blog url */}
@@ -51,6 +53,7 @@ const BlogForm = ({ createBlog }) => {
           Url:
           <input 
             type='text'
+            // data-testid='blogUrl'
             value={blogUrl}
             name='BlogUrl'
             onChange={({ target }) => setBlogUrl(target.value)}

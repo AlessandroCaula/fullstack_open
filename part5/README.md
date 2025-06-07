@@ -3591,3 +3591,21 @@ describe('Blog app', () => {
 
 The `beforeEach` block must empty the database using, for example, the reset method we used in the [material](https://fullstackopen.com/en/part5/end_to_end_testing_playwright#controlling-the-state-of-the-database).
 
+#### 5.19: Blog List End To End Testing, step 3
+
+Create a test that verifies that a logged in user can create a blog. The body of the test may look like the following
+
+```js
+describe('When logged in', () => {
+  beforeEach(async ({ page }) => {
+    // ...
+  })
+
+  test('a new blog can be created', async ({ page }) => {
+    // ...
+  })
+})
+```
+
+The test should ensure that the created blog is visible in the list of blogs.
+
