@@ -19,7 +19,7 @@ const Notification = ({ message, color }) => {
   }
 
   return (
-    <div style={notificationStyle}>
+    <div style={notificationStyle} data-testid='errorDiv'>
       {message}
     </div>
   )
