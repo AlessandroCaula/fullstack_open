@@ -44,7 +44,8 @@ describe('Note app', () => {
         await createNote(page, 'third note')
       })
   
-      test('one of those can be made non important', async ({ page }) => {
+      test('importance can be changed', async ({ page }) => {
+        await page.pause()
         const otherNoteText = await page.getByText('second note')
         const otherNoteElement = await otherNoteText.locator('..')
 

@@ -3393,3 +3393,140 @@ describe('when logged in', () => {
 
 For some reason the test starts working unreliably, sometimes it passes and sometimes it doesn't. It's time to roll up your sleeves and learn how to debug tests.
 
+### Test development and debugging
+
+If, and when the tests don't pass and you suspect that the fault is in the tests instead of in the code, you should run the test in [debug](https://playwright.dev/docs/debug#run-in-debug-mode-1) mode.
+
+The following command runs the problematic test in debug mode:
+
+```
+npm test -- -g'importance can be changed' --debug
+```
+
+Playwright-inspector shows the progress of the tests step by step. The arrow-dot button at the top takes the tests one step further. The elements found by the locators and the interaction with the browser are visualized in the browser:
+
+![alt text](assets/image30.png)
+
+By default, debug steps through the test command by command. If it is a complex test, it can be quite a burden to step through the test to the point of interest. This can be avoided by using the command `await page.pause()`:
+
+```js
+describe('Note app', () => {
+  beforeEach(async ({ page, request }) => {
+    // ...
+  }
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      // ...
+    })
+
+    describe('and several notes exists', () => {
+      beforeEach(async ({ page }) => {
+        await createNote(page, 'first note')
+        await createNote(page, 'second note')
+        await createNote(page, 'third note')
+      })
+  
+      test('one of those can be made nonimportant', async ({ page }) => {
+
+        await page.pause()
+        const otherNoteText = await page.getByText('second note')
+        const otherNoteElement = await otherNoteText.locator('..')
+      
+        await otherNoteElement.getByRole('button', { name: 'make not important' }).click()
+        await expect(otherNoteElement.getByText('make important')).toBeVisible()
+      })
+    })
+  })
+})
+```
+
+Now in the test you can go to `page.pause()` in one step, by pressing the green arrow symbol in the inspector.
+
+When we now run the test and jump to the `page.pause()` command, we find an interesting fact:
+
+![alt text](assets/image31.png)
+
+It seems that the browser _does not render_ all the notes created in the block `beforeEach`. What is the problem?
+
+The reason for the problem is that when the test creates one note, it starts creating the next one even before the server has responded, and the added note is rendered on the screen. This in turn can cause some notes to be lost (in the picture, this happened to the second note created), since the browser is re-rendered when the server responds, based on the state of the notes at the start of that insert operation.
+
+The problem can be solved by "slowing down" the insert operations by using the [waitFor](https://playwright.dev/docs/api/class-locator#locator-wait-for) command after the insert to wait for the inserted note to render:
+
+```js
+const createNote = async (page, content) => {
+  await page.getByRole('button', { name: 'new note' }).click()
+  await page.getByRole('textbox').fill(content)
+  await page.getByRole('button', { name: 'save' }).click()
+
+  await page.getByText(content).waitFor()
+}
+```
+
+Instead of, or alongside debugging mode, running tests in UI mode can be useful. As already mentioned, tests are started in UI mode as follows:
+
+```
+npm run test -- --ui
+```
+
+Almost the same as UI mode is use of the Playwright's [Trace Viewer](https://playwright.dev/docs/trace-viewer-intro). The idea is that a "visual trace" of the tests is saved, which can be viewed if necessary after the tests have been completed. A trace is saved by running the tests as follows:
+
+```
+npm run test -- --trace on
+```
+
+If necessary, Trace can be viewed with the command
+
+```
+npx playwright show-report
+```
+
+or with the npm script we defined `npm run test:report`
+
+Trace looks practically the same as running tests in UI mode.
+
+UI mode and Trace Viewer also offer the possibility of assisted search for locators. This is done by pressing the double circle on the left side of the lower bar, and then by clicking on the desired user interface element. Playwright displays the element locator:
+
+![alt text](assets/image32.png)
+
+Playwright suggests the following as the locator for the third note
+
+```js
+page.locator('li').filter({ hasText: 'third note' }).getByRole('button')
+```
+
+The method [page.locator](https://playwright.dev/docs/api/class-page#page-locator) is called with the argument `li`, i.e. we search for all li elements on the page, of which there are three in total. After this, using the [locator.filter](https://playwright.dev/docs/api/class-locator#locator-filter) method, we narrow down to the li element that contains the _text third note_ and the button element inside it is taken using the [locator.getByRole](https://playwright.dev/docs/api/class-locator#locator-get-by-role) method.
+
+The locator generated by Playwright is somewhat different from the locator used by our tests, which was
+
+```js
+page.getByText('first note').locator('..').getByRole('button', { name: 'make not important' })
+```
+
+Which of the locators is better is probably a matter of taste.
+
+Playwright also includes a [test generator](https://playwright.dev/docs/codegen-intro) that makes it possible to "record" a test through the user interface. The test generator is started with the command:
+
+```
+npx playwright codegen http://localhost:5173/
+```
+
+When the `Record` mode is on, the test generator "records" the user's interaction in the Playwright inspector, from where it is possible to copy the locators and actions to the tests:
+
+Instead of the command line, Playwright can also be used via the [VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) plugin. The plugin offers many convenient features, e.g. use of breakpoints when debugging tests.
+
+To avoid problem situations and increase understanding, it is definitely worth browsing Playwright's high-quality [documentation](https://playwright.dev/docs/intro). The most important sections are listed below:
+
+- the section about [locators](https://playwright.dev/docs/locators) gives good hints for finding elements in test
+
+- section [actions](https://playwright.dev/docs/input) tells how it is possible to simulate the interaction with the browser in tests
+
+- the section about [assertions](https://playwright.dev/docs/test-assertions) demonstrates the different expectations Playwright offers for testing
+
+In-depth details can be found in the [API](https://playwright.dev/docs/api/class-playwright) description, particularly useful are the class [Page](https://playwright.dev/docs/api/class-page) corresponding to the browser window of the application under test, and the class [Locator](https://playwright.dev/docs/api/class-locator) corresponding to the elements searched for in the tests.
+
+The final version of the tests is in full on [GitHub](https://github.com/fullstack-hy2020/notes-e2e/tree/part5-3), in branch _part5-3_.
+
+The final version of the frontend code is in its entirety on [GitHub](https://github.com/fullstack-hy2020/part2-notes-frontend/tree/part5-9), in branch _part5-9_.
+
+
