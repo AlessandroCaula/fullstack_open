@@ -3274,3 +3274,122 @@ await page.post('/api/tests/reset')
 ```
 
 The current code for the tests is on [GitHub](https://github.com/fullstack-hy2020/notes-e2e/tree/part5-2), branch _part5-2_ (branch _part-5.9_ on this project).
+
+### Note importance change revisited
+
+Let's take a look at the test we did earlier, which verifies that it is possible to change the importance of a note.
+
+Let's change the initialization block of the test so that it creates two notes instead of one:
+
+```js
+describe('when logged in', () => {
+  // ...
+  describe('and several notes exists', () => {
+    beforeEach(async ({ page }) => {
+
+      await createNote(page, 'first note')
+      await createNote(page, 'second note')
+    })
+
+    test('one of those can be made nonimportant', async ({ page }) => {
+      const otherNoteElement = await page.getByText('first note')
+
+      await otherNoteElement
+        .getByRole('button', { name: 'make not important' }).click()
+      await expect(otherNoteElement.getByText('make important')).toBeVisible()
+    })
+  })
+})
+```
+
+The test first searches for the element corresponding to the first created note using the method `page.getByText` and stores it in a variable. After this, a button with the text `make not important` is searched inside the element and the button is pressed. Finally, the test verifies that the button's text has changed to `make important`.
+
+The test could also have been written without the auxiliary variable:
+
+```js
+test('one of those can be made nonimportant', async ({ page }) => {
+  await page.getByText('first note')
+    .getByRole('button', { name: 'make not important' }).click()
+
+  await expect(page.getByText('first note').getByText('make important'))
+    .toBeVisible()
+})
+```
+
+Let's change the `Note` component so that the note text is rendered inside a `span` element
+
+```js
+const Note = ({ note, toggleImportance }) => {
+  const label = note.important
+    ? 'make not important' : 'make important'
+
+  return (
+    <li className='note'>
+      <span>{note.content}</span>
+      <button onClick={toggleImportance}>{label}</button>
+    </li>
+  )
+}
+```
+
+Tests break! The reason for the problem is that the command `await page.getByText('first note')` now returns a `span` element containing only text, and the button is outside of it.
+
+One way to fix the problem is as follows:
+
+```js
+test('one of those can be made nonimportant', async ({ page }) => {
+
+  const otherNoteText = await page.getByText('first note')
+  const otherNoteElement = await otherNoteText.locator('..')
+
+  await otherNoteElement.getByRole('button', { name: 'make not important' }).click()
+  await expect(otherNoteElement.getByText('make important')).toBeVisible()
+})
+```
+
+The first line now looks for the `span` element containing the text associated with the first created note. In the second line, the function `locator` is used and `..` is given as an argument, which retrieves the element's parent element. The locator function is very flexible, and we take advantage of the fact that accepts [as argument](https://playwright.dev/docs/locators#locate-by-css-or-xpath) not only CSS selectors but also [XPath](https://developer.mozilla.org/en-US/docs/Web/XPath) selector. It would be possible to express the same with CSS, but in this case XPath provides the simplest way to find the parent of an element.
+
+Of course, the test can also be written using only one auxiliary variable:
+
+```js
+test('one of those can be made nonimportant', async ({ page }) => {
+  const secondNoteElement = await page.getByText('second note').locator('..')
+  await secondNoteElement.getByRole('button', { name: 'make not important' }).click()
+  await expect(secondNoteElement.getByText('make important')).toBeVisible()
+})
+```
+
+Let's change the test so that three notes are created, the importance is changed in the second created note:
+
+```js
+describe('when logged in', () => {
+  beforeEach(async ({ page }) => {
+    await loginWith(page, 'mluukkai', 'salainen')
+  })
+
+  test('a new note can be created', async ({ page }) => {
+    await createNote(page, 'a note created by playwright', true)
+    await expect(page.getByText('a note created by playwright')).toBeVisible()
+  })
+
+  describe('and a note exists', () => {
+    beforeEach(async ({ page }) => {
+      await createNote(page, 'first note')
+      await createNote(page, 'second note')
+      await createNote(page, 'third note')
+    })
+
+    test('importance can be changed', async ({ page }) => {
+
+      const otherNoteText = await page.getByText('second note')
+      const otherNoteElement = await otherNoteText.locator('..')
+    
+      await otherNoteElement.getByRole('button', { name: 'make not important' }).click()
+      await expect(otherNoteElement.getByText('make important')).toBeVisible()
+    })
+  })
+}) 
+```
+
+For some reason the test starts working unreliably, sometimes it passes and sometimes it doesn't. It's time to roll up your sleeves and learn how to debug tests.
+

@@ -22,12 +22,7 @@ describe('Note app', () => {
   })
 
   test('login form can be opened', async ({ page }) => {
-    await loginWith(page, 'mluukkai', 'salainen')
-    // await page.getByRole('button', { name: 'log in' }).click()
-    // await page.getByTestId('username').fill('mluukkai')
-    // await page.getByTestId('password').fill('salainen')
-    // await page.getByRole('button', { name: 'login' }).click()
-  
+    await loginWith(page, 'mluukkai', 'salainen')  
     await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
   })
 
@@ -37,21 +32,24 @@ describe('Note app', () => {
     })
 
     test('a new note can be created', async ({ page }) => {
-      // await page.getByRole('button', { name: 'new note' }).click()
-      // await page.getByRole('textbox').fill('a note created by playwright')
-      // await page.getByRole('button', { name: 'save' }).click()
       await createNote(page, 'a note created by playwright')
       await expect(await page.getByText('a note created by playwright')).toBeVisible()
     })
 
-    describe('and a note exists', () => {
+    describe('and several notes exist', () => {
       beforeEach(async ({ page }) => {
-        await createNote(page, 'another note by playwright')
+        // await createNote(page, 'another note by playwright')
+        await createNote(page, 'first note')
+        await createNote(page, 'second note')
+        await createNote(page, 'third note')
       })
   
-      test('importance can be changed', async ({ page }) => {
-        await page.getByRole('button', { name: 'make not important' }).click()
-        await expect(await page.getByText('make important')).toBeVisible()
+      test('one of those can be made non important', async ({ page }) => {
+        const otherNoteText = await page.getByText('second note')
+        const otherNoteElement = await otherNoteText.locator('..')
+
+        await otherNoteElement.getByRole('button', { name: 'make not important' }).click()
+        await expect(otherNoteElement.getByText('make important')).toBeVisible()
       })
     })
   }) 
