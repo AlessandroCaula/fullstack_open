@@ -257,3 +257,76 @@ So, instead of the function _createStore_, it is recommended to use the slightly
 
 Side note: _createStore_ is defined as "deprecated", which usually means that the feature will be removed in some newer version of the library. The explanation above and this [discussion](https://stackoverflow.com/questions/71944111/redux-createstore-is-deprecated-cannot-get-state-from-getstate-in-redux-ac) reveal that createStore will not be removed, and it has been given the status _deprecated_, perhaps with slightly incorrect reasons. So the function is not obsolete, but today there is a more preferable, new way to do almost the same thing.
 
+### Redux-notes
+
+We aim to modify our note application to use Redux for state management. However, let's first cover a few key concepts through a simplified note application.
+
+The first version of our application is the following
+
+```js
+const noteReducer = (state = [], action) => {
+  if (action.type === 'NEW_NOTE') {
+    state.push(action.payload)
+    return state
+  }
+
+  return state
+}
+
+const store = createStore(noteReducer)
+
+store.dispatch({
+  type: 'NEW_NOTE',
+  payload: {
+    content: 'the app state is in redux store',
+    important: true,
+    id: 1
+  }
+})
+
+store.dispatch({
+  type: 'NEW_NOTE',
+  payload: {
+    content: 'state changes are made with actions',
+    important: false,
+    id: 2
+  }
+})
+
+const App = () => {
+  return(
+    <div>
+      <ul>
+        {store.getState().map(note=>
+          <li key={note.id}>
+            {note.content} <strong>{note.important ? 'important' : ''}</strong>
+          </li>
+        )}
+        </ul>
+    </div>
+  )
+}
+export default noteReducer;
+```
+
+So far the application does not have the functionality for adding new notes, although it is possible to do so by dispatching _NEW_NOTE_ actions.
+
+Now the actions have a type and a field _payload_, which contains the note to be added:
+
+```js
+{
+  type: 'NEW_NOTE',
+  payload: {
+    content: 'state changes are made with actions',
+    important: false,
+    id: 2
+  }
+}
+```
+
+The choice of the field name is not random. The general convention is that actions have exactly two fields, _type_ telling the type and _payload_ containing the data included with the Action.
+
+### Pure functions, immutable
+
+The initial version of the reducer is very simple:
+
