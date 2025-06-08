@@ -64,5 +64,33 @@ describe('Blog app', () => {
 
       await expect(page.getByText('New blog by playwright Playwright')).toBeVisible()
     })
+
+    test('a blog can be liked', async ({ page }) => {
+      // Create a new blog
+      await page.getByRole('button', { name: 'Create New Blog' }).click()
+      await page.getByPlaceholder('Blog Title').fill('New blog by playwright')
+      await page.getByPlaceholder('Blog Author').fill('Playwright')
+      await page.getByPlaceholder('Blog URL').fill('Blog URL')
+      await page.getByRole('button', { name: 'Create' }).click()
+
+      // Open the blog so that the likes count can be increased
+      await page.getByRole('button', { name: 'View details' }).click()
+      // Number of likes when a blog is created is 0
+      await expect(page.getByText('likes 0')).toBeVisible()
+      // Like the blog 
+      await page.getByRole('button', { name: 'Like' }).click()
+      // Check the the number of likes is now 1
+      await expect(page.getByText('likes 1')).toBeVisible()
+
+      // -- Using anther approach, independent from the initial number of likes
+      // Retrieve the likes text
+      const likesText = await page.getByTestId("blog-likes").textContent()
+      // Retrieve the number of likes "n"
+      const n = parseInt(likesText.replace('likes', ''), 10)
+      // Increase the number of likes by clicking the "Like" button
+      await page.getByRole('button', { name: 'Like' }).click()
+      // Check the the number of likes is now n + 1
+      await expect(page.getByText(`likes ${n + 1}`)).toBeVisible()
+    })
   })
 })

@@ -19,7 +19,7 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   const showBlogDetails = () => (
     <>
       <div>{blog.url}</div>
-      <div>
+      <div data-testid="blog-likes">
         likes {blog.likes}
         <button onClick={blogLikesUpdate}>Like</button>
       </div>

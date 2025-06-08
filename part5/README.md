@@ -3609,3 +3609,6 @@ describe('When logged in', () => {
 
 The test should ensure that the created blog is visible in the list of blogs.
 
+#### 5.20: Blog List End To End Testing, step 4
+
+Do a test that makes sure the blog can be liked.
