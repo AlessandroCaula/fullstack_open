@@ -127,7 +127,7 @@ describe('Blog app', () => {
     await expect(page.getByText('New blog by ACaula ACaula')).not.toBeVisible()
   })
 
-  test.only('the blogs are sorted accordingly to their number of likes', async ({ page }) => {
+  test('the blogs are sorted accordingly to their number of likes', async ({ page }) => {
     // Login
     await loginWith(page, 'acaula', 'provaprova')
     // -- Create new blogs
@@ -143,12 +143,12 @@ describe('Blog app', () => {
 
     // Now increase the number of likes of the third blog
     const third_blog = await page.getByText(`${third_blog_title} ${third_blog_author}`)
-    // const third_blog_details = 
     await third_blog.getByRole('button', { name: 'View details' }).click() 
     // Retrieve the likes text
     const likesText = await page.getByTestId("blog-likes").textContent()
     // Retrieve the number of likes "n"
     const n = parseInt(likesText.replace('likes', ''), 10)
+    // Increase the number of likes
     await page.getByRole('button', { name: 'Like' }).click()
     await page.getByText(`likes ${n + 1}`).waitFor()
     await page.getByRole('button', { name: 'Like' }).click()
@@ -156,9 +156,24 @@ describe('Blog app', () => {
     // Hide the Details now
     await page.getByRole('button', { name: 'Hide' }).click()
 
-    // Retrieve all blog elements in the order they appear
-    const blogElements = await page.locator('.blog').all();
-    console.log(blogElements)
+    // // Now increase by one the number of likes of the second blog
+    // const second_blog = await page.getByText(`${second_blog_title} ${second_blog_author}`)
+    // await second_blog.getByRole('button', { name: 'View details' }).click()
+    // // Retrieve the likes text
+    // const likesText1 = await page.getByTestId("blog-likes").textContent()
+    // // Retrieve the number of likes "n"
+    // const n1 = parseInt(likesText1.replace('likes', ''), 10)
+    // // Increase the number of likes
+    // await page.getByRole('button', { name: 'Like' }).click()
+    // await page.getByText(`likes ${n1 + 1}`).waitFor()
+    // // Hide the details now
+    // await page.getByRole('button', { name: 'Hide' }).click()
 
+    // Retrieve all the blog titles after changing the number of likes
+    const blogTitles = await page.locator('.blog-author-title').allTextContents();
+    // Check that the order of the blogs is reverted
+    expect(blogTitles[0]).toContain(third_blog_title)
+    // expect(blogTitles[1]).toContain(second_blog_title)
+    // expect(blogTitles[2]).toContain(first_blog_title)
   })
 })
