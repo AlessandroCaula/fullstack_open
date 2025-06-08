@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { createBlog } = require('./helper')
+const { loginWith, createBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -11,6 +11,14 @@ describe('Blog app', () => {
         username: "acaula",
         name: "Alessandro Caula",
         password: "provaprova"
+      }
+    })
+    // Create a second user
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        username: "bcaula",
+        name: "Bruno Caula",
+        password: "testest"
       }
     })
 
@@ -32,17 +40,12 @@ describe('Blog app', () => {
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
       // Logging in 
-      await page.getByTestId('username').fill('acaula')
-      await page.getByTestId('password').fill('provaprova')
-      await page.getByRole('button', { name: 'login' }).click()
-
+      await loginWith(page, 'acaula', 'provaprova')
       await expect(page.getByText('Alessandro Caula logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      await page.getByTestId('username').fill('acaula')
-      await page.getByTestId('password').fill('error')
-      await page.getByRole('button', { name: 'login' }).click()
+      await loginWith(page, 'acaula', 'error')
 
       const errorDivLocator = await page.getByTestId('errorDiv')
       await expect(errorDivLocator).toContainText('Wrong username or password')
@@ -51,9 +54,7 @@ describe('Blog app', () => {
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await page.getByTestId('username').fill('acaula')
-      await page.getByTestId('password').fill('provaprova')
-      await page.getByRole('button', { name: 'login' }).click()
+      await loginWith(page, 'acaula', 'provaprova')
     })
 
     test('a new blog can be created', async ({ page }) => {
@@ -101,5 +102,28 @@ describe('Blog app', () => {
       // Check that the blog is not visible anymore
       await expect(page.getByText('New blog by playwright Playwright')).not.toBeVisible()
     })
+  })
+
+  test('only user who added the blog can see them', async ({ page }) => {
+    // Login with acaula
+    await loginWith(page, 'acaula', 'provaprova')
+    // Check correct logging in 
+    await expect(page.getByText('Alessandro Caula logged in')).toBeVisible()
+    // Add new blog with acaula
+    await createBlog(page, 'New blog by ACaula', 'ACaula', 'Blog URL')
+    // Check new blog
+    await expect(page.getByText('New blog by ACaula ACaula')).toBeVisible()
+
+    // Logout from this user 
+    await page.getByRole('button', { name: 'Log out' }).click()
+
+    // Check no user is logged
+    await expect(page.getByText('Alessandro Caula logged in')).not.toBeVisible()
+    // Log in with another user
+    await loginWith(page, 'bcaula', 'testest')
+    // Check correct logging in 
+    await expect(page.getByText('Bruno Caula logged in')).toBeVisible()
+    // Check that this new logged in user doesn't see the blog added from the other user
+    await expect(page.getByText('New blog by ACaula ACaula')).not.toBeVisible()
   })
 })

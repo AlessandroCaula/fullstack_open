@@ -3617,4 +3617,8 @@ Do a test that makes sure the blog can be liked.
 
 Make a test that ensures that the user who added the blog can delete the blog. If you use the window.confirm dialog in the delete operation, you may have to Google how to use the dialog in the Playwright tests.
 
+#### 5.22: Blog List End To End Testing, step 6
+
+Make a test that ensures that only the user who added the blog sees the blog's delete button.
+
 
