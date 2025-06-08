@@ -3612,3 +3612,9 @@ The test should ensure that the created blog is visible in the list of blogs.
 #### 5.20: Blog List End To End Testing, step 4
 
 Do a test that makes sure the blog can be liked.
+
+#### 5.21: Blog List End To End Testing, step 5
+
+Make a test that ensures that the user who added the blog can delete the blog. If you use the window.confirm dialog in the delete operation, you may have to Google how to use the dialog in the Playwright tests.
+
+

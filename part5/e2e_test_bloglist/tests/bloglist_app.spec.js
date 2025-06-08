@@ -1,4 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { createBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -56,22 +57,13 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await page.getByRole('button', { name: 'Create New Blog' }).click()
-      await page.getByPlaceholder('Blog Title').fill('New blog by playwright')
-      await page.getByPlaceholder('Blog Author').fill('Playwright')
-      await page.getByPlaceholder('Blog URL').fill('Blog URL')
-      await page.getByRole('button', { name: 'Create' }).click()
-
+      await createBlog(page, 'New blog by playwright', 'Playwright', 'Blog URL')
       await expect(page.getByText('New blog by playwright Playwright')).toBeVisible()
     })
 
     test('a blog can be liked', async ({ page }) => {
       // Create a new blog
-      await page.getByRole('button', { name: 'Create New Blog' }).click()
-      await page.getByPlaceholder('Blog Title').fill('New blog by playwright')
-      await page.getByPlaceholder('Blog Author').fill('Playwright')
-      await page.getByPlaceholder('Blog URL').fill('Blog URL')
-      await page.getByRole('button', { name: 'Create' }).click()
+      await createBlog(page, 'New blog by playwright', 'Playwright', 'Blog URL')
 
       // Open the blog so that the likes count can be increased
       await page.getByRole('button', { name: 'View details' }).click()
@@ -91,6 +83,23 @@ describe('Blog app', () => {
       await page.getByRole('button', { name: 'Like' }).click()
       // Check the the number of likes is now n + 1
       await expect(page.getByText(`likes ${n + 1}`)).toBeVisible()
+    })
+
+    test('a blog can be deleted by the logged in user', async ({ page }) => {
+      // Create a new blog
+      await createBlog(page, 'New blog by playwright', 'Playwright', 'Blog URL')
+
+      // Open the blog so that the blog can be also deleted
+      await page.getByRole('button', { name: 'View details' }).click()      
+      
+      // Accept the confirmation dialog window when deleting the blog
+      page.on('dialog', async dialog => {
+        await dialog.accept()
+      })
+      // Click the delete button
+      await page.getByRole('button', { name: 'Delete' }).click()
+      // Check that the blog is not visible anymore
+      await expect(page.getByText('New blog by playwright Playwright')).not.toBeVisible()
     })
   })
 })
