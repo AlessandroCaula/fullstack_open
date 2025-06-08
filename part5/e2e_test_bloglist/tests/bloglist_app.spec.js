@@ -126,4 +126,39 @@ describe('Blog app', () => {
     // Check that this new logged in user doesn't see the blog added from the other user
     await expect(page.getByText('New blog by ACaula ACaula')).not.toBeVisible()
   })
+
+  test.only('the blogs are sorted accordingly to their number of likes', async ({ page }) => {
+    // Login
+    await loginWith(page, 'acaula', 'provaprova')
+    // -- Create new blogs
+    const first_blog_title = "Blog 1"
+    const first_blog_author = "Author 1"
+    await createBlog(page, first_blog_title, first_blog_author, 'url')
+    const second_blog_title = "Blog 2"
+    const second_blog_author = "Author 2"
+    await createBlog(page, second_blog_title, second_blog_author, 'url')
+    const third_blog_title = "Blog 3"
+    const third_blog_author = "Author 3"
+    await createBlog(page, third_blog_title, third_blog_author, 'url')
+
+    // Now increase the number of likes of the third blog
+    const third_blog = await page.getByText(`${third_blog_title} ${third_blog_author}`)
+    // const third_blog_details = 
+    await third_blog.getByRole('button', { name: 'View details' }).click() 
+    // Retrieve the likes text
+    const likesText = await page.getByTestId("blog-likes").textContent()
+    // Retrieve the number of likes "n"
+    const n = parseInt(likesText.replace('likes', ''), 10)
+    await page.getByRole('button', { name: 'Like' }).click()
+    await page.getByText(`likes ${n + 1}`).waitFor()
+    await page.getByRole('button', { name: 'Like' }).click()
+    await page.getByText(`likes ${n + 2}`).waitFor()
+    // Hide the Details now
+    await page.getByRole('button', { name: 'Hide' }).click()
+
+    // Retrieve all blog elements in the order they appear
+    const blogElements = await page.locator('.blog').all();
+    console.log(blogElements)
+
+  })
 })
