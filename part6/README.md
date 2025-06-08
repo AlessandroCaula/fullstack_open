@@ -330,3 +330,13 @@ The choice of the field name is not random. The general convention is that actio
 
 The initial version of the reducer is very simple:
 
+```js
+const noteReducer = (state = [], action) => {
+  if (action.type === 'NEW_NOTE') {
+    state.push(action.payload)
+    return state
+  }
+
+  return state
+}
+```
