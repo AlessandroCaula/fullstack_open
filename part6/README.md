@@ -235,3 +235,25 @@ There are a few notable things in the code. _App_ renders the value of the count
 
 When the state in the store is changed, React is not able to automatically re-render the application. Thus we have registered a function `renderApp`, which renders the whole app, to listen for changes in the store with the `store.subscribe` method. Note that we have to immediately call the renderApp method. Without the call, the first rendering of the app would never happen.
 
+# A note about the use of createStore
+
+The most observant will notice that the name of the function createStore is overlined. If you move the mouse over the name, an explanation will appear
+
+![alt text](assets/image3.png)
+
+The full explanation is as follows
+
+> _We recommend using the configureStore method of the @reduxjs/toolkit package, which replaces createStore._ 
+>
+> _Redux Toolkit is our recommended approach for writing Redux logic today, including store setup, reducers, data fetching, and more._
+>
+> _For more details, please read this Redux docs page: https://redux.js.org/introduction/why-rtk-is-redux-today_
+>
+> _configureStore from Redux Toolkit is an improved version of createStore that simplifies setup and helps avoid common bugs._
+>
+> _You should not be using the redux core package by itself today, except for learning purposes. The createStore method from the core redux package will not be removed, but we encourage all users to migrate to using Redux Toolkit for all Redux code._
+
+So, instead of the function _createStore_, it is recommended to use the slightly more "advanced" function _configureStore_, and we will also use it when we have achieved the basic functionality of Redux.
+
+Side note: _createStore_ is defined as "deprecated", which usually means that the feature will be removed in some newer version of the library. The explanation above and this [discussion](https://stackoverflow.com/questions/71944111/redux-createstore-is-deprecated-cannot-get-state-from-getstate-in-redux-ac) reveal that createStore will not be removed, and it has been given the status _deprecated_, perhaps with slightly incorrect reasons. So the function is not obsolete, but today there is a more preferable, new way to do almost the same thing.
+
