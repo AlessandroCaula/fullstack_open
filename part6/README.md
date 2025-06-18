@@ -358,3 +358,16 @@ const noteReducer = (state = [], action) => {
   return state
 }
 ```
+
+A reducer state must be composed of [immutable](https://en.wikipedia.org/wiki/Immutable_object) objects. If there is a change in the state, the old object is not changed, but it is _replaced with a new, changed, object_. This is exactly what we did with the new reducer: the old array is replaced with the new one.
+
+Let's expand our reducer so that it can handle the change of a note's importance:
+
+```js
+{
+  type: 'TOGGLE_IMPORTANCE',
+  payload: {
+    id: 2
+  }
+}
+```
