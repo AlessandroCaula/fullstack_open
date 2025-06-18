@@ -340,3 +340,21 @@ const noteReducer = (state = [], action) => {
   return state
 }
 ```
+
+The state is now an Array. _NEW_NOTE_-type actions cause a new note to be added to the state with the [push](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push) method.
+
+The application seems to be working, but the reducer we have declared is bad. It breaks the [basic assumption](https://redux.js.org/tutorials/essentials/part-1-overview-concepts#reducers) that reducers must be [pure functions](https://en.wikipedia.org/wiki/Pure_function).
+
+Pure functions are such, that they _do not cause any side effects_ and they must always return the same response when called with the same parameters.
+
+We added a new note to the state with the method `state.push(action.payload)` which _changes_ the state of the state-object. This is not allowed. The problem is easily solved by using the [concat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat) method, which creates a _new array_, which contains all the elements of the old array and the new element:
+
+```js
+const noteReducer = (state = [], action) => {
+  if (action.type === 'NEW_NOTE') {
+    return state.concat(action.payload)
+  }
+
+  return state
+}
+```
