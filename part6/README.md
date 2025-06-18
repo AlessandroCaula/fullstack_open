@@ -371,3 +371,190 @@ Let's expand our reducer so that it can handle the change of a note's importance
   }
 }
 ```
+
+Since we do not have any code which uses this functionality yet, we are expanding the reducer in the 'test-driven' way. Let's start by creating a test for handling the action _NEW_NOTE_.
+
+We have to first configure the [Jest](https://jestjs.io/) testing library for the project. Let us install the following dependencies:
+
+```
+npm install --save-dev jest @babel/preset-env @babel/preset-react eslint-plugin-jest
+```
+
+Next we'll create the file _.babelrc_, with the following content:
+
+```json
+{
+  "presets": [
+    "@babel/preset-env",
+    ["@babel/preset-react", { "runtime": "automatic" }]
+  ]
+}
+```
+
+Let us expand package.json with a script for running the tests:
+
+```json
+{
+  // ...
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+
+    "test": "jest"
+  },
+  // ...
+}
+```
+
+And finally, _.eslintrc.cjs_ needs to be altered as follows:
+
+```js
+module.exports = {
+  root: true,
+  env: { 
+    browser: true,
+    es2020: true,
+    "jest/globals": true
+  },
+  // ...
+}
+```
+
+To make testing easier, we'll first move the reducer's code to its own module, to the file _src/reducers/noteReducer.js_. We'll also add the library [deep-freeze](https://www.npmjs.com/package/deep-freeze), which can be used to ensure that the reducer has been correctly defined as an immutable function. Let's install the library as a development dependency:
+
+```
+npm install --save-dev deep-freeze
+```
+
+The test, which we define in file _src/reducers/noteReducer.test.js_, has the following content:
+
+```js
+import noteReducer from './noteReducer'
+import deepFreeze from 'deep-freeze'
+
+describe('noteReducer', () => {
+  test('returns new state with action NEW_NOTE', () => {
+    const state = []
+    const action = {
+      type: 'NEW_NOTE',
+      payload: {
+        content: 'the app state is in redux store',
+        important: true,
+        id: 1
+      }
+    }
+
+    deepFreeze(state)
+    const newState = noteReducer(state, action)
+
+    expect(newState).toHaveLength(1)
+    expect(newState).toContainEqual(action.payload)
+  })
+})
+```
+
+Run the test with _npm test_. The _deepFreeze(state)_ command ensures that the reducer does not change the state of the store given to it as a parameter. If the reducer uses the `push` command to manipulate the state, the test will not pass
+
+![alt text](assets/image4.png)
+
+Now we'll create a test for the _TOGGLE_IMPORTANCE_ action:
+
+```js
+test('returns new state with action TOGGLE_IMPORTANCE', () => {
+  const state = [
+    {
+      content: 'the app state is in redux store',
+      important: true,
+      id: 1
+    },
+    {
+      content: 'state changes are made with actions',
+      important: false,
+      id: 2
+    }]
+
+  const action = {
+    type: 'TOGGLE_IMPORTANCE',
+    payload: {
+      id: 2
+    }
+  }
+
+  deepFreeze(state)
+  const newState = noteReducer(state, action)
+
+  expect(newState).toHaveLength(2)
+
+  expect(newState).toContainEqual(state[0])
+
+  expect(newState).toContainEqual({
+    content: 'state changes are made with actions',
+    important: true,
+    id: 2
+  })
+})
+```
+
+So the following action
+
+```js
+{
+  type: 'TOGGLE_IMPORTANCE',
+  payload: {
+    id: 2
+  }
+}
+```
+
+has to change the importance of the note with the id 2.
+
+The reducer is expanded as follows
+
+```js
+const noteReducer = (state = [], action) => {
+  switch(action.type) {
+    case 'NEW_NOTE':
+      return state.concat(action.payload)
+    case 'TOGGLE_IMPORTANCE': {
+      const id = action.payload.id
+      const noteToChange = state.find(n => n.id === id)
+      const changedNote = { 
+        ...noteToChange, 
+        important: !noteToChange.important 
+      }
+      return state.map(note =>
+        note.id !== id ? note : changedNote 
+      )
+     }
+    default:
+      return state
+  }
+}
+```
+
+We create a copy of the note whose importance has changed with the syntax [familiar from part 2](../part2/README.md#changing-the-importance-of-notes), and replace the state with a new state containing all the notes which have not changed and the copy of the changed note _changedNote_.
+
+Let's recap what goes on in the code. First, we search for a specific note object, the importance of which we want to change:
+
+```js
+const noteToChange = state.find(n => n.id === id)
+```
+
+then we create a new object, which is a _copy_ of the original note, only the value of the _important_ field has been changed to the opposite of what it was:
+
+```js
+const changedNote = { 
+  ...noteToChange, 
+  important: !noteToChange.important 
+}
+```
+
+A new state is then returned. We create it by taking all of the notes from the old state except for the desired note, which we replace with its slightly altered copy:
+
+```js
+state.map(note =>
+  note.id !== id ? note : changedNote 
+)
+```
