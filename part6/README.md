@@ -614,3 +614,4 @@ console.log(rest)     // prints [3, 4, 5, 6]
 <hr style="border: 2px solid rgb(127, 103, 168)">
 
 ### Exercise 6.1 - 6.2
+
