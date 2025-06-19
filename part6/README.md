@@ -558,3 +558,59 @@ state.map(note =>
   note.id !== id ? note : changedNote 
 )
 ```
+
+### Array spread syntax
+
+Because we now have quite good tests for the reducer, we can refactor the code safely.
+
+Adding a new note creates the state returned from the Array's `concat` function. Let's take a look at how we can achieve the same by using the JavaScript [array spread](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_operator) syntax:
+
+```js
+const noteReducer = (state = [], action) => {
+  switch(action.type) {
+    case 'NEW_NOTE':
+
+      return [...state, action.payload]
+    case 'TOGGLE_IMPORTANCE':
+      // ...
+    default:
+    return state
+  }
+}
+```
+
+The spread -syntax works as follows. If we declare
+
+```js
+const numbers = [1, 2, 3]
+```
+
+`...numbers` breaks the array up into individual elements, which can be placed in another array.
+
+```js
+[...numbers, 4, 5]
+```
+
+and the result is an array _[1, 2, 3, 4, 5]_.
+
+```js
+[numbers, 4, 5]
+```
+
+the result would have been _[[1, 2, 3], 4, 5]_.
+
+When we take elements from an array by [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), a similar-looking syntax is used to _gather_ the rest of the elements:
+
+```js
+const numbers = [1, 2, 3, 4, 5, 6]
+
+const [first, second, ...rest] = numbers
+
+console.log(first)     // prints 1
+console.log(second)   // prints 2
+console.log(rest)     // prints [3, 4, 5, 6]
+```
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercise 6.1 - 6.2
