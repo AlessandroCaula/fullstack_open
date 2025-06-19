@@ -615,3 +615,16 @@ console.log(rest)     // prints [3, 4, 5, 6]
 
 ### Exercise 6.1 - 6.2
 
+Let's make a simplified version of the unicafe exercise from part 1. Let's handle the state management with Redux.
+
+You can take the code from this repository https://github.com/fullstack-hy2020/unicafe-redux for the base of your project.
+
+_Start by removing the git configuration of the cloned repository, and by installing dependencies_
+
+```
+cd unicafe-redux   // go to the directory of cloned repository
+rm -rf .git
+npm install
+```
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
