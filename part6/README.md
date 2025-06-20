@@ -719,3 +719,7 @@ A good model for the reducer is the [redux-notes](https://fullstackopen.com/en/p
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
 
+### Uncontrolled form
+
+Let's add the functionality for adding new notes and changing their importance:
+
