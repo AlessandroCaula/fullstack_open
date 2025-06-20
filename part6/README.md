@@ -709,4 +709,13 @@ describe('unicafe reducer', () => {
 })
 ```
 
+__Implement the reducer and its tests__
+
+In the tests, make sure that the reducer is an _immutable function_ with the _deep-freeze_ library. Ensure that the provided first test passes, because Redux expe cts that the reducer returns the original state when it is called with a first parameter - which represents the previous _state_ - with the value _undefined_.
+
+Start by expanding the reducer so that both tests pass. Then add the rest of the tests, and finally the functionality that they are testing.
+
+A good model for the reducer is the [redux-notes](https://fullstackopen.com/en/part6/flux_architecture_and_redux#pure-functions-immutable) example above.
+
 <hr style="border: 2px solid rgb(127, 103, 168)">
+
