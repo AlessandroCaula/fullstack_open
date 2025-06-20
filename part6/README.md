@@ -723,3 +723,96 @@ A good model for the reducer is the [redux-notes](https://fullstackopen.com/en/p
 
 Let's add the functionality for adding new notes and changing their importance:
 
+```js
+const generateId = () =>
+  Number((Math.random() * 1000000).toFixed(0))
+
+const App = () => {
+
+  const addNote = (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+    store.dispatch({
+      type: 'NEW_NOTE',
+      payload: {
+        content,
+        important: false,
+        id: generateId()
+      }
+    })
+  }
+
+
+  const toggleImportance = (id) => {
+    store.dispatch({
+      type: 'TOGGLE_IMPORTANCE',
+      payload: { id }
+    })
+  }
+
+  return (
+    <div>
+      <form onSubmit={addNote}>
+        <input name="note" /> 
+        <button type="submit">add</button>
+      </form>
+      <ul>
+        {store.getState().map(note =>
+          <li
+            key={note.id} 
+
+            onClick={() => toggleImportance(note.id)}
+          >
+            {note.content} <strong>{note.important ? 'important' : ''}</strong>
+          </li>
+        )}
+      </ul>
+    </div>
+  )
+}
+```
+
+The implementation of both functionalities is straightforward. It is noteworthy that we _have not_ bound the state of the form fields to the state of the _App_ component like we have previously done. React calls this kind of form [uncontrolled](https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable).
+
+> Uncontrolled forms have certain limitations (for example, dynamic error messages or disabling the submit button based on input are not possible). However they are suitable for our current needs.
+
+You can read more about uncontrolled forms [here](https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/).
+
+The method for adding new notes is simple, it just dispatches the action for adding notes:
+
+```js
+addNote = (event) => {
+  event.preventDefault()
+  const content = event.target.note.value
+  event.target.note.value = ''
+  store.dispatch({
+    type: 'NEW_NOTE',
+    payload: {
+      content,
+      important: false,
+      id: generateId()
+    }
+  })
+}
+```
+
+We can get the content of the new note straight from the form field. Because the field has a name, we can access the content via the event object _event.target.note.value_.
+
+```js
+<form onSubmit={addNote}>
+  <input name="note" />
+  <button type="submit">add</button>
+</form>
+```
+
+A note's importance can be changed by clicking its name. The event handler is very simple:
+
+```js
+toggleImportance = (id) => {
+  store.dispatch({
+    type: 'TOGGLE_IMPORTANCE',
+    payload: { id }
+  })
+}
+```
