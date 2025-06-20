@@ -1,7 +1,7 @@
 const initialState = {
-  good: 0,
-  ok: 0,
-  bad: 0
+  good: 5,
+  ok: 4,
+  bad: 3
 }
 
 const counterReducer = (state = initialState, action) => {
