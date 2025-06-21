@@ -1063,3 +1063,94 @@ const importantNotes = useSelector(state => state.filter(note => note.important)
 ```
 
 The current version of the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-0), branch part6-0.
+
+### More components
+
+Let's separate creating a new note into a component.
+
+```js
+import { useDispatch } from 'react-redux'
+import { createNote } from '../reducers/noteReducer'
+
+const NewNote = () => {
+  const dispatch = useDispatch()
+
+  const addNote = (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+    dispatch(createNote(content))
+  }
+
+  return (
+    <form onSubmit={addNote}>
+      <input name="note" />
+      <button type="submit">add</button>
+    </form>
+  )
+}
+
+export default NewNote
+```
+
+Unlike in the React code we did without Redux, the event handler for changing the state of the app (which now lives in Redux) has been moved away from the App to a child component. The logic for changing the state in Redux is still neatly separated from the whole React part of the application.
+
+We'll also separate the list of notes and displaying a single note into their own components (which will both be placed in the Notes.jsx file ):
+
+```js
+import { useDispatch, useSelector } from 'react-redux'
+import { toggleImportanceOf } from '../reducers/noteReducer'
+
+const Note = ({ note, handleClick }) => {
+  return(
+    <li onClick={handleClick}>
+      {note.content} 
+      <strong> {note.important ? 'important' : ''}</strong>
+    </li>
+  )
+}
+
+const Notes = () => {
+  const dispatch = useDispatch()
+  const notes = useSelector(state => state)
+
+  return(
+    <ul>
+      {notes.map(note =>
+        <Note
+          key={note.id}
+          note={note}
+          handleClick={() => 
+            dispatch(toggleImportanceOf(note.id))
+          }
+        />
+      )}
+    </ul>
+  )
+}
+
+export default Notes
+```
+
+The logic for changing the importance of a note is now in the component managing the list of notes.
+
+There is not much code left in _App_:
+
+```js
+const App = () => {
+
+  return (
+    <div>
+      <NewNote />
+      <Notes />
+    </div>
+  )
+}
+```
+
+_Note_, responsible for rendering a single note, is very simple and is not aware that the event handler it gets as props dispatches an action. These kinds of components are called [presentational](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) in React terminology.
+
+_Notes_, on the other hand, is a [container](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) component, as it contains some application logic: it defines what the event handlers of the _Note_ components do and coordinates the configuration of _presentational_ components, that is, the _Notes_.
+
+The code of the Redux application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-1), on the branch _part6-1_.
+
