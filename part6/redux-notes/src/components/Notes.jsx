@@ -5,13 +5,15 @@ const Note = ({ note, handleClick }) => {
   return (
     <li onClick={handleClick}>
       {note.content}
-      <strong>{note.important ? 'important' : ''}</strong>
+      <strong>{note.important ? ' important' : ''}</strong>
     </li>
   )
 }
 
 const Notes = () => {
+  // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
+  // Get the current state (the array of notes) from the Redux store
   const notes = useSelector(state => state)
 
   return (

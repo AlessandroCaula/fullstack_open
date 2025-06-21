@@ -2,12 +2,15 @@ import { useDispatch } from "react-redux"
 import { createNote } from "../reducers/noteReducer"
 
 const NewNote = () => {
+  // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
 
+  // Called when the form is submitted to add new note
   const addNote = (event) => {
     event.preventDefault()
-    const content = event.target.note.value
-    event.target.note.value = ''
+    const content = event.target.note.value   // Get the input value
+    event.target.note.value = ''    // Clear the input
+    // Dispatch an action to add the new note
     dispatch(createNote(content))
   }
 
