@@ -1154,3 +1154,31 @@ _Notes_, on the other hand, is a [container](https://medium.com/@dan_abramov/sma
 
 The code of the Redux application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-1), on the branch _part6-1_.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercise 6.3-6.8
+
+Let's make a new version of the anecdote voting application from part 1. Take the project from this repository https://github.com/fullstack-hy2020/redux-anecdotes as the base of your solution.
+
+If you clone the project into an existing git repository, _remove the git configuration of the cloned application_:
+
+```
+cd redux-anecdotes  // go to the cloned repository
+rm -rf .git
+```
+
+The application can be started as usual, but you have to install the dependencies first:
+
+```
+npm install
+npm run dev
+```
+
+After completing these exercises, your application should look like this:
+
+![alt text](assets/image5.png)
+
+#### 6.3: Anecdotes, step 1
+
+Implement the functionality for voting anecdotes. The number of votes must be saved to a Redux store.
+
