@@ -1182,3 +1182,8 @@ After completing these exercises, your application should look like this:
 
 Implement the functionality for voting anecdotes. The number of votes must be saved to a Redux store.
 
+#### 6.4: Anecdotes, step 2
+
+Implement the functionality to add new anecdotes.
+
+You can keep the form uncontrolled like we did [earlier](#uncontrolled-form).

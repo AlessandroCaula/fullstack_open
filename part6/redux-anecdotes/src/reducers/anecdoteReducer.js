@@ -24,8 +24,10 @@ const reducer = (state = initialState, action) => {
   // console.log('action', action)
 
   switch(action.type) {
+    case 'NEW_ANECDOTE':
+      // Add the new anecdote to the state array
+      return [...state, action.payload]
     case 'VOTE_ANECDOTE': {
-      console.log('Entered')
       // Find the anecdote to increase the number of votes
       const id = action.payload.id
       const anecdoteToChange = state.find(n => n.id === id)
@@ -42,11 +44,23 @@ const reducer = (state = initialState, action) => {
   }
 }
 
-// Action creator for increasing the 
+// Action creator for increasing the vote count
 export const voteAnecdote = (id) => {
   return {
     type: 'VOTE_ANECDOTE',
     payload: { id }
+  }
+}
+
+// Action creator for adding a new anecdote
+export const createAnecdote = (content) => {
+  return {
+    type: 'NEW_ANECDOTE',
+    payload: {
+      content,
+      id: getId(),
+      votes: 0
+    }
   }
 }
 
