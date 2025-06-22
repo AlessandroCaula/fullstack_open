@@ -1187,3 +1187,7 @@ Implement the functionality for voting anecdotes. The number of votes must be sa
 Implement the functionality to add new anecdotes.
 
 You can keep the form uncontrolled like we did [earlier](#uncontrolled-form).
+
+#### 6.5: Anecdotes, step 3
+
+Make sure that the anecdotes are ordered by the number of votes.

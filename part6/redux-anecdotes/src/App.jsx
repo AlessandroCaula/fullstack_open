@@ -19,10 +19,14 @@ const App = () => {
     dispatch(createAnecdote(content))
   }
 
+  // Sort anecdotes based on number of votes
+  // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. By copying it first, we keep the original Redux state array unchanged.
+  const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
+
   return (
     <div>
       <h2>Anecdotes</h2>
-      {anecdotes.map(anecdote =>
+      {sortedAnecdotes.map(anecdote =>
         <div key={anecdote.id}>
           <div>
             {anecdote.content}
