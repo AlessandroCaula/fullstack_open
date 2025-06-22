@@ -1246,3 +1246,212 @@ export default App
 ```
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
+
+## Part 6b - Many reducers
+
+Let's continue our work with the simplified Redux version of our notes application.
+
+To ease our development, let's change our reducer so that the store gets initialized with a state that contains a couple of notes:
+
+```js
+const initialState = [
+  {
+    content: 'reducer defines how redux store works',
+    important: true,
+    id: 1,
+  },
+  {
+    content: 'state of store can contain any data',
+    important: false,
+    id: 2,
+  },
+]
+
+const noteReducer = (state = initialState, action) => {
+  // ...
+}
+
+// ...
+export default noteReducer
+```
+
+## Store with complex state
+
+Let's implement filtering for the notes that are displayed to the user. The user interface for the filters will be implemented with [radio buttons](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/radio):
+
+![alt text](assets/image6.png)
+
+Let's start with a very simple and straightforward implementation:
+
+```js
+import NewNote from './components/NewNote'
+import Notes from './components/Notes'
+
+const App = () => {
+
+  const filterSelected = (value) => {
+    console.log(value)
+  }
+
+  return (
+    <div>
+      <NewNote />
+
+      <div>
+        all          <input type="radio" name="filter"
+          onChange={() => filterSelected('ALL')} />
+        important    <input type="radio" name="filter"
+          onChange={() => filterSelected('IMPORTANT')} />
+        nonimportant <input type="radio" name="filter"
+          onChange={() => filterSelected('NONIMPORTANT')} />
+      </div>
+      <Notes />
+    </div>
+  )
+}
+```
+
+Since the _name_ attribute of all the radio buttons is the same, they form a _button group_ where only one option can be selected.
+
+Since the name attribute of all the radio buttons is the same, they form a button group where only one option can be selected.
+
+In the following section, we will implement filtering by storing both the notes as well as _the value of the filter_ in the redux store. When we are finished, we would like the state of the store to look like this:
+
+```js
+{
+  notes: [
+    { content: 'reducer defines how redux store works', important: true, id: 1},
+    { content: 'state of store can contain any data', important: false, id: 2}
+  ],
+  filter: 'IMPORTANT'
+}
+```
+
+Only the array of notes was stored in the state of the previous implementation of our application. In the new implementation, the state object has two properties, _notes_ that contains the array of notes and _filter_ that contains a string indicating which notes should be displayed to the user.
+
+### Combined reducers
+
+We could modify our current reducer to deal with the new shape of the state. However, a better solution in this situation is to define a new separate reducer for the state of the filter:
+
+```js
+const filterReducer = (state = 'ALL', action) => {
+  switch (action.type) {
+    case 'SET_FILTER':
+      return action.payload
+    default:
+      return state
+  }
+}
+```
+
+The actions for changing the state of the filter look like this:
+
+```js
+{
+  type: 'SET_FILTER',
+  payload: 'IMPORTANT'
+}
+```
+
+Let's also create a new `action creator` function. We will write its code in a new _src/reducers/filterReducer.js_ module:
+
+```js
+const filterReducer = (state = 'ALL', action) => {
+  // ...
+}
+
+export const filterChange = filter => {
+  return {
+    type: 'SET_FILTER',
+    payload: filter,
+  }
+}
+
+export default filterReducer
+```
+
+We can create the actual reducer for our application by combining the two existing reducers with the [combineReducers](https://redux.js.org/api/combinereducers) function.
+
+Let's define the combined reducer in the _main.jsx_ file:
+
+```js
+import ReactDOM from 'react-dom/client'
+import { createStore, combineReducers } from 'redux'
+import { Provider } from 'react-redux' 
+import App from './App'
+
+import noteReducer from './reducers/noteReducer'
+import filterReducer from './reducers/filterReducer'
+
+const reducer = combineReducers({
+  notes: noteReducer,
+  filter: filterReducer
+})
+
+const store = createStore(reducer)
+
+console.log(store.getState())
+
+/*
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
+    <App />
+  </Provider>
+)*/
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
+    <div />
+  </Provider>
+)
+```
+
+Since our application breaks completely at this point, we render an empty _div_ element instead of the _App_ component.
+
+The state of the store gets printed to the console:
+
+![alt text](assets/image7.png)
+
+As we can see from the output, the store has the exact shape we wanted it to!
+
+Let's take a closer look at how the combined reducer is created:
+
+```js
+const reducer = combineReducers({
+  notes: noteReducer,
+  filter: filterReducer,
+})
+```
+
+The state of the store defined by the reducer above is an object with two properties: _notes_ and _filter_. The value of the _notes_ property is defined by the _noteReducer_, which does not have to deal with the other properties of the state. Likewise, the _filter_ property is managed by the _filterReducer_.
+
+Before we make more changes to the code, let's take a look at how different actions change the state of the store defined by the combined reducer. Let's add the following to the _main.jsx_ file:
+
+```js
+import { createNote } from './reducers/noteReducer'
+import { filterChange } from './reducers/filterReducer'
+//...
+store.subscribe(() => console.log(store.getState()))
+store.dispatch(filterChange('IMPORTANT'))
+store.dispatch(createNote('combineReducers forms one reducer from many simple reducers'))
+```
+
+By simulating the creation of a note and changing the state of the filter in this fashion, the state of the store gets logged to the console after every change that is made to the store:
+
+![alt text](assets/image8.png)
+
+At this point, it is good to become aware of a tiny but important detail. If we add a console log statement to the beginning of both reducers:
+
+```js
+const filterReducer = (state = 'ALL', action) => {
+  console.log('ACTION: ', action)
+  // ...
+}
+```
+
+Based on the console output one might get the impression that every action gets duplicated:
+
+![alt text](assets/image9.png)
+
+Is there a bug in our code? No. The combined reducer works in such a way that every _action_ gets handled in _every_ part of the combined reducer, or in other words, every reducer "listens" to all of the dispatched actions and does something with them if it has been instructed to do so. Typically only one reducer is interested in any given action, but there are situations where multiple reducers change their respective parts of the state based on the same action.
+
