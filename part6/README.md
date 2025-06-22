@@ -4,6 +4,28 @@ We'll learn about the lightweight version of Redux directly supported by React, 
 
 # Table of Contents
 
+- [Part 6](#part-6)
+  - [Part 6a - Flux-architecture and Redux](#part-6a---flux-architecture-and-redux)
+    - [Flux-architecture](#flux-architecture)
+    - [Redux](#redux)
+    - [A note about the use of createStore](#a-note-about-the-use-of-createstore)
+    - [Redux-notes](#redux-notes)
+      - [Pure functions, immutable](#pure-functions-immutable)
+      - [Array spread syntax](#array-spread-syntax)
+    - [Exercise 6.1 - 6.2](#exercise-61---62)
+      - [6.1: Unicafe Revisited, step 1](#61-unicafe-revisited-step-1)
+    - [Uncontrolled form](#uncontrolled-form)
+    - [Action creators](#action-creators)
+    - [Forwarding Redux Store to various components](#forwarding-redux-store-to-various-components)
+    - [More components](#more-components)
+    - [Exercise 6.3-6.8](#exercise-63-68)
+      - [6.3: Anecdotes, step 1](#63-anecdotes-step-1)
+      - [6.4: Anecdotes, step 2](#64-anecdotes-step-2)
+      - [6.5: Anecdotes, step 3](#65-anecdotes-step-3)
+      - [6.6: Anecdotes, step 4](#66-anecdotes-step-4)
+      - [6.7: Anecdotes, step 5](#67-anecdotes-step-5)
+      - [6.8: Anecdotes, step 6](#68-anecdotes-step-6)
+
 # Part 6
 
 ## Part 6a - Flux-architecture and Redux
@@ -1222,3 +1244,5 @@ const App = () => {
 
 export default App
 ```
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
