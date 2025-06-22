@@ -26,10 +26,14 @@ const Anecdote = ({ anecdote }) => {
 
 const AnecdoteList = () => {
   // Get the current state (the collection of anecdotes) from the Redux store
-  const anecdotes = useSelector(state => state)
-
+  // Filter the anecdotes based on the filter string
+  const anecdotes = useSelector(({ filter, anecdotes }) => {
+    return anecdotes.filter(anecdote => anecdote.content.includes(filter))
+  })
+  
   // Sort anecdotes based on number of votes
-  // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. By copying it first, we keep the original Redux state array unchanged.
+  // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
+  // By copying it first, we keep the original Redux state array unchanged.
   const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
 
   return (

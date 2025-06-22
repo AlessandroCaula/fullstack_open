@@ -1617,3 +1617,35 @@ There is a slight cosmetic flaw in our application. Even though the filter is se
 
 The current version of the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-2), branch _part6-2_.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercise 6.9
+
+#### 6.9: Better Anecdote, step 7
+
+Implement filtering for the anecdotes that are displayed to the user.
+
+![alt text](assets/image11.png)
+
+Store the state of the filter in the redux store. It is recommended to create a new reducer, action creators, and a combined reducer for the store using the _combineReducers_ function.
+
+Create a new _Filter_ component for displaying the filter. You can use the following code as a template for the component:
+
+```js
+const Filter = () => {
+  const handleChange = (event) => {
+    // input-field value is in variable event.target.value
+  }
+  const style = {
+    marginBottom: 10
+  }
+
+  return (
+    <div style={style}>
+      filter <input onChange={handleChange} />
+    </div>
+  )
+}
+
+export default Filter
+```
