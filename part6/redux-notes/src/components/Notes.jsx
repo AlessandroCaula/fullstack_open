@@ -14,7 +14,14 @@ const Notes = () => {
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
   // Get the current state (the array of notes) from the Redux store
-  const notes = useSelector(state => state)
+  const notes = useSelector(({ filter, notes }) => {
+    if (filter === 'ALL') {
+      return notes
+    }
+    return filter === 'IMPORTANT' 
+      ? notes.filter(note => note.important)
+      : notes.filter(note => !note.important)
+  })
 
   return (
     <ul>
