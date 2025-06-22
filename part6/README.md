@@ -1455,3 +1455,165 @@ Based on the console output one might get the impression that every action gets 
 
 Is there a bug in our code? No. The combined reducer works in such a way that every _action_ gets handled in _every_ part of the combined reducer, or in other words, every reducer "listens" to all of the dispatched actions and does something with them if it has been instructed to do so. Typically only one reducer is interested in any given action, but there are situations where multiple reducers change their respective parts of the state based on the same action.
 
+### Finishing the filtering 
+
+Let's finish the application so that it uses the combined reducer. We start by changing the rendering of the application and hooking up the store to the application in the main.jsx file:
+
+```js
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
+    <App />
+  </Provider>
+)
+```
+
+Next, let's fix a bug that is caused by the code expecting the application store to be an array of notes:
+
+![alt text](assets/image10.png)
+
+It's an easy fix. Because the notes are in the store's field notes, we only have to make a little change to the selector function:
+
+```js
+const Notes = () => {
+  const dispatch = useDispatch()
+  const notes = useSelector(state => state.notes)
+
+  return(
+    <ul>
+      {notes.map(note =>
+        <Note
+          key={note.id}
+          note={note}
+          handleClick={() => 
+            dispatch(toggleImportanceOf(note.id))
+          }
+        />
+      )}
+    </ul>
+  )
+}
+```
+
+Previously the selector function returned the whole state of the store:
+
+```js
+const notes = useSelector(state => state)
+```
+
+And now it returns only its fields _notes_
+
+```js
+const notes = useSelector(state => state.notes)
+```
+
+Let's extract the visibility filter into its own _src/components/VisibilityFilter.jsx_ component:
+
+```js
+import { filterChange } from '../reducers/filterReducer'
+import { useDispatch } from 'react-redux'
+
+const VisibilityFilter = (props) => {
+  const dispatch = useDispatch()
+
+  return (
+    <div>
+      all    
+      <input 
+        type="radio" 
+        name="filter" 
+        onChange={() => dispatch(filterChange('ALL'))}
+      />
+      important   
+      <input
+        type="radio"
+        name="filter"
+        onChange={() => dispatch(filterChange('IMPORTANT'))}
+      />
+      nonimportant 
+      <input
+        type="radio"
+        name="filter"
+        onChange={() => dispatch(filterChange('NONIMPORTANT'))}
+      />
+    </div>
+  )
+}
+
+export default VisibilityFilter
+```
+
+With the new component, App can be simplified as follows:
+
+```js
+import Notes from './components/Notes'
+import NewNote from './components/NewNote'
+import VisibilityFilter from './components/VisibilityFilter'
+
+const App = () => {
+  return (
+    <div>
+      <NewNote />
+      <VisibilityFilter />
+      <Notes />
+    </div>
+  )
+}
+
+export default App
+```
+
+The implementation is rather straightforward. Clicking the different radio buttons changes the state of the store's _filter_ property.
+
+Let's change the _Notes_ component to incorporate the filter:
+
+```js
+const Notes = () => {
+  const dispatch = useDispatch()
+  const notes = useSelector(state => {
+    if ( state.filter === 'ALL' ) {
+      return state.notes
+    }
+    return state.filter  === 'IMPORTANT' 
+      ? state.notes.filter(note => note.important)
+      : state.notes.filter(note => !note.important)
+  })
+
+  return(
+    <ul>
+      {notes.map(note =>
+        <Note
+          key={note.id}
+          note={note}
+          handleClick={() => 
+            dispatch(toggleImportanceOf(note.id))
+          }
+        />
+      )}
+    </ul>
+  )
+}
+```
+
+We only make changes to the selector function, which used to be
+
+```js
+useSelector(state => state.notes)
+```
+
+Let's simplify the selector by destructuring the fields from the state it receives as a parameter:
+
+```js
+const notes = useSelector(({ filter, notes }) => {
+  if ( filter === 'ALL' ) {
+    return notes
+  }
+  return filter  === 'IMPORTANT' 
+    ? notes.filter(note => note.important)
+    : notes.filter(note => !note.important)
+})
+```
+
+There is a slight cosmetic flaw in our application. Even though the filter is set to _ALL_ by default, the associated radio button is not selected. Naturally, this issue can be fixed, but since this is an unpleasant but ultimately harmless bug we will save the fix for later.
+
+The current version of the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-2), branch _part6-2_.
+
