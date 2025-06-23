@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
-// Import Redux's createStore to create the store
-import { createStore, combineReducers } from 'redux'
+// Import Redux Toolkit configureStore to create the store
+import { configureStore } from '@reduxjs/toolkit'
 // Import Provider to make the Redux store available to the app
 import { Provider } from 'react-redux'
 import App from './App'
@@ -9,13 +9,12 @@ import App from './App'
 import noteReducer from './reducers/noteReducer'
 import filterReducer from './reducers/filterReducer'
 
-const reducer = combineReducers({
-  notes: noteReducer,
-  filter: filterReducer
+const store = configureStore({
+  reducer: {
+    notes: noteReducer,
+    filter: filterReducer
+  }
 })
-
-// Create the Redux store using the noteReducer
-const store = createStore(reducer)
 
 console.log(store.getState())
 
