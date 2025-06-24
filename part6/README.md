@@ -12,13 +12,13 @@ We'll learn about the lightweight version of Redux directly supported by React, 
     - [Redux-notes](#redux-notes)
       - [Pure functions, immutable](#pure-functions-immutable)
       - [Array spread syntax](#array-spread-syntax)
-    - [Exercise 6.1 - 6.2](#exercise-61---62)
+    - [Exercises 6.1 - 6.2](#exercises-61---62)
       - [6.1: Unicafe Revisited, step 1](#61-unicafe-revisited-step-1)
     - [Uncontrolled form](#uncontrolled-form)
     - [Action creators](#action-creators)
     - [Forwarding Redux Store to various components](#forwarding-redux-store-to-various-components)
     - [More components](#more-components)
-    - [Exercise 6.3-6.8](#exercise-63-68)
+    - [Exercises 6.3-6.8](#exercises-63-68)
       - [6.3: Anecdotes, step 1](#63-anecdotes-step-1)
       - [6.4: Anecdotes, step 2](#64-anecdotes-step-2)
       - [6.5: Anecdotes, step 3](#65-anecdotes-step-3)
@@ -635,7 +635,7 @@ console.log(rest)     // prints [3, 4, 5, 6]
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
 
-### Exercise 6.1 - 6.2
+### Exercises 6.1 - 6.2
 
 Let's make a simplified version of the unicafe exercise from part 1. Let's handle the state management with Redux.
 
@@ -1178,7 +1178,7 @@ The code of the Redux application can be found on [GitHub](https://github.com/fu
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
 
-### Exercise 6.3-6.8
+### Exercises 6.3-6.8
 
 Let's make a new version of the anecdote voting application from part 1. Take the project from this repository https://github.com/fullstack-hy2020/redux-anecdotes as the base of your solution.
 
@@ -1913,7 +1913,7 @@ You can find the code for our current application in its entirety in the _part6-
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
 
-### Exercise 6.10 - 6.13
+### Exercises 6.10 - 6.13
 
 Let's continue working on the anecdote application using Redux that we started in exercise 6.3.
 
@@ -2310,3 +2310,15 @@ const noteSlice = createSlice({
 Changing the importance of notes could be implemented using the same principle, by making an asynchronous method call to the server and then dispatching an appropriate action.
 
 The current state of the code for the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-3) in the branch _part6-3_.
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercises 6.14 - 6.15
+
+#### Anecdotes and the Backend, step 1
+
+When the application launches, fetch the anecdotes from the backend implemented using json-server.
+
+As the initial backend data, you can use, e.g. [this](https://github.com/fullstack-hy2020/misc/blob/master/anecdotes.json).
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
