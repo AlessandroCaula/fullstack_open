@@ -1940,3 +1940,51 @@ Write:
 ```js
 [...anecdotes].sort()
 ```
+
+#### 6.12 Better Anecdotes, step 10
+
+The application has a ready-made body for the _Notification_ component:
+
+```js
+const Notification = () => {
+  const style = {
+    border: 'solid',
+    padding: 10,
+    borderWidth: 1
+  }
+  return (
+    <div style={style}>
+      render here notification...
+    </div>
+  )
+}
+
+export default Notification
+```
+
+Extend the component so that it renders the message stored in the Redux store, making the component take the following form:
+
+```js
+import { useSelector } from 'react-redux'
+
+const Notification = () => {
+
+  const notification = useSelector(/* something here */)
+  const style = {
+    border: 'solid',
+    padding: 10,
+    borderWidth: 1
+  }
+  return (
+    <div style={style}>
+
+      {notification}
+    </div>
+  )
+}
+```
+
+You will have to make changes to the application's existing reducer. Create a separate reducer for the new functionality by using the Redux Toolkit's `createSlice` function.
+
+The application does not have to use the _Notification_ component intelligently at this point in the exercises. It is enough for the application to display the initial value set for the message in the _notificationReducer_.
+

@@ -147,3 +147,90 @@ export default noteReducer
 - The reducer toggles the `important` property of the clicked note. 
 
 - The UI updates automatically because `useSelector` makes your component re-render when the state changes. 
+
+<hr style="border: 2px solid rgb(248, 166, 0)">
+
+
+# Redux - Concepts 1
+
+## What is Redux?
+
+Redux is a __state management library__.
+It helps you manage and organize the data (state) your app uses, especially when your app grows and has lots of components that need to share or update data.
+
+## Key Concepts 
+
+### 1. __Store__
+
+- The __store__ is a single JavaScript object that holds all the state for your app.
+
+- Think of it as a big box where all your app's data lives.
+
+### 2. __State__
+
+- The __state__ is the data in your store.
+
+- For example, it could look like:
+
+```js
+{
+  anecdotes: [...],
+  filter: '',
+  notification: 'Welcome!'
+}
+```
+
+### 3. __Action__
+
+- An __action__ is a plain JavaScript object that describes __what happened__ in your app.
+
+- Example:
+
+```js
+{ type: 'VOTE_ANECDOTE', payload: { id: 123 } }
+```
+
+### 4. __Reducer__
+
+- A __reducer__ is a function that:
+  - Gets the current state and an action.
+  - Returns a __new state__ based on the action. 
+
+- Reducers must __not__ change the old state directly (they myst be "immutable")
+
+- Example:
+
+```js
+const notificationReducer = (state = '', action) => {
+  switch(action.type) {
+    case 'SET_NOTIFICATION':
+      return action.payload
+    default:
+      return state
+  }
+}
+```
+
+### 5. __Dispatch__
+
+- __Dispatch__ is how you send an action to the store. 
+
+- When you call `dispatch(action)`, Redux runs your reducers and updates the state. 
+
+## How does this work in the app?
+
+1. __Reducers__ 
+  - You have a reducer for each part of your state: anecdotes, filter, notification.
+  - Each reducer manages its own slice of the state.
+
+2. __Store__
+  - You combine all reducers into a single store using `configureStore` from Redux Toolkit.
+  - Now your app's state is organized and accessible from anywhere.
+
+3. __React Components__
+  - Components use `useSelector` to __read__ data from the store.
+  - Components use `useDispatch` to __send actions__ (like voting or setting a notification)
+
+4. __Example: Notification__
+  - The `notificationReducer` manages the notification message. 
+  - The `Notification` component uses `useSelector(state => state.notification)` to get the message from the store and display it.
