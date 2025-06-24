@@ -1,8 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit'
-
-// Helper to generate a random id for new notes
-const generateId = () =>
-  Number((Math.random() * 1000000).toFixed(0))
+import { createSlice } from '@reduxjs/toolkit'
 
 const noteSlice = createSlice({
   name: 'notes',

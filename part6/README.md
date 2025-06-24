@@ -2315,7 +2315,7 @@ The current state of the code for the application can be found on [GitHub](https
 
 ### Exercises 6.14 - 6.15
 
-#### Anecdotes and the Backend, step 1
+#### 6.14 Anecdotes and the Backend, step 1
 
 When the application launches, fetch the anecdotes from the backend implemented using json-server.
 
