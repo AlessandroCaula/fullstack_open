@@ -33,7 +33,7 @@ const AnecdoteList = () => {
   // Get the current state (the collection of anecdotes) from the Redux store
   // Filter the anecdotes based on the filter string
   const anecdotes = useSelector(({ filter, anecdotes }) => {
-    return anecdotes.filter(anecdote => anecdote.content.includes(filter))
+    return anecdotes.filter(anecdote => anecdote.content.toUpperCase().includes(filter.toUpperCase()))
   })
   
   // // Sort anecdotes based on number of votes

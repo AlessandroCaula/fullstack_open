@@ -2321,4 +2321,8 @@ When the application launches, fetch the anecdotes from the backend implemented 
 
 As the initial backend data, you can use, e.g. [this](https://github.com/fullstack-hy2020/misc/blob/master/anecdotes.json).
 
+#### 6.15 Anecdotes and the Backend, step 2
+
+Modify the creation of new anecdotes, so that the anecdotes are stored in the backend.
+
 <hr style="border: 2px solid rgb(127, 103, 168)">
