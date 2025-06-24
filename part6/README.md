@@ -1836,3 +1836,59 @@ describe('noteReducer', () => {
   })
 })
 ```
+
+### Redux Toolkit and console.log()
+
+As we have learned, console.log is an extremely powerful tool; it often saves us from trouble.
+
+Let's try to print the state of the Redux Store to the console in the middle of the reducer created with the function createSlice:
+
+```js
+const noteSlice = createSlice({
+  name: 'notes',
+  initialState,
+  reducers: {
+    // ...
+    toggleImportanceOf(state, action) {
+      const id = action.payload
+
+      const noteToChange = state.find(n => n.id === id)
+
+      const changedNote = { 
+        ...noteToChange, 
+        important: !noteToChange.important 
+      }
+
+      console.log(state)
+
+      return state.map(note =>
+        note.id !== id ? note : changedNote 
+      )     
+    }
+  },
+})
+```
+
+The following is printed to the console
+
+![alt text](assets/image12.png)
+
+The output is interesting but not very useful. This is about the previously mentioned Immer library used by the Redux Toolkit internally to save the state of the Store.
+
+The status can be converted to a human-readable format by using the [current](https://redux-toolkit.js.org/api/other-exports#current) function from the immer library.
+
+Let's update the imports to include the "current" function from the immer library:
+
+```js
+import { createSlice, current } from '@reduxjs/toolkit'
+```
+
+Then we update the console.log function call:
+
+```js
+console.log(current(state))
+```
+
+Console output is now human readable
+
+![alt text](assets/image13.png)
