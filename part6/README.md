@@ -2236,3 +2236,77 @@ const App = () => {
 export default App
 ```
 
+### Sending data to the backend
+
+We can do the same thing when it comes to creating a new note. Let's expand the code communicating with the server as follows:
+
+```js
+const baseUrl = 'http://localhost:3001/notes'
+
+const getAll = async () => {
+  const response = await axios.get(baseUrl)
+  return response.data
+}
+
+const createNew = async (content) => {
+  const object = { content, important: false }
+  const response = await axios.post(baseUrl, object)
+  return response.data
+}
+
+export default {
+  getAll,
+  createNew,
+}
+```
+
+The method addNote of the component `NewNote` changes slightly:
+
+```js
+import { useDispatch } from 'react-redux'
+import { createNote } from '../reducers/noteReducer'
+
+import noteService from '../services/notes'
+
+const NewNote = (props) => {
+  const dispatch = useDispatch()
+  
+
+  const addNote = async (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+
+    const newNote = await noteService.createNew(content)
+    dispatch(createNote(newNote))
+  }
+
+  return (
+    <form onSubmit={addNote}>
+      <input name="note" />
+      <button type="submit">add</button>
+    </form>
+  )
+}
+
+export default NewNote
+```
+
+Because the backend generates ids for the notes, we'll change the action creator `createNote` in the file `noteReducer.js` accordingly:
+
+```js
+const noteSlice = createSlice({
+  name: 'notes',
+  initialState: [],
+  reducers: {
+    createNote(state, action) {
+      state.push(action.payload)
+    },
+    // ..
+  },
+})
+```
+
+Changing the importance of notes could be implemented using the same principle, by making an asynchronous method call to the server and then dispatching an appropriate action.
+
+The current state of the code for the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-3) in the branch _part6-3_.
