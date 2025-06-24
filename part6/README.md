@@ -1992,7 +1992,7 @@ The application does not have to use the _Notification_ component intelligently 
 
 Extend the application so that it uses the _Notification_ component to display a message for five seconds when the user votes for an anecdote or creates a new anecdote:
 
-![alt text](assets/image17.pngc)
+![alt text](assets/image17.png)
 
 It's recommended to create separate action creators for setting and removing notifications.
 
