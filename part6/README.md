@@ -2037,3 +2037,202 @@ and add the following line to the scripts part of the file package.json
 ```
 
 Add let's launch json-server with the command `npm run server`.
+
+### Getting data from the backend
+
+Next, we'll create a method into the file _services/notes.js_, which uses _axios_ to fetch data from the backend
+
+```js
+import axios from 'axios'
+
+const baseUrl = 'http://localhost:3001/notes'
+
+const getAll = async () => {
+  const response = await axios.get(baseUrl)
+  return response.data
+}
+
+export default { getAll }
+```
+
+We'll add axios to the project
+
+```
+npm install axios
+```
+
+We'll change the initialization of the state in _noteReducer_, so that by default there are no notes:
+
+```js
+const noteSlice = createSlice({
+  name: 'notes',
+
+  initialState: [],
+  // ...
+})
+```
+
+Let's also add a new action `appendNote` for adding a note object:
+
+```js
+const noteSlice = createSlice({
+  name: 'notes',
+  initialState: [],
+  reducers: {
+    createNote(state, action) {
+      const content = action.payload
+
+      state.push({
+        content,
+        important: false,
+        id: generateId(),
+      })
+    },
+    toggleImportanceOf(state, action) {
+      const id = action.payload
+
+      const noteToChange = state.find(n => n.id === id)
+
+      const changedNote = { 
+        ...noteToChange, 
+        important: !noteToChange.important 
+      }
+
+      return state.map(note =>
+        note.id !== id ? note : changedNote 
+      )     
+    },
+    appendNote(state, action) {
+      state.push(action.payload)
+    }
+  },
+})
+
+export const { createNote, toggleImportanceOf, appendNote } = noteSlice.actions
+
+export default noteSlice.reducer
+```
+
+A quick way to initialize the notes state based on the data received from the server is to fetch the notes in the _main.jsx_ file and dispatch an action using the `appendNote` action creator for each individual note object:
+
+```js
+// ...
+
+import noteService from './services/notes'
+import noteReducer, { appendNote } from './reducers/noteReducer'
+
+const store = configureStore({
+  reducer: {
+    notes: noteReducer,
+    filter: filterReducer,
+  }
+})
+
+noteService.getAll().then(notes =>
+  notes.forEach(note => {
+    store.dispatch(appendNote(note))
+  })
+)
+
+// ...
+```
+
+Dispatching multiple actions seems a bit impractical. Let's add an action creator `setNotes` which can be used to directly replace the notes array. We'll get the action creator from the `createSlice` function by implementing the `setNotes` action:
+
+```js
+// ...
+
+const noteSlice = createSlice({
+  name: 'notes',
+  initialState: [],
+  reducers: {
+    createNote(state, action) {
+      const content = action.payload
+
+      state.push({
+        content,
+        important: false,
+        id: generateId(),
+      })
+    },
+    toggleImportanceOf(state, action) {
+      const id = action.payload
+
+      const noteToChange = state.find(n => n.id === id)
+
+      const changedNote = { 
+        ...noteToChange, 
+        important: !noteToChange.important 
+      }
+
+      return state.map(note =>
+        note.id !== id ? note : changedNote 
+      )     
+    },
+    appendNote(state, action) {
+      state.push(action.payload)
+    },
+    setNotes(state, action) {
+      return action.payload
+    }
+  },
+})
+
+export const { createNote, toggleImportanceOf, appendNote, setNotes } = noteSlice.actions
+
+export default noteSlice.reducer
+```
+
+Now, the code in the _main.jsx_ file looks a lot better:
+
+```js
+// ...
+import noteService from './services/notes'
+import noteReducer, { setNotes } from './reducers/noteReducer'
+
+const store = configureStore({
+  reducer: {
+    notes: noteReducer,
+    filter: filterReducer,
+  }
+})
+
+noteService.getAll().then(notes =>
+  store.dispatch(setNotes(notes))
+)
+```
+
+> __NB__: Why didn't we use await in place of promises and event handlers (registered to `then`-methods)?
+>
+> Await only works inside _async_ functions, and the code in _main.jsx_ is not inside a function, so due to the simple nature of the operation, we'll abstain from using _async_ this time.
+
+We do, however, decide to move the initialization of the notes into the _App_ component, and, as usual, when fetching data from a server, we'll use the _effect hook_.
+
+```js
+import { useEffect } from 'react'
+import NewNote from './components/NewNote'
+import Notes from './components/Notes'
+import VisibilityFilter from './components/VisibilityFilter'
+import noteService from './services/notes'
+import { setNotes } from './reducers/noteReducer'
+import { useDispatch } from 'react-redux'
+
+const App = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    noteService
+      .getAll().then(notes => dispatch(setNotes(notes)))
+  }, [])
+
+  return (
+    <div>
+      <NewNote />
+      <VisibilityFilter />
+      <Notes />
+    </div>
+  )
+}
+
+export default App
+```
+
