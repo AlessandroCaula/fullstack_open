@@ -1996,3 +1996,44 @@ Extend the application so that it uses the _Notification_ component to display a
 
 It's recommended to create separate action creators for setting and removing notifications.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+## Part 6c - Communicating with server in a Redux application
+
+Let's expand the application so that the notes are stored in the backend. We'll use [json-server](../part2/README.md#2c---getting-data-from-server), familiar from part 2.
+
+The initial state of the database is stored in the file _db.json_, which is placed in the root of the project:
+
+```js
+{
+  "notes": [
+    {
+      "content": "the app state is in redux store",
+      "important": true,
+      "id": 1
+    },
+    {
+      "content": "state changes are made with actions",
+      "important": false,
+      "id": 2
+    }
+  ]
+}
+```
+
+We'll install json-server for the project:
+
+```
+npm install json-server --save-dev
+```
+
+and add the following line to the scripts part of the file package.json
+
+```json
+"scripts": {
+  "server": "json-server -p3001 --watch db.json",
+  // ...
+}
+```
+
+Add let's launch json-server with the command `npm run server`.
