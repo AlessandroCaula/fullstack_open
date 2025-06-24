@@ -43,57 +43,14 @@ const anecdoteSlice = createSlice({
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1
       }
-      return state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
+      const updatedAnecdotes = state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
+      // Sort the anecdotes based on the number of votes and return them.
+      // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
+      // By copying it first, we keep the original Redux state array unchanged.
+      return [...updatedAnecdotes].sort((a, b) => b.votes - a.votes)
     }
   }
 })
 
 export const { createAnecdote, voteAnecdote } = anecdoteSlice.actions
 export default anecdoteSlice.reducer
-
-// const anecdoteReducer = (state = initialState, action) => {
-//   // console.log('state now: ', state)
-//   // console.log('action', action)
-
-//   switch(action.type) {
-//     case 'NEW_ANECDOTE':
-//       // Add the new anecdote to the state array
-//       return [...state, action.payload]
-//     case 'VOTE_ANECDOTE': {
-//       // Find the anecdote to increase the number of votes
-//       const id = action.payload.id
-//       const anecdoteToChange = state.find(n => n.id === id)
-//       // Create a new anecdote with the increased number of vote
-//       const changedAnecdote = {
-//         ...anecdoteToChange,
-//         votes: anecdoteToChange.votes + 1
-//       }
-//       // Return a new state array with the changed note
-//       return state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
-//     }
-//     default:
-//       return state
-//   }
-// }
-
-// // Action creator for increasing the vote count
-// export const voteAnecdote = (id) => {
-//   return {
-//     type: 'VOTE_ANECDOTE',
-//     payload: { id }
-//   }
-// }
-
-// // Action creator for adding a new anecdote
-// export const createAnecdote = (content) => {
-//   return {
-//     type: 'NEW_ANECDOTE',
-//     payload: {
-//       content,
-//       id: getId(),
-//       votes: 0
-//     }
-//   }
-// }
-
-// export default anecdoteReducer

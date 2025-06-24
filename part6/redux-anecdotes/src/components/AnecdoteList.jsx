@@ -31,14 +31,14 @@ const AnecdoteList = () => {
     return anecdotes.filter(anecdote => anecdote.content.includes(filter))
   })
   
-  // Sort anecdotes based on number of votes
-  // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
-  // By copying it first, we keep the original Redux state array unchanged.
-  const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
+  // // Sort anecdotes based on number of votes
+  // // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
+  // // By copying it first, we keep the original Redux state array unchanged.
+  // const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
 
   return (
     <div>
-      {sortedAnecdotes.map(anecdote => (
+      {anecdotes.map(anecdote => (
         <Anecdote 
           key={anecdote.id} 
           anecdote={anecdote} 
