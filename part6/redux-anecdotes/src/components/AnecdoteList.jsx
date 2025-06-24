@@ -1,14 +1,19 @@
 /* eslint-disable react/prop-types */
 import { useDispatch, useSelector } from "react-redux"
 import { voteAnecdote } from "../reducers/anecdoteReducer"
+import { setNotification } from "../reducers/notificationReducer"
 
 const Anecdote = ({ anecdote }) => {
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
 
   // Called when an anecdote is voted
-  const vote = (id) => {
-    dispatch(voteAnecdote(id))
+  const vote = (anecdote) => {
+    dispatch(voteAnecdote(anecdote.id))
+    
+    // Dispatch the notification to be shown
+    const notificationText = `You voted '${anecdote.content}'`
+    dispatch(setNotification(notificationText, 5))
   }
 
   return (
@@ -18,7 +23,7 @@ const Anecdote = ({ anecdote }) => {
       </div>
       <div>
         has {anecdote.votes}
-        <button onClick={() => vote(anecdote.id)}>vote</button>
+        <button onClick={() => vote(anecdote)}>vote</button>
       </div>
     </div>
   )

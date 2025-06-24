@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux"
 import { createAnecdote } from "../reducers/anecdoteReducer"
+import { setNotification } from "../reducers/notificationReducer"
 
 const AnecdoteForm = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -12,6 +13,17 @@ const AnecdoteForm = () => {
     event.target.anecdote.value = ''    // Clear the input 
     // Dispatch an action to add the new note
     dispatch(createAnecdote(content))
+
+    // // Dispatch an action and show the notification
+    // dispatch(showNotification(content))
+    // // Setting the timer. After 5 seconds hide the notification, by dispatching a new action with an empty string
+    // setTimeout(() => {
+    //   dispatch(hideNotification())
+    // }, 2000)
+
+    // // Or use the helper function in the notificationReducer
+    const notificationText = `You added '${content}'`
+    dispatch(setNotification(notificationText, 5))    // (text, timer[seconds])
   }
 
   return (
