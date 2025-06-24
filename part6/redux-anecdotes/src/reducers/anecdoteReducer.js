@@ -1,3 +1,5 @@
+import { createSlice } from "@reduxjs/toolkit"
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -19,49 +21,79 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-const anecdoteReducer = (state = initialState, action) => {
-  // console.log('state now: ', state)
-  // console.log('action', action)
-
-  switch(action.type) {
-    case 'NEW_ANECDOTE':
-      // Add the new anecdote to the state array
-      return [...state, action.payload]
-    case 'VOTE_ANECDOTE': {
-      // Find the anecdote to increase the number of votes
-      const id = action.payload.id
-      const anecdoteToChange = state.find(n => n.id === id)
-      // Create a new anecdote with the increased number of vote
+const anecdoteSlice = createSlice({
+  name: 'anecdotes',
+  initialState,
+  reducers: {
+    // Add ne anecdote to the state array 
+    createAnecdote(state, action) {
+      const content = action.payload
+      state.push({
+        content, 
+        votes: 0,
+        id: getId()
+      })
+    },
+    // Increment the number of votes
+    voteAnecdote(state, action) {
+      const id = action.payload
+      const anecdoteToChange = state.find(a => a.id === id)
+      // Create a new anecdote with the increased number of votes
       const changedAnecdote = {
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1
       }
-      // Return a new state array with the changed note
       return state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
     }
-    default:
-      return state
   }
-}
+})
 
-// Action creator for increasing the vote count
-export const voteAnecdote = (id) => {
-  return {
-    type: 'VOTE_ANECDOTE',
-    payload: { id }
-  }
-}
+export const { createAnecdote, voteAnecdote } = anecdoteSlice.actions
+export default anecdoteSlice.reducer
 
-// Action creator for adding a new anecdote
-export const createAnecdote = (content) => {
-  return {
-    type: 'NEW_ANECDOTE',
-    payload: {
-      content,
-      id: getId(),
-      votes: 0
-    }
-  }
-}
+// const anecdoteReducer = (state = initialState, action) => {
+//   // console.log('state now: ', state)
+//   // console.log('action', action)
 
-export default anecdoteReducer
+//   switch(action.type) {
+//     case 'NEW_ANECDOTE':
+//       // Add the new anecdote to the state array
+//       return [...state, action.payload]
+//     case 'VOTE_ANECDOTE': {
+//       // Find the anecdote to increase the number of votes
+//       const id = action.payload.id
+//       const anecdoteToChange = state.find(n => n.id === id)
+//       // Create a new anecdote with the increased number of vote
+//       const changedAnecdote = {
+//         ...anecdoteToChange,
+//         votes: anecdoteToChange.votes + 1
+//       }
+//       // Return a new state array with the changed note
+//       return state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
+//     }
+//     default:
+//       return state
+//   }
+// }
+
+// // Action creator for increasing the vote count
+// export const voteAnecdote = (id) => {
+//   return {
+//     type: 'VOTE_ANECDOTE',
+//     payload: { id }
+//   }
+// }
+
+// // Action creator for adding a new anecdote
+// export const createAnecdote = (content) => {
+//   return {
+//     type: 'NEW_ANECDOTE',
+//     payload: {
+//       content,
+//       id: getId(),
+//       votes: 0
+//     }
+//   }
+// }
+
+// export default anecdoteReducer

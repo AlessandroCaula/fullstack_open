@@ -1892,3 +1892,36 @@ console.log(current(state))
 Console output is now human readable
 
 ![alt text](assets/image13.png)
+
+### Redux DevTools
+
+[Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd) is a Chrome addon that offers useful development tools for Redux. It can be used for example to inspect the Redux store's state and dispatch actions through the browser's console. When the store is created using Redux Toolkit's `configureStore` function, no additional configuration is needed for Redux DevTools to work.
+
+Once the addon is installed, clicking the _Redux_ tab in the browser's developer tools, the Redux DevTools should open:
+
+![alt text](assets/image14.png)
+
+You can inspect how dispatching a certain action changes the state by clicking the action:
+
+![alt text](assets/image15.png)
+
+It is also possible to dispatch actions to the store using the development tools:
+
+![alt text](assets/image15.png)
+
+You can find the code for our current application in its entirety in the _part6-3_ branch of this [GitHub repository](https://github.com/fullstack-hy2020/redux-notes/tree/part6-3).
+
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercise 6.10 - 6.13
+
+Let's continue working on the anecdote application using Redux that we started in exercise 6.3.
+
+#### 6.10 Better Anecdotes, step 8
+
+Install Redux Toolkit for the project. Move the Redux store creation into the file _store.js_ and use Redux Toolkit's `configureStore` to create the store.
+
+Change the definition of the _filter reducer and action creators_ to use the Redux Toolkit's `createSlice` function.
+
+Also, start using Redux DevTools to debug the application's state easier.
+
