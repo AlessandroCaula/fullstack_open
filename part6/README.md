@@ -2326,3 +2326,60 @@ As the initial backend data, you can use, e.g. [this](https://github.com/fullsta
 Modify the creation of new anecdotes, so that the anecdotes are stored in the backend.
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Asynchronous actions and Redux Thunk
+
+Our approach is quite good, but it is not great that the communication with the server happens inside the functions of the components. It would be better if the communication could be abstracted away from the components so that they don't have to do anything else but call the appropriate action creator. As an example, App would initialize the state of the application as follows:
+
+```js
+const App = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeNotes())  
+  }, []) 
+
+  // ...
+}
+```
+
+and _NewNote_ would crate a new note as follow:
+
+```js
+const NewNote = () => {
+  const dispatch = useDispatch()
+  
+  const addNote = async (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+    dispatch(createNote(content))
+  }
+
+  // ...
+}
+```
+
+In this implementation, both components would dispatch an action without the need to know about the communication with the server that happens behind the scenes. These kinds of _async actions_ can be implemented using the [Redux Thunk](https://github.com/reduxjs/redux-thunk) library. The use of the library doesn't need any additional configuration or even installation when the Redux store is created using the Redux Toolkit's `configureStore` function.
+
+With Redux Thunk it is possible to implement _action creators_ which return a function instead of an object. The function receives Redux store's `dispatch` and `getState` methods as parameters. This allows for example implementations of asynchronous action creators, which first wait for the completion of a certain asynchronous operation and after that dispatch some action, which changes the store's state.
+
+We can define an action creator `initializeNotes` which initializes the notes based on the data received from the server:
+
+```js
+// ...
+import noteService from '../services/notes'
+
+const noteSlice = createSlice(/* ... */)
+
+export const { createNote, toggleImportanceOf, setNotes, appendNote } = noteSlice.actions
+
+export const initializeNotes = () => {
+  return async dispatch => {
+    const notes = await noteService.getAll()
+    dispatch(setNotes(notes))
+  }
+}
+
+export default noteSlice.reducer
+```
