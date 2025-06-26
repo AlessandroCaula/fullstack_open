@@ -10,21 +10,22 @@ const notificationSlice = createSlice({
       return notificationText
     },
     // Hiding the notification after timer.
-    hideNotification() {
+    clearNotification() {
       return ''
     }
   }
 })
+
+export const { showNotification, clearNotification } = notificationSlice.actions
 
 // Helper function to show and hide the notification message.
 export const setNotification = (message, seconds = 5) => {
   return async dispatch => {
     dispatch(showNotification(message))
     setTimeout(() => {
-      dispatch(hideNotification())
+      dispatch(clearNotification())
     }, seconds * 1000)
   }
 }
 
-export const { showNotification, hideNotification } = notificationSlice.actions
 export default notificationSlice.reducer
