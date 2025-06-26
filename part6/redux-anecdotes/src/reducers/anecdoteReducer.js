@@ -1,33 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit"
 import anecdotesServices from "../services/anecdotes"
 
+// Helper function to sort anecdotes by votes
+const sortByVotes = anecdotes => {
+  // Sort the anecdotes based on the number of votes and return them.
+  // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
+  // By copying it first, we keep the original Redux state array unchanged.
+  return [...anecdotes].sort((a, b) => b.votes - a.votes)
+}
+
 const anecdoteSlice = createSlice({
   name: 'anecdotes',
   initialState: [],
   reducers: {
     // Increment the number of votes
     voteAnecdote(state, action) {
-      // const id = action.payload
-      // const anecdoteToChange = state.find(a => a.id === id)
-      // // Create a new anecdote with the increased number of votes
-      // const changedAnecdote = {
-      //   ...anecdoteToChange,
-      //   votes: anecdoteToChange.votes + 1
-      // }
       const changedAnecdote = action.payload
       const id = changedAnecdote.id
       const updatedAnecdotes = state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
-      // Sort the anecdotes based on the number of votes and return them.
-      // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
-      // By copying it first, we keep the original Redux state array unchanged.
-      return [...updatedAnecdotes].sort((a, b) => b.votes - a.votes)
+      // Sort the anecdotes by votes
+      return sortByVotes(updatedAnecdotes)
     },
     // Add ne anecdote to the state array 
     appendAnecdote(state, action) {
       state.push(action.payload)
     },
     setAnecdotes(state, action) {
-      return action.payload
+      return sortByVotes(action.payload)
     }
   }
 })
