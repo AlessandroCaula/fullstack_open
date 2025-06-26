@@ -5,10 +5,6 @@ const anecdoteSlice = createSlice({
   name: 'anecdotes',
   initialState: [],
   reducers: {
-    // Add ne anecdote to the state array 
-    createAnecdote(state, action) {
-      state.push(action.payload)
-    },
     // Increment the number of votes
     voteAnecdote(state, action) {
       const id = action.payload
@@ -24,18 +20,31 @@ const anecdoteSlice = createSlice({
       // By copying it first, we keep the original Redux state array unchanged.
       return [...updatedAnecdotes].sort((a, b) => b.votes - a.votes)
     },
+    // Add ne anecdote to the state array 
+    appendAnecdote(state, action) {
+      state.push(action.payload)
+    },
     setAnecdotes(state, action) {
       return action.payload
     }
   }
 })
 
-export const { createAnecdote, voteAnecdote, setAnecdotes } = anecdoteSlice.actions
+export const { voteAnecdote, appendAnecdote, setAnecdotes } = anecdoteSlice.actions
 
+// Initialize, getAll, the anecdotes saved in the server
 export const initializeAnecdotes = () => {
   return async dispatch => {
     const anecdotes = await anecdotesServices.getAll()
     dispatch(setAnecdotes(anecdotes))
+  }
+}
+
+// Add a new note to the server and the state
+export const createAnecdote = content => {
+  return async dispatch => {
+    const newAnecdote = await anecdotesServices.createAnecdote(content)
+    dispatch(appendAnecdote(newAnecdote))
   }
 }
 

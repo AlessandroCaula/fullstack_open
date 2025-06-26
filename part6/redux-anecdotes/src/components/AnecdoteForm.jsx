@@ -1,7 +1,6 @@
 import { useDispatch } from "react-redux"
 import { createAnecdote } from "../reducers/anecdoteReducer"
 import { setNotification } from "../reducers/notificationReducer"
-import anecdotesService from "../services/anecdotes"
 
 const AnecdoteForm = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -12,10 +11,8 @@ const AnecdoteForm = () => {
     event.preventDefault()
     const content = event.target.anecdote.value   // Get the input value
     event.target.anecdote.value = ''    // Clear the input 
-    // Post the new anecdote
-    const newAnecdote = await anecdotesService.createAnecdote(content)
-    // Dispatch an action to add the new note
-    dispatch(createAnecdote(newAnecdote))
+    // Dispatch an action to add the new note on the server and on the state
+    dispatch(createAnecdote(content))
 
     // // Dispatch an action and show the notification
     // dispatch(showNotification(content))

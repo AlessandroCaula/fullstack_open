@@ -2538,3 +2538,7 @@ Redux Toolkit offers a multitude of tools to simplify asynchronous state managem
 
 Modify the initialization of the Redux store to happen using asynchronous action creators, which are made possible by the Redux Thunk library.
 
+#### 6.17 Anecdotes and the Backend, step 4
+
+Also modify the creation of a new anecdote to happen using asynchronous action creators, made possible by the Redux Thunk library.
+
