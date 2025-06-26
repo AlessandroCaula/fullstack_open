@@ -2568,3 +2568,52 @@ The first parameter is the text to be rendered and the second parameter is the t
 Implement the use of this improved notification in your application.
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
+
+## Part 6d - React Query, useReducer and the context
+
+At the end of this part, we will look at a few more different ways to manage the state of an application.
+
+Let's continue with the note application. We will focus on communication with the server. Let's start the application from scratch. The first version is as follows:
+
+```js
+const App = () => {
+  const addNote = async (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+    console.log(content)
+  }
+
+  const toggleImportance = (note) => {
+    console.log('toggle importance of', note.id)
+  }
+
+  const notes = []
+
+  return(
+    <div>
+      <h2>Notes app</h2>
+      <form onSubmit={addNote}>
+        <input name="note" />
+        <button type="submit">add</button>
+      </form>
+      {notes.map(note =>
+        <li key={note.id} onClick={() => toggleImportance(note)}>
+          {note.content} 
+          <strong> {note.important ? 'important' : ''}</strong>
+        </li>
+      )}
+    </div>
+  )
+}
+
+export default App
+```
+
+The initial code is on GitHub in this [repository](https://github.com/fullstack-hy2020/query-notes/tree/part6-0), in the branch _part6-0_.
+
+__Note__: By default, cloning the repo will only give you the main branch. To get the initial code from the part6-0 branch, use the following command:
+
+```
+git clone --branch part6-0 https://github.com/fullstack-hy2020/query-notes.git
+```
