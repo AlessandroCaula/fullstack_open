@@ -2329,7 +2329,7 @@ Modify the creation of new anecdotes, so that the anecdotes are stored in the ba
 
 ### Asynchronous actions and Redux Thunk
 
-Our approach is quite good, but it is not great that the communication with the server happens inside the functions of the components. It would be better if the communication could be abstracted away from the components so that they don't have to do anything else but call the appropriate action creator. As an example, App would initialize the state of the application as follows:
+Our approach is quite good, but it is not great that the communication with the server happens inside the functions of the components. It would be better if the communication could be abstracted away from the components so that they don't have to do anything else but call the appropriate _action creator_. As an example, _App_ would initialize the state of the application as follows:
 
 ```js
 const App = () => {
@@ -2343,7 +2343,7 @@ const App = () => {
 }
 ```
 
-and _NewNote_ would crate a new note as follow:
+and _NewNote_ would create a new note as follows:
 
 ```js
 const NewNote = () => {
@@ -2383,3 +2383,150 @@ export const initializeNotes = () => {
 
 export default noteSlice.reducer
 ```
+
+In the inner function, meaning the _asynchronous action_, the operation first fetches all the notes from the server and then _dispatches_ the `setNotes` action, which adds them to the store.
+
+The component _App_ can now be defined as follows:
+
+```js
+// ...
+import { initializeNotes } from './reducers/noteReducer'
+
+const App = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeNotes()) 
+  }, []) 
+
+  return (
+    <div>
+      <NewNote />
+      <VisibilityFilter />
+      <Notes />
+    </div>
+  )
+}
+```
+
+The solution is elegant. The initialization logic for the notes has been completely separated from the React component.
+
+Next, let's replace the `createNote` action creator created by the `createSlice` function with an asynchronous action creator:
+
+```js
+// ...
+import noteService from '../services/notes'
+
+const noteSlice = createSlice({
+  name: 'notes',
+  initialState: [],
+  reducers: {
+    toggleImportanceOf(state, action) {
+      const id = action.payload
+
+      const noteToChange = state.find(n => n.id === id)
+
+      const changedNote = { 
+        ...noteToChange, 
+        important: !noteToChange.important 
+      }
+
+      return state.map(note =>
+        note.id !== id ? note : changedNote 
+      )     
+    },
+    appendNote(state, action) {
+      state.push(action.payload)
+    },
+    setNotes(state, action) {
+      return action.payload
+    }
+    // createNote definition removed from here!
+  },
+})
+
+export const { toggleImportanceOf, appendNote, setNotes } = noteSlice.actions
+
+export const initializeNotes = () => {
+  return async dispatch => {
+    const notes = await noteService.getAll()
+    dispatch(setNotes(notes))
+  }
+}
+
+export const createNote = content => {
+  return async dispatch => {
+    const newNote = await noteService.createNew(content)
+    dispatch(appendNote(newNote))
+  }
+}
+
+export default noteSlice.reducer
+```
+
+The principle here is the same: first, an asynchronous operation is executed, after which the action changing the state of the store is _dispatched_.
+
+The component _NewNote_ changes as follows:
+
+```js
+// ...
+import { createNote } from '../reducers/noteReducer'
+
+const NewNote = () => {
+  const dispatch = useDispatch()
+  
+  const addNote = async (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+
+    dispatch(createNote(content))
+  }
+
+  return (
+    <form onSubmit={addNote}>
+      <input name="note" />
+      <button type="submit">add</button>
+    </form>
+  )
+}
+```
+
+Finally, let's clean up the _main.jsx_ file a bit by moving the code related to the creation of the Redux store into its own, _store.js_ file:
+
+```js
+import { configureStore } from '@reduxjs/toolkit'
+
+import noteReducer from './reducers/noteReducer'
+import filterReducer from './reducers/filterReducer'
+
+const store = configureStore({
+  reducer: {
+    notes: noteReducer,
+    filter: filterReducer
+  }
+})
+
+export default store
+```
+
+After the changes, the content of the _main.jsx_ is the following:
+
+```js
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { Provider } from 'react-redux' 
+import store from './store'
+import App from './App'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
+    <App />
+  </Provider>
+)
+```
+
+The current state of the code for the application can be found on [GitHub](https://github.com/fullstack-hy2020/redux-notes/tree/part6-5) in the branch _part6-5_.
+
+Redux Toolkit offers a multitude of tools to simplify asynchronous state management. Suitable tools for this use case are for example the [createAsyncThunk](https://redux-toolkit.js.org/api/createAsyncThunk) function and the [RTK Query](https://redux-toolkit.js.org/rtk-query/overview) API.
+

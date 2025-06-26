@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux"
 import { createNote } from "../reducers/noteReducer"
-import noteService from '../services/notes'
 
 const NewNote = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -11,10 +10,8 @@ const NewNote = () => {
     event.preventDefault()
     const content = event.target.note.value   // Get the input value
     event.target.note.value = ''    // Clear the input
-    // Adding the new note to the server
-    const newNote = await noteService.createNew(content)
-    // Dispatch an action to add the new note
-    dispatch(createNote(newNote))
+    // Dispatch an action to add the new note, both on the server and on the state
+    dispatch(createNote(content))
   }
 
   return (
