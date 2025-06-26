@@ -2530,3 +2530,11 @@ The current state of the code for the application can be found on [GitHub](https
 
 Redux Toolkit offers a multitude of tools to simplify asynchronous state management. Suitable tools for this use case are for example the [createAsyncThunk](https://redux-toolkit.js.org/api/createAsyncThunk) function and the [RTK Query](https://redux-toolkit.js.org/rtk-query/overview) API.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercises 6.16 - 6.19
+
+#### 6.16 Anecdotes and the Backend, step 3
+
+Modify the initialization of the Redux store to happen using asynchronous action creators, which are made possible by the Redux Thunk library.
+

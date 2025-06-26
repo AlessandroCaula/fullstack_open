@@ -11,7 +11,7 @@ const App = () => {
 
   // Fetching the notes from the server
   useEffect(() => {
-    dispatch(initializeNotes)
+    dispatch(initializeNotes())
   }, [])
 
   return(
