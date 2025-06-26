@@ -1214,15 +1214,15 @@ You can keep the form uncontrolled like we did [earlier](#uncontrolled-form).
 
 Make sure that the anecdotes are ordered by the number of votes.
 
-### 6.6: Anecdotes, step 4
+#### 6.6: Anecdotes, step 4
 
 If you haven't done so already, separate the creation of action-objects to [action creator](https://read.reduxbook.com/markdown/part1/04-action-creators.html)-functions and place them in the _src/reducers/anecdoteReducer.js_ file, so do what we have been doing since the chapter [action creators](https://fullstackopen.com/en/part6/flux_architecture_and_redux#action-creators).
 
-### 6.7: Anecdotes, step 5
+#### 6.7: Anecdotes, step 5
 
 Separate the creation of new anecdotes into a component called _AnecdoteForm_. Move all logic for creating a new anecdote into this new component.
 
-### 6.8: Anecdotes, step 6
+#### 6.8: Anecdotes, step 6
 
 Separate the rendering of the anecdote list into a component called _AnecdoteList_. Move all logic related to voting for an anecdote to this new component.
 
@@ -2617,3 +2617,104 @@ __Note__: By default, cloning the repo will only give you the main branch. To ge
 ```
 git clone --branch part6-0 https://github.com/fullstack-hy2020/query-notes.git
 ```
+
+### Managing data on the server with the React Query library
+
+We shall now use the [React Query](https://tanstack.com/query/latest) library to store and manage data retrieved from the server. The latest version of the library is also called TanStack Query, but we stick to the familiar name.
+
+Install the library with the command
+
+```
+npm install @tanstack/react-query
+```
+
+A few additions to the file _main.jsx_ are needed to pass the library functions to the entire application:
+
+```js
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import App from './App'
+
+const queryClient = new QueryClient()
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+)
+```
+
+We can now retrieve the notes in the _App_ component. The code expands as follows:
+
+```js
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+
+const App = () => {
+  // ...
+
+  const result = useQuery({
+    queryKey: ['notes'],
+    queryFn: () => axios.get('http://localhost:3001/notes').then(res => res.data)
+  })
+  console.log(JSON.parse(JSON.stringify(result)))
+
+  if ( result.isLoading ) {
+    return <div>loading data...</div>
+  }
+
+  const notes = result.data
+
+  return (
+    // ...
+  )
+}
+```
+
+Retrieving data from the server is still done in a familiar way with the Axios _get_ method. However, the Axios method call is now wrapped in a [query](https://tanstack.com/query/latest/docs/react/guides/queries) formed with the [useQuery](https://tanstack.com/query/latest/docs/react/reference/useQuery) function. The first parameter of the function call is a string _notes_ which acts as a [key](https://tanstack.com/query/latest/docs/react/guides/query-keys) to the query defined, i.e. the list of notes.
+
+The return value of the _useQuery_ function is an object that indicates the status of the query. The output to the console illustrates the situation:
+
+![alt text](assets/image18.png)
+
+That is, the first time the component is rendered, the query is still in _loading_ state, i.e. the associated HTTP request is pending. At this stage, only the following is rendered:
+
+```js
+<div>loading data...</div>
+```
+
+However, the HTTP request is completed so quickly that not even Max Verstappen would be able to see the text. When the request is completed, the component is rendered again. The query is in the state _success_ on the second rendering, and the field _data_ of the query object contains the data returned by the request, i.e. the list of notes that is rendered on the screen.
+
+So the application retrieves data from the server and renders it on the screen without using the React hooks _useState_ and _useEffect_ used in chapters 2-5 at all. The data on the server is now entirely under the administration of the React Query library, and the application does not need the state defined with React's _useState_ hook at all!
+
+Let's move the function making the actual HTTP request to its own file _requests.js_.
+
+```js
+import axios from 'axios'
+
+export const getNotes = () =>
+  axios.get('http://localhost:3001/notes').then(res => res.data)
+```
+
+The App component is now slightly simplified
+
+```js
+import { useQuery } from '@tanstack/react-query'
+import { getNotes } from './requests'
+
+const App = () => {
+  // ...
+
+  const result = useQuery({
+    queryKey: ['notes'],
+    queryFn: getNotes
+  })
+
+  // ...
+}
+```
+
+The current code for the application is in [GitHub](https://github.com/fullstack-hy2020/query-notes/tree/part6-1) in the branch _part6-1_ (part-6.6).
+
