@@ -7,13 +7,15 @@ const anecdoteSlice = createSlice({
   reducers: {
     // Increment the number of votes
     voteAnecdote(state, action) {
-      const id = action.payload
-      const anecdoteToChange = state.find(a => a.id === id)
-      // Create a new anecdote with the increased number of votes
-      const changedAnecdote = {
-        ...anecdoteToChange,
-        votes: anecdoteToChange.votes + 1
-      }
+      // const id = action.payload
+      // const anecdoteToChange = state.find(a => a.id === id)
+      // // Create a new anecdote with the increased number of votes
+      // const changedAnecdote = {
+      //   ...anecdoteToChange,
+      //   votes: anecdoteToChange.votes + 1
+      // }
+      const changedAnecdote = action.payload
+      const id = changedAnecdote.id
       const updatedAnecdotes = state.map(anecdote => anecdote.id === id ? changedAnecdote : anecdote)
       // Sort the anecdotes based on the number of votes and return them.
       // Create a shallow copy [...anecdotes]. Important cause .sort() changes the array is is called on. 
@@ -45,6 +47,14 @@ export const createAnecdote = content => {
   return async dispatch => {
     const newAnecdote = await anecdotesServices.createAnecdote(content)
     dispatch(appendAnecdote(newAnecdote))
+  }
+}
+
+// Voting anecdote and updating the backend
+export const updateAnecdote = content => {
+  return async dispatch => {
+    const updatedAnecdote = await anecdotesServices.voteAnecdote(content)
+    dispatch(voteAnecdote(updatedAnecdote))
   }
 }
 
