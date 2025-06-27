@@ -2837,3 +2837,83 @@ So again, a mutation was created that invalidated the query _notes_ so that the 
 
 The current code for the application is on [GitHub](https://github.com/fullstack-hy2020/query-notes/tree/part6-2) in the branch _part6-2_ (part-6.6).
 
+### Optimizing the performance
+
+The application works well, and the code is relatively simple. The ease of making changes to the list of notes is particularly surprising. For example, when we change the importance of a note, invalidating the query _notes_ is enough for the application data to be updated:
+
+```js
+  const updateNoteMutation = useMutation({
+    mutationFn: updateNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries('notes')
+    },
+  })
+```
+
+The consequence of this, of course, is that after the PUT request that causes the note change, the application makes a new GET request to retrieve the query data from the server:
+
+![alt text](assets/image19.png)
+
+If the amount of data retrieved by the application is not large, it doesn't really matter. After all, from a browser-side functionality point of view, making an extra HTTP GET request doesn't really matter, but in some situations it might put a strain on the server.
+
+If necessary, it is also possible to optimize performance [by manually updating](https://tanstack.com/query/latest/docs/react/guides/updates-from-mutation-responses) the query state maintained by React Query.
+
+The change for the mutation adding a new note is as follows:
+
+```js
+const App = () => {
+  const queryClient =  useQueryClient() 
+
+  const newNoteMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: (newNote) => {
+      const notes = queryClient.getQueryData(['notes'])
+      queryClient.setQueryData(['notes'], notes.concat(newNote))
+    }
+  })
+  // ...
+}
+```
+
+That is, in the _onSuccess_ callback, the _queryClient_ object first reads the existing _notes_ state of the query and updates it by adding a new note, which is obtained as a parameter of the callback function. The value of the parameter is the value returned by the function _createNote_, defined in the file _requests.js_ as follows:
+
+```js
+export const createNote = newNote =>
+  axios.post(baseUrl, newNote).then(res => res.data)
+```
+
+It would be relatively easy to make a similar change to a mutation that changes the importance of the note, but we leave it as an optional exercise.
+
+If we closely follow the browser's network tab, we notice that React Query retrieves all notes as soon as we move the cursor to the input field:
+
+![alt text](assets/image20.png)
+
+What is going on? By reading the [documentation](https://tanstack.com/query/latest/docs/react/reference/useQuery), we notice that the default functionality of React Query's queries is that the queries (whose status is _stale_) are updated when _window focus_, i.e. the active element of the application's user interface, changes. If we want, we can turn off the functionality by creating a query as follows:
+
+```js
+const App = () => {
+  // ...
+  const result = useQuery({
+    queryKey: ['notes'],
+    queryFn: getNotes,
+    refetchOnWindowFocus: false
+  })
+
+  // ...
+}
+```
+
+If you put a console.log statement to the code, you can see from browser console how often React Query causes the application to be re-rendered. The rule of thumb is that rerendering happens at least whenever there is a need for it, i.e. when the state of the query changes. You can read more about it e.g. [here](https://tkdodo.eu/blog/react-query-render-optimizations).
+
+The code for the application is in [GitHub](https://github.com/fullstack-hy2020/query-notes/tree/part6-3) in the branch _part6-3_ (_part-6.6_).
+
+React Query is a versatile library that, based on what we have already seen, simplifies the application. Does React Query make more complex state management solutions such as Redux unnecessary? No. React Query can partially replace the state of the application in some cases, but as the [documentation](https://tanstack.com/query/latest/docs/react/guides/does-this-replace-client-state) states
+
+- React Query is a _server-state library_, responsible for managing asynchronous operations between your server and client
+
+- Redux, etc. are _client-state libraries_ that can be used to store asynchronous data, albeit inefficiently when compared to a tool like React Query
+
+So React Query is a library that maintains the _server state_ in the frontend, i.e. acts as a cache for what is stored on the server. React Query simplifies the processing of data on the server, and can in some cases eliminate the need for data on the server to be saved in the frontend state.
+
+Most React applications need not only a way to temporarily store the served data, but also some solution for how the rest of the frontend state (e.g. the state of forms or notifications) is handled.
+
