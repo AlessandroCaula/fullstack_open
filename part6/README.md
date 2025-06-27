@@ -2718,3 +2718,122 @@ const App = () => {
 
 The current code for the application is in [GitHub](https://github.com/fullstack-hy2020/query-notes/tree/part6-1) in the branch _part6-1_ (part-6.6).
 
+### Synchronizing data to the server using React Query
+
+Data is already successfully retrieved from the server. Next, we will make sure that the added and modified data is stored on the server. Let's start by adding new notes.
+
+Let's make a function _createNote_ to the file _requests.js_ for saving new notes:
+
+```js
+import axios from 'axios'
+
+const baseUrl = 'http://localhost:3001/notes'
+
+export const getNotes = () =>
+  axios.get(baseUrl).then(res => res.data)
+
+export const createNote = newNote =>
+  axios.post(baseUrl, newNote).then(res => res.data)
+```
+
+The _App_ component will change as follows
+
+```js
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { getNotes, createNote } from './requests'
+
+const App = () => {
+ const newNoteMutation = useMutation({ mutationFn: createNote })
+
+  const addNote = async (event) => {
+    event.preventDefault()
+    const content = event.target.note.value
+    event.target.note.value = ''
+    newNoteMutation.mutate({ content, important: true })
+  }
+
+  // 
+
+}
+```
+
+To create a new note, a [mutation](https://tanstack.com/query/latest/docs/react/guides/mutations) is defined using the function [useMutation](https://tanstack.com/query/latest/docs/react/reference/useMutation):
+
+```js
+const newNoteMutation = useMutation({ mutationFn: createNote })
+```
+
+The parameter is the function we added to the file _requests.js_, which uses Axios to send a new note to the server.
+
+The event handler _addNote_ performs the mutation by calling the mutation object's function _mutate_ and passing the new note as an argument:
+
+```js
+newNoteMutation.mutate({ content, important: true })
+```
+
+Our solution is good. Except it doesn't work. The new note is saved on the server, but it is not updated on the screen.
+
+In order to render a new note as well, we need to tell React Query that the old result of the query whose key is the string _notes_ should be [invalidated](https://tanstack.com/query/latest/docs/react/guides/invalidations-from-mutations).
+
+Fortunately, invalidation is easy, it can be done by defining the appropriate _onSuccess_ callback function to the mutation:
+
+```js
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getNotes, createNote } from './requests'
+
+const App = () => {
+  const queryClient = useQueryClient()
+
+  const newNoteMutation = useMutation({
+    mutationFn: createNote, 
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+
+  // ...
+}
+```
+
+Now that the mutation has been successfully executed, a function call is made to
+
+```js
+queryClient.invalidateQueries({ queryKey: ['notes'] })
+```
+
+This in turn causes React Query to automatically update a query with the key _notes_, i.e. fetch the notes from the server. As a result, the application renders the up-to-date state on the server, i.e. the added note is also rendered.
+
+Let us also implement the change in the importance of notes. A function for updating notes is added to the file _requests.js_:
+
+```js
+export const updateNote = updatedNote =>
+  axios.put(`${baseUrl}/${updatedNote.id}`, updatedNote).then(res => res.data)
+```
+
+Updating the note is also done by mutation. The _App_ component expands as follows:
+
+```js
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query' 
+import { getNotes, createNote, updateNote } from './requests'
+
+const App = () => {
+  // ...
+
+  const updateNoteMutation = useMutation({
+    mutationFn: updateNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+  const toggleImportance = (note) => {
+    updateNoteMutation.mutate({...note, important: !note.important })
+  }
+
+  // ...
+}
+```
+
+So again, a mutation was created that invalidated the query _notes_ so that the updated note is rendered correctly. Using mutations is easy, the method _mutate_ receives a note as a parameter, the importance of which is been changed to the negation of the old value.
+
+The current code for the application is on [GitHub](https://github.com/fullstack-hy2020/query-notes/tree/part6-2) in the branch _part6-2_ (part-6.6).
+
