@@ -2917,3 +2917,12 @@ So React Query is a library that maintains the _server state_ in the frontend, i
 
 Most React applications need not only a way to temporarily store the served data, but also some solution for how the rest of the frontend state (e.g. the state of forms or notifications) is handled.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercises 6.20 - 6.22
+
+Now let's make a new version of the anecdote application that uses the React Query library. Take [this project](https://github.com/fullstack-hy2020/query-anecdotes) as your starting point. The project has a ready-installed JSON Server, the operation of which has been slightly modified (Review the `server.js` file for more details. Make sure you're connecting to the correct `PORT`). Start the server with _npm run server_.
+
+
+
+ 
