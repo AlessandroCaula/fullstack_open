@@ -3321,3 +3321,19 @@ The final code for the application is in [GitHub](https://github.com/fullstack-h
 
 As a technical detail, it should be noted that the helper functions _useCounterValue_ and _useCounterDispatch_ are defined as [custom hooks](https://react.dev/learn/reusing-logic-with-custom-hooks), because calling the hook function _useContext_ is [possible](https://react.dev/warnings/invalid-hook-call-warning#breaking-rules-of-hooks) only from React components or custom hooks. Custom hooks are JavaScript functions whose name must start with the word `use`. We will return to custom hooks in a little more detail in [part 7](https://fullstackopen.com/en/part7/custom_hooks) of the course.
 
+<hr style="border: 2px solid rgb(127, 103, 168)">
+
+### Exercises 6.23 - 6.24
+
+#### Exercise 6.23
+
+The application has a _Notification_ component for displaying notifications to the user.
+
+Implement the application's notification state management using the useReducer hook and context. The notification should tell the user when a new anecdote is created or an anecdote is voted on:
+
+![alt text](assets/image23.png)
+
+The notification is displayed for five seconds
+
+
+<hr style="border: 2px solid rgb(127, 103, 168)">

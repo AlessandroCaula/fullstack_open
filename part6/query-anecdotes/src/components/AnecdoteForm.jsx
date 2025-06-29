@@ -1,11 +1,18 @@
 /* eslint-disable react/prop-types */
-const AnecdoteForm = ({ newAnecdoteMutation }) => {
+const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
 
   const onCreate = (event) => {
     event.preventDefault()
     const content = event.target.anecdote.value
     event.target.anecdote.value = ''
     // console.log('new anecdote')
+    
+    // Display the notification
+    notificationDispatch({
+      type: "NEW_ANECDOTE", 
+      payload: content 
+    })
+
     newAnecdoteMutation.mutate({ 
       content, 
       votes: 0 

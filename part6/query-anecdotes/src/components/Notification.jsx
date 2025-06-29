@@ -1,4 +1,19 @@
-const Notification = () => {
+// import { useReducer } from "react"
+
+// const notificationReducer = (state, action) => {
+//   switch (action.type) {
+//     case 'NEW':
+//       return `New anecdote: ${state}`
+//     case 'VOTE':
+//       return `Voted: ${state}`
+//     case 'HIDE':
+//       return ''
+//     default:
+//       return state
+//   }
+// }
+
+const Notification = ({ notificationText }) => {
   const style = {
     border: 'solid',
     padding: 10,
@@ -6,11 +21,9 @@ const Notification = () => {
     marginBottom: 5
   }
   
-  if (true) return null
-
   return (
     <div style={style}>
-      
+      {notificationText}
     </div>
   )
 }
