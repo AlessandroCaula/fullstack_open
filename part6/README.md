@@ -2966,3 +2966,100 @@ Implement adding new anecdotes to the server using React Query. The application 
 Implement voting for anecdotes using again the React Query. The application should automatically render the increased number of votes for the voted anecdote.
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
+
+### useReducer 
+
+So even if the application uses React Query, some kind of solution is usually needed to manage the rest of the frontend state (for example, the state of forms). Quite often, the state created with useState is a sufficient solution. Using Redux is of course possible, but there are other alternatives.
+
+Let's look at a simple counter application. The application displays the counter value, and offers three buttons to update the counter status:
+
+![alt text](assets/image22.png)
+
+We shall now implement the counter state management using a Redux-like state management mechanism provided by React's built-in [useReducer](https://react.dev/reference/react/useReducer) hook. Code looks like the following:
+
+```js
+import { useReducer } from 'react'
+
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case "INC":
+        return state + 1
+    case "DEC":
+        return state - 1
+    case "ZERO":
+        return 0
+    default:
+        return state
+  }
+}
+
+const App = () => {
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+
+  return (
+    <div>
+      <div>{counter}</div>
+      <div>
+        <button onClick={() => counterDispatch({ type: "INC"})}>+</button>
+        <button onClick={() => counterDispatch({ type: "DEC"})}>-</button>
+        <button onClick={() => counterDispatch({ type: "ZERO"})}>0</button>
+      </div>
+    </div>
+  )
+}
+
+export default App
+```
+
+The hook [useReducer](https://react.dev/reference/react/useReducer) provides a mechanism to create a state for an application. The parameter for creating a state is the reducer function that handles state changes, and the initial value of the state:
+
+```js
+const [counter, counterDispatch] = useReducer(counterReducer, 0)
+```
+
+The reducer function that handles state changes is similar to Redux's reducers, i.e. the function gets as parameters the current state and the action that changes the state. The function returns the new state updated based on the type and possible contents of the action:
+
+```js
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case "INC":
+        return state + 1
+    case "DEC":
+        return state - 1
+    case "ZERO":
+        return 0
+    default:
+        return state
+  }
+}
+```
+
+In our example, actions have nothing but a type. If the action's type is _INC_, it increases the value of the counter by one, etc. Like Redux's reducers, actions can also contain arbitrary data, which is usually put in the action's _payload_ field.
+
+The function _useReducer_ returns an array that contains an element to access the current value of the state (first element of the array), and a _dispatch_ function (second element of the array) to change the state:
+
+```js
+const App = () => {
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+
+  return (
+    <div>
+      <div>{counter}</div>
+      <div>
+        <button onClick={() => counterDispatch({ type: "INC" })}>+</button>
+        <button onClick={() => counterDispatch({ type: "DEC" })}>-</button>
+        <button onClick={() => counterDispatch({ type: "ZERO" })}>0</button>
+      </div>
+    </div>
+  )
+}
+```
+
+As can be seen the state change is done exactly as in Redux, the dispatch function is given the appropriate state-changing action as a parameter:
+
+```js
+counterDispatch({ type: "INC" })
+```
+
+The current code for the application is in the repository https://github.com/fullstack-hy2020/hook-counter in the branch _part6-1_.
+
