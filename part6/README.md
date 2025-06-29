@@ -3063,3 +3063,102 @@ counterDispatch({ type: "INC" })
 
 The current code for the application is in the repository https://github.com/fullstack-hy2020/hook-counter in the branch _part6-1_.
 
+### Using context for passing the sate to components
+
+If we want to split the application into several components, the value of the counter and the dispatch function used to manage it must also be passed to the other components. One solution would be to pass these as props in the usual way:
+
+```js
+const Display = ({ counter }) => {
+  return <div>{counter}</div>
+}
+
+const Button = ({ dispatch, type, label }) => {
+  return (
+    <button onClick={() => dispatch({ type })}>
+      {label}
+    </button>
+  )
+}
+
+const App = () => {
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+
+  return (
+    <div>
+      <Display counter={counter}/>
+      <div>
+        <Button dispatch={counterDispatch} type='INC' label='+' />
+        <Button dispatch={counterDispatch} type='DEC' label='-' />
+        <Button dispatch={counterDispatch} type='ZERO' label='0' />
+      </div>
+    </div>
+  )
+}
+```
+
+The solution works, but is not optimal. If the component structure gets complicated, e.g. the dispatcher should be forwarded using props through many components to the components that need it, even though the components in between in the component tree do not need the dispatcher. This phenomenon is called _prop drilling_.
+
+React's built-in [Context API](https://react.dev/learn/passing-data-deeply-with-context) provides a solution for us. React's context is a kind of global state of the application, to which it is possible to give direct access to any component app.
+
+Let us now create a context in the application that stores the state management of the counter.
+
+The context is created with React's hook [createContext](https://react.dev/reference/react/createContext). Let's create a context in the file _CounterContext.jsx_:
+
+```js
+import { createContext } from 'react'
+
+const CounterContext = createContext()
+
+export default CounterContext
+```
+
+The _App_ component can now _provide_ a context to its child components as follows:
+
+```js
+import CounterContext from './CounterContext'
+
+const App = () => {
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+
+  return (
+    <CounterContext.Provider value={[counter, counterDispatch]}>
+      <Display />
+      <div>
+        <Button type='INC' label='+' />
+        <Button type='DEC' label='-' />
+        <Button type='ZERO' label='0' />
+      </div>
+    </CounterContext.Provider>
+  )
+}
+```
+
+As can be seen, providing the context is done by wrapping the child components inside the _CounterContext.Provider_ component and setting a suitable value for the context.
+
+The context value is now set to be an array containing the value of the counter, and the _dispatch_ function.
+
+Other components now access the context using the [useContext](https://react.dev/reference/react/useContext) hook:
+
+```js
+import { useContext } from 'react'
+import CounterContext from './CounterContext'
+
+const Display = () => {
+  const [counter] = useContext(CounterContext)
+  return <div>
+    {counter}
+  </div>
+}
+
+const Button = ({ type, label }) => {
+  const [counter, dispatch] = useContext(CounterContext)
+  return (
+    <button onClick={() => dispatch({ type })}>
+      {label}
+    </button>
+  )
+}
+```
+
+The current code for the application is in [GitHub](https://github.com/fullstack-hy2020/hook-counter/tree/part6-2) in the branch part6-2.
+
