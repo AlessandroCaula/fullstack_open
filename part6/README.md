@@ -3162,3 +3162,162 @@ const Button = ({ type, label }) => {
 
 The current code for the application is in [GitHub](https://github.com/fullstack-hy2020/hook-counter/tree/part6-2) in the branch part6-2.
 
+### Defining the counter context in a separate file
+
+Our application has an annoying feature, that the functionality of the counter state management is partly defined in the _App_ component. Now let's move everything related to the counter to _CounterContext.jsx_:
+
+```js
+import { createContext, useReducer } from 'react'
+
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case "INC":
+        return state + 1
+    case "DEC":
+        return state - 1
+    case "ZERO":
+        return 0
+    default:
+        return state
+  }
+}
+
+const CounterContext = createContext()
+
+export const CounterContextProvider = (props) => {
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+
+  return (
+    <CounterContext.Provider value={[counter, counterDispatch] }>
+      {props.children}
+    </CounterContext.Provider>
+  )
+}
+
+export default CounterContext
+```
+
+The file now exports, in addition to the _CounterContext_ object corresponding to the context, the _CounterContextProvider_ component, which is practically a context provider whose value is a counter and a dispatcher used for its state management.
+
+Let's enable the context provider by making a change in _main.jsx_:
+
+```js
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import { CounterContextProvider } from './CounterContext'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <CounterContextProvider>
+    <App />
+  </CounterContextProvider>
+)
+```
+
+Now the context defining the value and functionality of the counter is available to _all_ components of the application.
+
+The _App_ component is simplified to the following form:
+
+```js
+import Display from './components/Display'
+import Button from './components/Button'
+
+const App = () => {
+  return (
+    <div>
+      <Display />
+      <div>
+        <Button type='INC' label='+' />
+        <Button type='DEC' label='-' />
+        <Button type='ZERO' label='0' />
+      </div>
+    </div>
+  )
+}
+
+export default App
+```
+
+The context is still used in the same way, e.g. the component _Button_ is defined as follows:
+
+```js
+import { useContext } from 'react'
+import CounterContext from '../CounterContext'
+
+const Button = ({ type, label }) => {
+  const [counter, dispatch] = useContext(CounterContext)
+  return (
+    <button onClick={() => dispatch({ type })}>
+      {label}
+    </button>
+  )
+}
+
+export default Button
+```
+
+The _Button_ component only needs the _dispatch_ function of the counter, but it also gets the value of the counter from the context using the function _useContext_:
+
+```js
+const [counter, dispatch] = useContext(CounterContext)
+```
+
+This is not a big problem, but it is possible to make the code a bit more pleasant and expressive by defining a couple of helper functions in the _CounterContext_ file:
+
+```js
+import { createContext, useReducer, useContext } from 'react'
+
+const CounterContext = createContext()
+
+// ...
+
+export const useCounterValue = () => {
+  const counterAndDispatch = useContext(CounterContext)
+  return counterAndDispatch[0]
+}
+
+export const useCounterDispatch = () => {
+  const counterAndDispatch = useContext(CounterContext)
+  return counterAndDispatch[1]
+}
+
+// ...
+```
+
+With the help of these helper functions, it is possible for the components that use the context to get hold of the part of the context that they need. The _Display_ component changes as follows:
+
+```js
+import { useCounterValue } from '../CounterContext'
+
+const Display = () => {
+  const counter = useCounterValue()
+  return <div>
+    {counter}
+  </div>
+}
+
+export default Display
+```
+
+Component _Button_ becomes:
+
+```js
+import { useCounterDispatch } from '../CounterContext'
+
+const Button = ({ type, label }) => {
+  const dispatch = useCounterDispatch()
+  return (
+    <button onClick={() => dispatch({ type })}>
+      {label}
+    </button>
+  )
+}
+
+export default Button
+```
+
+The solution is quite elegant. The entire state of the application, i.e. the value of the counter and the code for managing it, is now isolated in the file _CounterContext_, which provides components with well-named and easy-to-use auxiliary functions for managing the state.
+
+The final code for the application is in [GitHub](https://github.com/fullstack-hy2020/hook-counter/tree/part6-3) in the branch _part6-3_ (_part-6.6_).
+
+As a technical detail, it should be noted that the helper functions _useCounterValue_ and _useCounterDispatch_ are defined as [custom hooks](https://react.dev/learn/reusing-logic-with-custom-hooks), because calling the hook function _useContext_ is [possible](https://react.dev/warnings/invalid-hook-call-warning#breaking-rules-of-hooks) only from React components or custom hooks. Custom hooks are JavaScript functions whose name must start with the word `use`. We will return to custom hooks in a little more detail in [part 7](https://fullstackopen.com/en/part7/custom_hooks) of the course.
+

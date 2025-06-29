@@ -1,47 +1,52 @@
-import { useReducer, useContext } from 'react'
-import CounterContext from './CounterContext'
+import Display from "./components/Display"  
+import Button from "./components/Button"
 
-const counterReducer = (state, action) => {
-  switch (action.type) {
-    case "INC":
-        return state + 1
-    case "DEC":
-        return state - 1
-    case "ZERO":
-        return 0
-    default:
-        return state
-  }
-}
+// import { useReducer, useContext } from 'react'
+// import CounterContext from './CounterContext'
 
-// Display component
-const Display = () => {
-  const [counter] = useContext(CounterContext)
-  return <div>{counter}</div>
-}
+// const counterReducer = (state, action) => {
+//   switch (action.type) {
+//     case "INC":
+//         return state + 1
+//     case "DEC":
+//         return state - 1
+//     case "ZERO":
+//         return 0
+//     default:
+//         return state
+//   }
+// }
 
-// Button component
-const Button = ({ type, label }) => {
-  const [counter, dispatch] = useContext(CounterContext)
-  return (
-    <button onClick={() => dispatch({ type })}>
-      {label}
-    </button>
-  )
-}
+// // Display component
+// const Display = () => {
+//   const [counter] = useContext(CounterContext)
+//   return <div>{counter}</div>
+// }
+
+// // Button component
+// const Button = ({ type, label }) => {
+//   const [counter, dispatch] = useContext(CounterContext)
+//   return (
+//     <button onClick={() => dispatch({ type })}>
+//       {label}
+//     </button>
+//   )
+// }
 
 const App = () => {
-  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+  // const [counter, counterDispatch] = useReducer(counterReducer, 0)
 
   return (
-    <CounterContext.Provider value={[counter, counterDispatch]}>
+    // <CounterContext.Provider value={[counter, counterDispatch]}>
+    <div>
       <Display />
       <div>
         <Button type='INC' label='+' />
         <Button type='DEC' label='-' />
         <Button type='ZERO' label='0' />
       </div>
-    </CounterContext.Provider>
+    </div>
+    // </CounterContext.Provider>
   )
 }
 
