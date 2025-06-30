@@ -38,6 +38,13 @@ const App = () => {
     mutationFn: createAnecdote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] }) // Invalidate in order to re-render the anecdotes list
+    },
+    onError: () => {
+      // Catch the error when the added anecdote is shorter than 5 characters
+      notificationDispatch({ type: "ERROR" })
+      setTimeout(() => {
+        notificationDispatch({ type: "HIDE" })
+      }, 3000)
     }
   })
 
@@ -54,7 +61,7 @@ const App = () => {
   }
   // If the communication encountered any error. Display an error page
   if (result.isError) {
-    return <div>Anecdote service not available due to problems in server</div>
+    console.log('error')
   }
   // Get the data (anecdotes) from the result
   const anecdotes = result.data

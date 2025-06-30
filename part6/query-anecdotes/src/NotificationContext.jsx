@@ -1,11 +1,14 @@
+/* eslint-disable react/prop-types */
 import { createContext, useReducer } from "react"
 
 const notificationReducer = (state, action) => {
   switch (action.type) {
     case "NEW_ANECDOTE":
-      return `New anecdote: '${action.payload}'`
+      return `Anecdote '${action.payload}' added`
     case "VOTE_ANECDOTE":
-      return `Voted: '${action.payload}'`
+      return `Anecdote '${action.payload}' voted`
+    case "ERROR":
+      return 'Too short anecdote, must have length 5 or more'
     case "HIDE":
       return ''
     default:

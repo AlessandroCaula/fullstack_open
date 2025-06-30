@@ -3335,5 +3335,12 @@ Implement the application's notification state management using the useReducer h
 
 The notification is displayed for five seconds
 
+#### Exercise 6.24
+
+As stated in exercise 6.21, the server requires that the content of the anecdote to be added is at least 5 characters long. Now implement error handling for the insertion. In practice, it is sufficient to display a notification to the user in case of a failed POST request:
+
+![alt text](assets/image24.png)
+
+The error condition should be handled in the callback function registered for it, see [here](https://tanstack.com/query/latest/docs/react/reference/useMutation) how to register a function.
 
 <hr style="border: 2px solid rgb(127, 103, 168)">
