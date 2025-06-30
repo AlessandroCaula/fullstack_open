@@ -1,6 +1,11 @@
 /* eslint-disable react/prop-types */
-const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
+import { useContext } from "react"
+import NotificationContext from "../NotificationContext"
 
+const AnecdoteForm = ({ newAnecdoteMutation }) => {
+
+  const [notificationText, notificationDispatch] = useContext(NotificationContext)
+  
   const onCreate = (event) => {
     event.preventDefault()
     const content = event.target.anecdote.value
@@ -8,10 +13,10 @@ const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
     // console.log('new anecdote')
     
     // Display the notification
-    notificationDispatch({
-      type: "NEW_ANECDOTE", 
-      payload: content 
-    })
+    notificationDispatch({ type: "NEW_ANECDOTE", payload: content })
+    setTimeout(() => {
+      notificationDispatch({ type: "HIDE" })    // Hide the notification
+    }, 3000)
 
     newAnecdoteMutation.mutate({ 
       content, 

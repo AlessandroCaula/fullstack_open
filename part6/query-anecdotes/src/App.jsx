@@ -2,25 +2,13 @@ import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getAnecdotes, createAnecdote, updateAnecdote } from './requests'
+import { useContext } from 'react'
+import NotificationContext from './NotificationContext'
 
-import { useReducer } from "react"
-
-const notificationReducer = (state, action) => {
-  // console.log(action.payload)
-  switch (action.type) {
-    case "NEW_ANECDOTE":
-      return `New anecdote: '${action.payload}'`
-    case "VOTE_ANECDOTE":
-      return `Voted: '${action.payload}'`
-    case "HIDE":
-      return ''
-    default:
-      return state
-  }
-}
 
 const App = () => {
-  const [notificationText, notificationDispatch] = useReducer(notificationReducer, '')
+  const [notificationText, notificationDispatch] = useContext(NotificationContext)
+  const queryClient = useQueryClient()
 
   // --- Change number of votes
   // 
@@ -34,10 +22,10 @@ const App = () => {
   const handleVote = (anecdote) => {
     
     // Display the notification
-    notificationDispatch({
-      type: "VOTE_ANECDOTE", 
-      payload: anecdote.content 
-    })
+    notificationDispatch({ type: "VOTE_ANECDOTE", payload: anecdote.content })
+    setTimeout(() => {
+      notificationDispatch({ type: "HIDE" })
+    }, 3000)
 
     // console.log('vote')
     updateAnecdoteMutation.mutate({...anecdote, votes: anecdote.votes + 1})
@@ -45,7 +33,6 @@ const App = () => {
 
   // --- Add new anecdote
   //
-  const queryClient = useQueryClient()
   // New mutation for adding new anecdote
   const newAnecdoteMutation = useMutation({
     mutationFn: createAnecdote,
@@ -78,13 +65,10 @@ const App = () => {
     
       {/* Display the notification when there is text to display */}
       {notificationText !== '' 
-        && <Notification notificationText={notificationText}/>
+        && <Notification />
       }
 
-      <AnecdoteForm 
-        newAnecdoteMutation={newAnecdoteMutation} 
-        notificationDispatch={notificationDispatch}
-      />
+      <AnecdoteForm newAnecdoteMutation={newAnecdoteMutation} />
     
       {anecdotes.map(anecdote =>
         <div key={anecdote.id}>
