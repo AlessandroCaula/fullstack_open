@@ -188,3 +188,9 @@ We wrap the components to be rendered based on the URL with a [Routes](https://r
 ```
 
 The Routes works by rendering the first component whose _path_ matches the URL in the browser's address bar.
+
+### Parameterized route
+
+Let's examine a slightly modified version from the previous example. The complete code for the updated example can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v1.js).
+
+
