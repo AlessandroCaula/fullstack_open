@@ -193,4 +193,73 @@ The Routes works by rendering the first component whose _path_ matches the URL i
 
 Let's examine a slightly modified version from the previous example. The complete code for the updated example can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v1.js).
 
+The application now contains five different views whose display is controlled by the router. In addition to the components from the previous example (_Home_, _Notes_ and _Users_), we have _Login_ representing the login view and _Note_ representing the view of a single note.
+
+_Home_ and _Users_ are unchanged from the previous exercise. _Notes_ is a bit more complicated. It renders the list of notes passed to it as props in such a way that the name of each note is clickable.
+
+![alt text](assets/image3.png)
+
+The ability to click a name is implemented with the component _Link_, and clicking the name of a note whose id is 3 would trigger an event that changes the address of the browser into _notes/3_:
+
+```js
+const Notes = ({notes}) => (
+  <div>
+    <h2>Notes</h2>
+    <ul>
+      {notes.map(note =>
+        <li key={note.id}>
+          <Link to={`/notes/${note.id}`}>{note.content}</Link>
+        </li>
+      )}
+    </ul>
+  </div>
+)
+```
+
+We define parameterized URLs in the routing of the _App_ component as follows:
+
+```js
+<Router>
+  // ...
+
+  <Routes>
+    <Route path="/notes/:id" element={<Note notes={notes} />} />
+    <Route path="/notes" element={<Notes notes={notes} />} />   
+    <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+    <Route path="/login" element={<Login onLogin={login} />} />
+    <Route path="/" element={<Home />} />      
+  </Routes>
+</Router>
+```
+
+We define the route rendering a specific note "express style" by marking the parameter with a colon - _:id_
+
+```js
+<Route path="/notes/:id" element={<Note notes={notes} />} />
+```
+
+When a browser navigates to the URL for a specific note, for example, _/notes/3_, we render the _Note_ component:
+
+```js
+import {
+  // ...
+  useParams
+} from 'react-router-dom'
+
+const Note = ({ notes }) => {
+  const id = useParams().id
+  const note = notes.find(n => n.id === Number(id)) 
+  return (
+    <div>
+      <h2>{note.content}</h2>
+      <div>{note.user}</div>
+      <div><strong>{note.important ? 'important' : ''}</strong></div>
+    </div>
+  )
+}
+```
+
+The `Note` component receives all of the notes as props _notes_, and it can access the URL parameter (the id of the note to be displayed) with the [useParams](https://reactrouter.com/en/main/hooks/use-params) function of the React Router.
+
+### useNavigate
 

@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 import ReactDOM from 'react-dom/client'
 import { useState } from 'react'
 
 import {
-  BrowserRouter as Router,
+  BrowserRouter as Router, 
   Routes,
   Route,
   Link,
@@ -49,8 +50,8 @@ const Users = () => (
     <h2>TKTL notes app</h2>
     <ul>
       <li>Matti Luukkainen</li>
-      <li>Juha Tauriainen</li>
-      <li>Arto Hellas</li>
+      <li>Ale Caula</li>
+      <li>Bruno Caula</li>
     </ul>
   </div>
 )
