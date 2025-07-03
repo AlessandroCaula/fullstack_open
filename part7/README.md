@@ -263,3 +263,67 @@ The `Note` component receives all of the notes as props _notes_, and it can acce
 
 ### useNavigate
 
+We have also implemented a simple login function in our application. If a user is logged in, information about a logged-in _user_ is saved to the user field of the state of the _App_ component.
+
+The option to navigate to the _Login_ view is rendered conditionally in the menu.
+
+```js
+<Router>
+  <div>
+    <Link style={padding} to="/">home</Link>
+    <Link style={padding} to="/notes">notes</Link>
+    <Link style={padding} to="/users">users</Link>
+    {user
+      ? <em>{user} logged in</em>
+      : <Link style={padding} to="/login">login</Link>
+    }
+  </div>
+
+  // ...
+</Router>
+```
+
+So if the user is already logged in, instead of displaying the link _Login_, we show its username:
+
+![alt text](assets/image4.png)
+
+The code of the component handling the login functionality is as follows:
+
+```js
+import {
+  // ...
+  useNavigate
+} from 'react-router-dom'
+
+const Login = (props) => {
+  const navigate = useNavigate()
+
+  const onSubmit = (event) => {
+    event.preventDefault()
+    props.onLogin('mluukkai')
+    navigate('/')
+  }
+
+  return (
+    <div>
+      <h2>login</h2>
+      <form onSubmit={onSubmit}>
+        <div>
+          username: <input />
+        </div>
+        <div>
+          password: <input type='password' />
+        </div>
+        <button type="submit">login</button>
+      </form>
+    </div>
+  )
+}
+```
+
+What is interesting about this component is the use of the [useNavigate](https://reactrouter.com/en/main/hooks/use-navigate) function of the React Router. With this function, the browser's URL can be changed programmatically.
+
+With user login, we call `navigate('/')` which causes the browser's URL to change to `/` and the application renders the corresponding component _Home_.
+
+Both [useParams](https://reactrouter.com/en/main/hooks/use-params) and [useNavigate](https://reactrouter.com/en/main/hooks/use-navigate) are hook functions, just like useState and useEffect which we have used many times now. As you remember from part 1, there are some [rules](https://fullstackopen.com/en/part1/a_more_complex_state_debugging_react_apps/#rules-of-hooks) to using hook functions.
+
