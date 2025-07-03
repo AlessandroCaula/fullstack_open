@@ -327,3 +327,68 @@ With user login, we call `navigate('/')` which causes the browser's URL to chang
 
 Both [useParams](https://reactrouter.com/en/main/hooks/use-params) and [useNavigate](https://reactrouter.com/en/main/hooks/use-navigate) are hook functions, just like useState and useEffect which we have used many times now. As you remember from part 1, there are some [rules](https://fullstackopen.com/en/part1/a_more_complex_state_debugging_react_apps/#rules-of-hooks) to using hook functions.
 
+### Redirect 
+
+There is one more interesting detail about the _Users_ route:
+
+```js
+<Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+```
+
+If a user isn't logged in, the _Users_ component is not rendered. Instead, the user is _redirected_ using the component [Navigate](https://reactrouter.com/en/main/components/navigate) to the login view:
+
+```js
+<Navigate replace to="/login" />
+```
+
+In reality, it would perhaps be better to not even show links in the navigation bar requiring login if the user is not logged into the application.
+
+Here is the _App_ component in its entirety:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState([
+    // ...
+  ])
+
+  const [user, setUser] = useState(null) 
+
+  const login = (user) => {
+    setUser(user)
+  }
+
+  const padding = {
+    padding: 5
+  }
+
+  return (
+    <div>
+      <Router>
+        <div>
+          <Link style={padding} to="/">home</Link>
+          <Link style={padding} to="/notes">notes</Link>
+          <Link style={padding} to="/users">users</Link>
+          {user
+            ? <em>{user} logged in</em>
+            : <Link style={padding} to="/login">login</Link>
+          }
+        </div>
+
+        <Routes>
+          <Route path="/notes/:id" element={<Note notes={notes} />} />  
+          <Route path="/notes" element={<Notes notes={notes} />} />   
+          <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+          <Route path="/login" element={<Login onLogin={login} />} />
+          <Route path="/" element={<Home />} />      
+        </Routes>
+      </Router>      
+      <footer>
+        <br />
+        <em>Note app, Department of Computer Science 2024</em>
+      </footer>
+    </div>
+  )
+}
+```
+
+We define an element common for modern web apps called _footer_, which defines the part at the bottom of the screen, outside of the _Router_, so that it is shown regardless of the component shown in the routed part of the application.
