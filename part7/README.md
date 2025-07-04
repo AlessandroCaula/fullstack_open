@@ -486,3 +486,23 @@ const note = match
 
 The completed code can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v2.js).
 
+### Exercises 7.1 - 7.3
+
+Let's return to working with anecdotes. Use the redux-free anecdote app found in the repository https://github.com/fullstack-hy2020/routed-anecdotes as the starting point for the exercises.
+
+If you clone the project into an existing git repository, remember to _delete the git configuration of the cloned application_:
+
+```
+cd routed-anecdotes   // go first to directory of the cloned repository
+rm -rf .git
+```
+
+The application starts the usual way, but first, you need to install its dependencies:
+
+```
+npm install
+npm run dev
+```
+
+#### 7.1: Routed Anecdotes, step 1
+
