@@ -392,3 +392,97 @@ const App = () => {
 ```
 
 We define an element common for modern web apps called _footer_, which defines the part at the bottom of the screen, outside of the _Router_, so that it is shown regardless of the component shown in the routed part of the application.
+
+### Parameterized route revisited
+
+Our application has a flaw. The `Note` component receives all of the notes, event though it only displays the one whose id matches the URL parameter:
+
+```js
+const Note = ({ notes }) => { 
+  const id = useParams().id
+  const note = notes.find(n => n.id === Number(id))
+  // ...
+}
+```
+
+Would it be possible to modify the application so that the Note component receives only the note that it should display?
+
+```js
+const Note = ({ note }) => {
+  return (
+    <div>
+      <h2>{note.content}</h2>
+      <div>{note.user}</div>
+      <div><strong>{note.important ? 'important' : ''}</strong></div>
+    </div>
+  )
+}
+```
+
+One way to do this would be to use React Router's [useMatch](https://reactrouter.com/en/main/hooks/use-match) hook to figure out the id of the note to be displayed in the `App` component.
+
+It is not possible to use the _useMatch_ hook in the component which defines the routed part of the application. Let's move the use of the `Router` components from `App`:
+
+```js
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Router>
+    <App />
+  </Router>
+)
+```
+
+The `App` component becomes:
+
+```js
+import {
+  // ...
+  useMatch
+} from 'react-router-dom'
+
+const App = () => {
+  // ...
+
+  const match = useMatch('/notes/:id')
+  const note = match 
+    ? notes.find(note => note.id === Number(match.params.id))
+    : null
+
+  return (
+    <div>
+      <div>
+        <Link style={padding} to="/">home</Link>
+        // ...
+      </div>
+
+      <Routes>
+        <Route path="/notes/:id" element={<Note note={note} />} />
+        <Route path="/notes" element={<Notes notes={notes} />} />   
+        <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+        <Route path="/login" element={<Login onLogin={login} />} />
+        <Route path="/" element={<Home />} />      
+      </Routes>   
+
+      <div>
+        <em>Note app, Department of Computer Science 2024</em>
+      </div>
+    </div>
+  )
+}  
+```
+
+Every time the component is rendered, so practically every time the browser's URL changes, the following command is executed:
+
+```js
+const match = useMatch('/notes/:id')
+```
+
+If the URL matches `/notes/:id`, the match variable will contain an object from which we can access the parameterized part of the path, the id of the note to be displayed, and we can then fetch the correct note to display.
+
+```js
+const note = match 
+  ? notes.find(note => note.id === Number(match.params.id))
+  : null
+```
+
+The completed code can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v2.js).
+
