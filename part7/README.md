@@ -506,3 +506,14 @@ npm run dev
 
 #### 7.1: Routed Anecdotes, step 1
 
+Add React Router to the application so that by clicking links in the _Menu_ component the view can be changed.
+
+At the root of the application, meaning the path `/`, show the list of anecdotes:
+
+![alt text](assets/image5.png)
+
+The _Footer_ component should always be visible at the bottom. 
+
+The creation of a new anecdote should happen e.g. in the path _create_:
+
+![alt text](assets/image6.png)
