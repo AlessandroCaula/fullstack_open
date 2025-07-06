@@ -517,3 +517,13 @@ The _Footer_ component should always be visible at the bottom.
 The creation of a new anecdote should happen e.g. in the path _create_:
 
 ![alt text](assets/image6.png)
+
+#### 7.2: Routed Anecdotes, step 2
+
+Implement a view for showing a single anecdote:
+
+![alt text](assets/image7.png)
+
+Navigating to the page showing the single anecdote is done by clicking the name of that anecdote:
+
+![alt text](assets/image8.png)

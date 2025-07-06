@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { 
   BrowserRouter as Router,
-  Routes, Route, Link 
+  Routes, Route, Link, 
+  useParams
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -21,10 +22,29 @@ const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote => 
+        <li key={anecdote.id}>
+          <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>
+      )}
     </ul>
   </div>
 )
+
+const Anecdote = ({ anecdotes }) => {
+  const id = useParams().id
+  // Match and find the anecdote to display
+  const anecdote = anecdotes.find(a => a.id === Number(id))
+  return(
+    <div>
+      <h2>{anecdote.content}</h2>
+      <div>{`Has ${anecdote.votes} votes`}</div>
+      <br />
+      <div>{`For more info see ${anecdote.info}`}</div>
+      <br />
+    </div>
+  )
+}
 
 const About = () => (
   <div>
@@ -34,7 +54,7 @@ const About = () => (
     <em>An anecdote is a brief, revealing account of an individual person or an incident.
       Occasionally humorous, anecdotes differ from jokes because their primary purpose is not simply to provoke laughter but to reveal a truth more general than the brief tale itself,
       such as to characterize a person by delineating a specific quirk or trait, to communicate an abstract idea about a person, place, or thing through the concrete details of a short narrative.
-      An anecdote is "a story with a point."</em>
+      An anecdote is &quot;a story with a point.&quot;</em>
 
     <p>Software engineering is full of excellent anecdotes, at this app you can find the best and add more.</p>
   </div>
@@ -126,18 +146,27 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  // // Matching the anecdote to the selected one
+  // const match = useMatch('/anecdotes/:id')
+  // const anecdote = match
+  //   ? anecdotes.find(anecdote => anecdote.id === Number(match.params.id))
+  //   : null
+
   return (
     <Router>
       <div>
         <h1>Software anecdotes</h1>
         {/* Menu bar */}
         <Menu />
+
         {/* Routes to the different component */}
         <Routes>
           <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />
           <Route path='/create' element={<CreateNew addNew={addNew} />} />
           <Route path='/about' element={<About />} />
+          <Route path='/anecdotes/:id' element={<Anecdote anecdotes={anecdotes} />} />
         </Routes>
+
         {/* The footer is always visible in all the routes */}
         <Footer />
       </div>
