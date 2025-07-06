@@ -123,25 +123,13 @@ const App = () => {
       <div>
         <form>
           name:
-          <input 
-            type={nameCustom.type}
-            value={nameCustom.value}
-            onChange={nameCustom.onChange}
-          />
+          <input {...nameCustom} />
           <br />
           born:
-          <input 
-            type={bornCustom.type}
-            value={bornCustom.value}
-            onChange={bornCustom.onChange}
-          />
+          <input {...bornCustom} />
           <br />
           height:
-          <input 
-            type={heightCustom.type}
-            value={heightCustom.value}
-            onChange={heightCustom.onChange}
-          />
+          <input {...heightCustom} />
         </form>
         <br />
         <div>

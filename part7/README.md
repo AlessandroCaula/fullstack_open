@@ -757,3 +757,57 @@ const App = () => {
   )
 }
 ```
+
+### Spread attributes
+
+We could simplify things a bit further. Since the `name` object has exactly all of the attributes that the _input_ element expects to receive as props, we can pass the props to the element using the [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) in the following way:
+
+```js
+<input {...name} />
+```
+
+As the [example](https://react.dev/learn/updating-objects-in-state#copying-objects-with-the-spread-syntax) in the React documentation states, the following two ways of passing props to a component achieve the exact same result:
+
+```js
+<Greeting firstName='Arto' lastName='Hellas' />
+
+const person = {
+  firstName: 'Arto',
+  lastName: 'Hellas'
+}
+
+<Greeting {...person} />
+```
+
+The application gets simplified into the following format:
+
+```js
+const App = () => {
+  const name = useField('text')
+  const born = useField('date')
+  const height = useField('number')
+
+  return (
+    <div>
+      <form>
+        name: 
+        <input  {...name} /> 
+        <br/> 
+        birthdate:
+        <input {...born} />
+        <br /> 
+        height:
+        <input {...height} />
+      </form>
+      <div>
+        {name.value} {born.value} {height.value}
+      </div>
+    </div>
+  )
+}
+```
+
+Dealing with forms is greatly simplified when the unpleasant nitty-gritty details related to synchronizing the state of the form are encapsulated inside our custom hook.
+
+Custom hooks are not only a tool for reusing code; they also provide a better way for dividing it into smaller modular parts.
+
