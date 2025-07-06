@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { 
   BrowserRouter as Router,
   Routes, Route, Link, 
-  useParams
+  useParams,
+  useNavigate
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -72,7 +73,7 @@ const CreateNew = (props) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
-
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -82,6 +83,8 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    // Navigate to the anecdotes view ("/")
+    navigate('/')
   }
 
   return (
@@ -104,8 +107,14 @@ const CreateNew = (props) => {
       </form>
     </div>
   )
-
 }
+
+const Notification = ({ notificationText }) => (
+  <div>
+    <br />
+    {notificationText}
+  </div>
+)
 
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
@@ -130,6 +139,12 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+
+    // Set the timeout to show the notification
+    setNotification(`A new anecdote ${anecdote.content} created!`)
+    setTimeout(() => {
+      setNotification('')
+    }, 3000)
   }
 
   const anecdoteById = (id) =>
@@ -146,18 +161,15 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
-  // // Matching the anecdote to the selected one
-  // const match = useMatch('/anecdotes/:id')
-  // const anecdote = match
-  //   ? anecdotes.find(anecdote => anecdote.id === Number(match.params.id))
-  //   : null
-
   return (
     <Router>
       <div>
         <h1>Software anecdotes</h1>
         {/* Menu bar */}
         <Menu />
+        
+        {/* Showing the notification if a new anecdote is added */}
+        {notification && <Notification notificationText={notification} />}
 
         {/* Routes to the different component */}
         <Routes>
