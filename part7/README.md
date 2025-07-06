@@ -486,6 +486,8 @@ const note = match
 
 The completed code can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v2.js).
 
+<hr style="border: 2px solid rgb(125, 204, 240)">
+
 ### Exercises 7.1 - 7.3
 
 Let's return to working with anecdotes. Use the redux-free anecdote app found in the repository https://github.com/fullstack-hy2020/routed-anecdotes as the starting point for the exercises.
@@ -517,3 +519,23 @@ The _Footer_ component should always be visible at the bottom.
 The creation of a new anecdote should happen e.g. in the path _create_:
 
 ![alt text](assets/image6.png)
+
+#### 7.2: Routed Anecdotes, step 2
+
+Implement a view for showing a single anecdote:
+
+![alt text](assets/image7.png)
+
+Navigating to the page showing the single anecdote is done by clicking the name of that anecdote:
+
+![alt text](assets/image8.png)
+
+#### 7.3: Routed Anecdotes, step 3
+
+The default functionality of the creation form is quite confusing because nothing seems to be happening after creating a new anecdote using the form.
+
+Improve the functionality such that after creating a new anecdote the application transitions automatically to showing the view for all anecdotes _and_ the user is shown a notification informing them of this successful creation for the next five seconds:
+
+![alt text](assets/image9.png)
+
+<hr style="border: 2px solid rgb(125, 204, 240)">

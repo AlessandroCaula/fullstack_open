@@ -8,7 +8,6 @@ import {
   Route,
   Link,
   Navigate,
-  useParams,
   useNavigate,
   useMatch,
 } from "react-router-dom"
@@ -21,9 +20,7 @@ const Home = () => (
   </div>
 )
 
-const Note = ({ notes }) => {
-  const id = useParams().id
-  const note = notes.find(n => n.id === Number(id))
+const Note = ({ note }) => {
   return (
     <div>
       <h2>{note.content}</h2>
