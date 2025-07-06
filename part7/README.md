@@ -486,6 +486,8 @@ const note = match
 
 The completed code can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/router-app-v2.js).
 
+<hr style="border: 2px solid rgb(125, 204, 240)">
+
 ### Exercises 7.1 - 7.3
 
 Let's return to working with anecdotes. Use the redux-free anecdote app found in the repository https://github.com/fullstack-hy2020/routed-anecdotes as the starting point for the exercises.
@@ -535,3 +537,5 @@ The default functionality of the creation form is quite confusing because nothin
 Improve the functionality such that after creating a new anecdote the application transitions automatically to showing the view for all anecdotes _and_ the user is shown a notification informing them of this successful creation for the next five seconds:
 
 ![alt text](assets/image9.png)
+
+<hr style="border: 2px solid rgb(125, 204, 240)">
