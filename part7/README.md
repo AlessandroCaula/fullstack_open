@@ -811,3 +811,61 @@ Dealing with forms is greatly simplified when the unpleasant nitty-gritty detail
 
 Custom hooks are not only a tool for reusing code; they also provide a better way for dividing it into smaller modular parts.
 
+### More about hooks
+
+The internet is starting to fill up with more and more helpful material related to hooks. The following sources are worth checking out:
+
+- [Awesome React Hooks Resources](https://github.com/rehooks/awesome-react-hooks)
+
+- [Easy to understand React Hook recipes by Gabe Ragland](https://usehooks.com/)
+
+- [Why Do React Hooks Rely on Call Order?](https://overreacted.io/why-do-hooks-rely-on-call-order/)
+
+<hr style="border: 2px solid rgb(125, 204, 240)">
+
+### Exercises 7.4 - 7.8
+
+We'll continue with the app from the [exercises](#exercises-71---73) of the react [router chapter](#part-7a---react-router).
+
+#### 7.4: Anecdotes and Hooks, step 1
+
+Simplify the anecdote creation form of your application with the `useField` custom hook we defined earlier.
+
+One natural place to save the custom hooks of your application is in the _/src/hooks/index.js_ file.
+
+If you use the [named export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Description) instead of the default export:
+
+```js
+import { useState } from 'react'
+
+export const useField = (type) => {
+  const [value, setValue] = useState('')
+
+  const onChange = (event) => {
+    setValue(event.target.value)
+  }
+
+  return {
+    type,
+    value,
+    onChange
+  }
+}
+
+// modules can have several named exports
+export const useAnotherHook = () => {
+  // ...
+}
+```
+
+Then [importing](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) happens in the following way:
+
+```js
+import  { useField } from './hooks'
+
+const App = () => {
+  // ...
+  const username = useField('text')
+  // ...
+}
+```   

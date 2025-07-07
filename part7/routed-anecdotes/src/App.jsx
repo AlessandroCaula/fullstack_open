@@ -3,7 +3,7 @@ import { useState } from 'react'
 // Routing
 import { 
   BrowserRouter as Router,
-  Routes, Route, useNavigate
+  Routes, Route
 } from 'react-router-dom'
 
 // Importing components
