@@ -869,3 +869,17 @@ const App = () => {
   // ...
 }
 ```   
+
+#### 7.5: Anecdotes and Hooks, step 2
+
+Add a button to the form that you can use to clear all the input fields:
+
+![alt text](assets/image11.png)
+
+Expand the functionality of the _useField_ hook so that it offers a new _reset_ operation for clearing the field.
+
+Depending on your solution, you may see the following warning in your console:
+
+![alt text](assets/image12.png)
+
+We will return to this warning in the next exercise.
