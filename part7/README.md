@@ -883,3 +883,41 @@ Depending on your solution, you may see the following warning in your console:
 ![alt text](assets/image12.png)
 
 We will return to this warning in the next exercise.
+
+#### 7.6: Anecdotes and Hooks, step 3
+
+If your solution did not cause a warning to appear in the console, you have already finished this exercise.
+
+If you see the `Invalid value for prop "reset" on <input> tag` warning in the console, make the necessary changes to get rid of it.
+
+The reason for this warning is that after making the changes to your application, the following expression:
+
+```js
+<input {...content}/>
+```
+
+Essentially, is the same as this:
+
+```js
+<input
+  value={content.value} 
+  type={content.type}
+  onChange={content.onChange}
+  reset={content.reset} // <--
+/>
+```
+
+The _input_ element should not be given a _reset_ attribute.
+
+One simple fix would be to not use the spread syntax and write all of the forms like this:
+
+```js
+<input
+  value={username.value} 
+  type={username.type}
+  onChange={username.onChange}
+/>
+```
+
+If we were to do this, we would lose much of the benefit provided by the _useField_ hook. Instead, come up with a solution that fixes the issue, but is still easy to use with the spread syntax.
+
