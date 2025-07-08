@@ -1043,3 +1043,107 @@ Many UI frameworks have React-friendly versions where the framework's "component
 
 Next, we will take a closer look at two UI frameworks, Bootstrap and [MaterialUI](https://mui.com/). We will use both frameworks to add similar styles to the application we made in the [React Router](#part-7a---react-router) section of the course material.
 
+### React Bootstrap 
+
+Let's start by taking a look at Bootstrap with the help of the [react-bootstrap](https://react-bootstrap.github.io/) package.
+
+Let's install the package with the command:
+
+```
+npm install react-bootstrap
+```
+
+Then let's add a [link for loading the CSS stylesheet](https://react-bootstrap.github.io/docs/getting-started/introduction#stylesheets) for Bootstrap inside of the _head_ tag in the _public/index.html_ file of the application:
+
+```html
+<head>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+    crossorigin="anonymous"
+  />
+  // ...
+</head>
+```
+
+When we reload the application, we notice that it already looks a bit more stylish:
+
+![alt text](assets/image15.png)
+
+In Bootstrap, all of the contents of the application are typically rendered inside a [container](https://getbootstrap.com/docs/4.1/layout/overview/#containers). In practice this is accomplished by giving the root `div` element of the application the `container` class attribute:
+
+```js
+const App = () => {
+  // ...
+
+  return (
+    <div className="container">
+      // ...
+    </div>
+  )
+}
+``` 
+
+We notice that this already affected the appearance of the application. The content is no longer as close to the edges of the browser as it was earlier:
+
+![alt text](assets/image16.png)
+
+#### Tables
+
+Next, let's make some changes to the _Notes_ component so that it renders the list of notes as a [table](https://getbootstrap.com/docs/4.1/content/tables/). React Bootstrap provides a built-in [Table](https://react-bootstrap.github.io/docs/components/table/) component for this purpose, so there is no need to define CSS classes separately.
+
+The appearance of the application is quite stylish:
+
+![alt text](assets/image17.png)
+
+Notice that the React Bootstrap components have to be imported separately from the library as shown below:
+
+```js
+import { Table } from 'react-bootstrap'
+```
+
+#### Forms
+
+Let's improve the form in the _Login_ view with the help of Bootstrap [forms](https://getbootstrap.com/docs/4.1/components/forms/).
+
+React Bootstrap provides built-in [components](https://react-bootstrap.github.io/docs/forms/overview/) for creating forms (although the documentation for them is slightly lacking):
+
+```js
+let Login = (props) => {
+  // ...
+  return (
+    <div>
+      <h2>login</h2>
+      <Form onSubmit={onSubmit}>
+        <Form.Group>
+          <Form.Label>username:</Form.Label>
+          <Form.Control
+            type="text"
+            name="username"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>password:</Form.Label>
+          <Form.Control
+            type="password"
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          login
+        </Button>
+      </Form>
+    </div>
+  )
+}
+```
+
+The number of components we need to import increases:
+
+```js
+import { Table, Form, Button } from 'react-bootstrap'
+```
+
+After switching over to the Bootstrap form, our improved application looks like this:
+
+![alt text](assets/image18.png)
