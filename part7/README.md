@@ -1026,3 +1026,20 @@ const App = () => {
 The `useResource` custom hook returns an array of two items just like the state hooks. The first item of the array contains all of the individual resources and the second item of the array is an object that can be used for manipulating the resource collection, like creating new ones. 
 
 If you implement the hook correctly, it can be used for both notes and persons (start the server with the `npm run server` command at port 3005)
+
+## Part 7c - More about styles
+
+In part 2, we examined two different ways of adding styles to our application: the old-school [single CSS](../part2/README.md#2e---adding-styles-to-react-app) file and [inline styles](../part2/README.md#inline-styles). In this part, we will take a look at a few other ways.
+
+### Ready-made UI libraries
+
+One approach to defining styles for an application is to use a ready-made "UI framework".
+
+One of the first widely popular UI frameworks was the [Bootstrap](https://getbootstrap.com/) toolkit created by Twitter which may still be the most popular. Recently, there has been an explosion in the number of new UI frameworks that have entered the arena. The selection is so vast that there is little hope of creating an exhaustive list of options.
+
+Many UI frameworks provide developers of web applications with ready-made themes and "components" like buttons, menus, and tables. We write components in quotes because, in this context, we are not talking about React components. Usually, UI frameworks are used by including the CSS stylesheets and JavaScript code of the framework in the application.
+
+Many UI frameworks have React-friendly versions where the framework's "components" have been transformed into React components. There are a few different React versions of Bootstrap like [reactstrap](http://reactstrap.github.io/) and [react-bootstrap](https://react-bootstrap.github.io/).
+
+Next, we will take a closer look at two UI frameworks, Bootstrap and [MaterialUI](https://mui.com/). We will use both frameworks to add similar styles to the application we made in the [React Router](#part-7a---react-router) section of the course material.
+
