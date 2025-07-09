@@ -1113,7 +1113,7 @@ React Bootstrap provides built-in [components](https://react-bootstrap.github.io
 let Login = (props) => {
   // ...
   return (
-    <div>
+    <div> 
       <h2>login</h2>
       <Form onSubmit={onSubmit}>
         <Form.Group>
@@ -1147,3 +1147,90 @@ import { Table, Form, Button } from 'react-bootstrap'
 After switching over to the Bootstrap form, our improved application looks like this:
 
 ![alt text](assets/image18.png)
+
+#### Notification
+
+Now that the login form is in better shape, let's take a look at improving our application's notifications:
+
+![alt text](assets/image19.png)
+
+Let's add a message for the notification when a user logs into the application. We will store it in the `message` variable in the _App_ component's state:
+
+```js
+const App = () => {
+  const [notes, setNotes] = useState([
+    // ...
+  ])
+
+  const [user, setUser] = useState(null)
+  const [message, setMessage] = useState(null)
+
+  const login = (user) => {
+    setUser(user)
+    setMessage(`welcome ${user}`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 10000)
+  }
+  // ...
+}
+```
+
+We will render the message as a Bootstrap [Alert](https://getbootstrap.com/docs/4.1/components/alerts/) component. Once again, the React Bootstrap library provides us with a matching [React component](https://react-bootstrap.github.io/docs/components/alerts/):
+
+```js
+<div className="container">
+  {(message &&
+    <Alert variant="success">
+      {message}
+    </Alert>
+  )}
+  // ...
+</div>
+```
+
+__Navigation structure__
+
+Lastly, let's alter the application's navigation menu to use Bootstrap's [Navbar](https://getbootstrap.com/docs/4.1/components/navbar/) component. The React Bootstrap library provides us with [matching built-in components](https://react-bootstrap.github.io/docs/components/navbar/#responsive-behaviors). Through trial and error, we end up with a working solution despite the cryptic documentation:
+
+```js
+<Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+  <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+  <Navbar.Collapse id="responsive-navbar-nav">
+    <Nav className="me-auto">
+      <Nav.Link href="#" as="span">
+        <Link style={padding} to="/">home</Link>
+      </Nav.Link>
+      <Nav.Link href="#" as="span">
+        <Link style={padding} to="/notes">notes</Link>
+      </Nav.Link>
+      <Nav.Link href="#" as="span">
+        <Link style={padding} to="/users">users</Link>
+      </Nav.Link>
+      <Nav.Link href="#" as="span">
+        {user
+          ? <em style={padding}>{user} logged in</em>
+          : <Link style={padding} to="/login">login</Link>
+        }
+      </Nav.Link>
+    </Nav>
+  </Navbar.Collapse>
+</Navbar>
+```
+
+The resulting layout has a very clean and pleasing appearance:
+
+![alt text](assets/image20.png)
+
+If the viewport of the browser is narrowed, we notice that the menu "collapses" and it can be expanded by clicking the "hamburger" button:
+
+![alt text](assets/image21.png)
+
+Bootstrap and a large majority of existing UI frameworks produce [responsive](https://en.wikipedia.org/wiki/Responsive_web_design) designs, meaning that the resulting applications render well on a variety of different screen sizes.
+
+Chrome's developer tools make it possible to simulate using our application in the browser of different mobile clients:
+
+![alt text](assets/image22.png)
+
+You can find the complete code for the application [here](https://github.com/fullstack-hy2020/misc/blob/master/notes-bootstrap.js).
+
