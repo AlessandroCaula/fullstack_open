@@ -1234,3 +1234,186 @@ Chrome's developer tools make it possible to simulate using our application in t
 
 You can find the complete code for the application [here](https://github.com/fullstack-hy2020/misc/blob/master/notes-bootstrap.js).
 
+### Material UI
+
+As our second example, we will look into the [MaterialUI](https://mui.com/) React library, which implements the [Material Design](https://material.io/) visual language developed by Google.
+
+```
+npm install @mui/material @emotion/react @emotion/styled
+```
+
+Now let's use MaterialUI to do the same modifications to the code we did earlier with Bootstrap.
+
+Render the contents of the whole application within a [Container](https://mui.com/components/container/):
+
+```js
+import { Container } from '@mui/material'
+
+const App = () => {
+  // ...
+  return (
+    <Container>
+      // ...
+    </Container>
+  )
+}
+```
+
+#### Table
+
+Let's start with the _Notes_ component. We'll render the list of notes as a [table](https://mui.com/material-ui/react-table/#simple-table):
+
+```js
+const Notes = ({ notes }) => (
+  <div>
+    <h2>Notes</h2>
+
+    <TableContainer component={Paper}>
+      <Table>
+        <TableBody>
+          {notes.map(note => (
+            <TableRow key={note.id}>
+              <TableCell>
+                <Link to={`/notes/${note.id}`}>{note.content}</Link>
+              </TableCell>
+              <TableCell>
+                {note.user}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </div>
+)
+```
+
+The table looks like so:
+
+![alt text](assets/image23.png)
+
+One less pleasant feature of Material UI is that each component has to be imported separately. The import list for the notes page is quite long:
+
+```js
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Paper,
+} from '@mui/material'
+```
+
+#### Form
+
+Next, let's make the login form in the _Login_ view better using the [TextField](https://mui.com/material-ui/react-text-field/) and [Button](https://mui.com/material-ui/api/button/) components:
+
+```js
+const Login = (props) => {
+  const navigate = useNavigate()
+
+  const onSubmit = (event) => {
+    event.preventDefault()
+    props.onLogin('mluukkai')
+    navigate('/')
+  }
+
+  return (
+    <div>
+      <h2>login</h2>
+      <form onSubmit={onSubmit}>
+        <div>
+          <TextField label="username" />
+        </div>
+        <div>
+          <TextField label="password" type='password' />
+        </div>
+        <div>
+          <Button variant="contained" color="primary" type="submit">
+            login
+          </Button>
+        </div>
+      </form>
+    </div>
+  )
+}
+```
+
+The result is:
+
+![alt text](assets/image24.png)
+
+MaterialUI, unlike Bootstrap, does not provide a component for the form itself. The form here is an ordinary HTML [form](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form) element.
+
+Remember to import all the components used in the form.
+
+#### Notification
+
+The notification displayed on login can be done using the [Alert](https://mui.com/material-ui/react-alert/) component, which is quite similar to Bootstrap's equivalent component:
+
+```js
+<div>
+  {(message &&
+    <Alert severity="success">
+      {message}
+    </Alert>
+  )}
+</div>
+```
+
+Alert is quite stylish:
+
+![alt text](assets/image25.png)
+
+#### Navigation structure
+
+We can implement navigation using the [AppBar](https://mui.com/material-ui/react-app-bar/) component.
+
+If we use the example code from the documentation
+
+```js
+<AppBar position="static">
+  <Toolbar>
+    <IconButton edge="start" color="inherit" aria-label="menu">
+    </IconButton>
+    <Button color="inherit">
+      <Link to="/">home</Link>
+    </Button>
+    <Button color="inherit">
+      <Link to="/notes">notes</Link>
+    </Button>
+    <Button color="inherit">
+      <Link to="/users">users</Link>
+    </Button>  
+    <Button color="inherit">
+      {user
+        ? <em>{user} logged in</em>
+        : <Link to="/login">login</Link>
+      }
+    </Button>                
+  </Toolbar>
+</AppBar>
+```
+
+we do get working navigation, but it could look better
+
+![alt text](assets/image26.png)
+
+We can find a better way in the [documentation](https://mui.com/material-ui/integrations/routing/#button). We can use [component props](https://mui.com/material-ui/guides/composition/#component-prop) to define how the root element of a MaterialUI component is rendered.
+
+By defining
+
+```js
+<Button color="inherit" component={Link} to="/">
+  home
+</Button>
+```
+
+and it looks like we want it to:
+
+![alt text](assets/image27.png)
+
+The code of the application can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/notes-materialui.js).
+
