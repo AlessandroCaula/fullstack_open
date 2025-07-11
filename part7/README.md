@@ -1766,3 +1766,29 @@ When we bundle the application again with the `npm run build` command, we notice
 Our application code can be found at the end of the bundle file in a rather obscure format:
 
 ![alt text](assets/image32.png)
+
+### Configuration file
+
+Let's take a closer look at the contents of our current _webpack.config.js_ file:
+
+```js
+const path = require('path')
+
+const config = () => {
+  return {
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, 'build'),
+      filename: 'main.js'
+    }
+  }
+}
+
+module.exports = config
+```
+
+The configuration file has been written in JavaScript and the function returning the configuration object is exported using Node's module syntax.
+
+Our minimal configuration definition almost explains itself. The [entry](https://webpack.js.org/concepts/#entry) property of the configuration object specifies the file that will serve as the entry point for bundling the application.
+
+The [output](https://webpack.js.org/concepts/#output) property defines the location where the bundled code will be stored. The target directory must be defined as an _absolute path_, which is easy to create with the [path.resolve](https://nodejs.org/docs/latest-v8.x/api/path.html#path_path_resolve_paths) method. We also use [__dirname](https://nodejs.org/docs/latest/api/modules.html#__dirname) which is a variable in Node that stores the path to the current directory.
