@@ -1417,3 +1417,60 @@ and it looks like we want it to:
 
 The code of the application can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/notes-materialui.js).
 
+### Closing thoughts
+
+The difference between react-bootstrap and MaterialUI is not big. It's up to you which one you find better looking. I have not used MaterialUI a lot, but my first impressions are positive. Its documentation is a bit better than react-bootstrap's. According to https://www.npmtrends.com/ which tracks the popularity of different npm-libraries, MaterialUI passed react-bootstrap in popularity at the end of 2018:
+
+![alt text](assets/image28.png)
+
+In the two previous examples, we used the UI frameworks with the help of React-integration libraries.
+
+Instead of using the [React Bootstrap](https://react-bootstrap.github.io/) library, we could have just as well used Bootstrap directly by defining CSS classes for our application's HTML elements. Instead of defining the table with the _Table_ component:
+
+```js
+<Table striped>
+  // ...
+</Table>
+```
+
+We could have used a regular HTML _table_ and added the required CSS class:
+
+```js
+<table className="table striped">
+  // ...
+</table>
+```
+
+The benefit of using the React Bootstrap library is not that evident from this example.
+
+In addition to making the frontend code more compact and readable, another benefit of using React UI framework libraries is that they include the JavaScript that is needed to make specific components work. Some Bootstrap components require a few [unpleasant JavaScript](https://getbootstrap.com/docs/4.1/getting-started/introduction/#js) dependencies that we would prefer not to include in our React applications.
+
+Some potential downsides to using UI frameworks through integration libraries instead of using them "directly" are that integration libraries may have unstable APIs and poor documentation. The situation with [Semantic UI React](https://react.semantic-ui.com/) is a lot better than with many other UI frameworks, as it is an official React integration library.
+
+There is also the question of whether or not UI framework libraries should be used in the first place. It is up to everyone to form their own opinion, but for people lacking knowledge in CSS and web design, they are very useful tools.
+
+### Other UI frameworks
+
+Here are some other UI frameworks for your consideration. If you do not see your favorite UI framework in the list, please make a pull request to the course material for adding it.
+
+- https://bulma.io/
+- https://ant.design/
+- https://get.foundation/
+- https://chakra-ui.com/
+- https://tailwindcss.com/
+- https://semantic-ui.com/
+- https://mantine.dev/
+- https://react.fluentui.dev/
+- https://storybook.js.org
+- https://www.primefaces.org/primereact/
+- https://v2.grommet.io
+- https://blueprintjs.com
+- https://evergreen.segment.com
+- https://www.radix-ui.com/
+- https://react-spectrum.adobe.com/react-aria/index.html
+- https://master.co/
+- https://nextui.org/
+- https://daisyui.com/
+- https://ui.shadcn.com/
+- https://www.tremor.so/
+- https://headlessui.com/
