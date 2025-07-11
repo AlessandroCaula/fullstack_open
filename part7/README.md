@@ -1792,3 +1792,161 @@ The configuration file has been written in JavaScript and the function returning
 Our minimal configuration definition almost explains itself. The [entry](https://webpack.js.org/concepts/#entry) property of the configuration object specifies the file that will serve as the entry point for bundling the application.
 
 The [output](https://webpack.js.org/concepts/#output) property defines the location where the bundled code will be stored. The target directory must be defined as an _absolute path_, which is easy to create with the [path.resolve](https://nodejs.org/docs/latest-v8.x/api/path.html#path_path_resolve_paths) method. We also use [__dirname](https://nodejs.org/docs/latest/api/modules.html#__dirname) which is a variable in Node that stores the path to the current directory.
+
+### Bundling React
+
+Next, let's transform our application into a minimal React application. Let's install the required libraries:
+
+```
+npm install react react-dom
+```
+
+And let's turn our application into a React application by adding the familiar definitions in the _index.js_ file:
+
+```js
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+```
+
+We will also make the following changes to the _App.js_ file:
+
+```js
+import React from 'react' // we need this now also in component files
+
+const App = () => {
+  return (
+    <div>
+      hello webpack
+    </div>
+  )
+}
+
+export default App
+```
+
+We still need the _build/index.html_ file that will serve as the "main page" of our application, which will load our bundled JavaScript code with a _script_ tag:
+
+```js
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>React App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/javascript" src="./main.js"></script>
+  </body>
+</html>
+```
+
+When we bundle our application, we run into the following problem:
+
+![alt text](assets/image33.png)
+
+### Loaders
+
+The error message from webpack states that we may need an appropriate _loader_ to bundle the _App.js_ file correctly. By default, webpack only knows how to deal with plain JavaScript. Although we may have become unaware of it, we are using [JSX](https://facebook.github.io/jsx/) for rendering our views in React. To illustrate this, the following code is not regular JavaScript:
+
+```js
+const App = () => {
+  return (
+    <div>
+      hello webpack
+    </div>
+  )
+}
+```
+
+The syntax used above comes from JSX and it provides us with an alternative way of defining a React element for an HTML _div_ tag.
+
+We can use [loaders](https://webpack.js.org/concepts/loaders/) to inform webpack of the files that need to be processed before they are bundled.
+
+Let's configure a loader to our application that transforms the JSX code into regular JavaScript:
+
+```js
+const path = require('path')
+
+const config = () => {
+  return {
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, 'build'),
+      filename: 'main.js'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react'],
+          },
+        },
+      ],
+    },
+  }
+}
+
+module.exports = config
+```
+
+Loaders are defined under the _module_ property in the rules array.
+
+The definition of a single loader consists of three parts:
+
+```js
+{
+  test: /\.js$/,
+  loader: 'babel-loader',
+  options: {
+    presets: ['@babel/preset-react']
+  }
+}
+```
+
+The _test_ property specifies that the loader is for files that have names ending with _.js_. The _loader_ property specifies that the processing for those files will be done with [babel-loader](https://github.com/babel/babel-loader). The _options_ property is used for specifying parameters for the loader, which configure its functionality.
+
+Let's install the loader and its required packages as a _development dependency_:
+
+```
+npm install @babel/core babel-loader @babel/preset-react --save-dev
+```
+
+Bundling the application will now succeed.
+
+If we make some changes to the _App_ component and take a look at the bundled code, we notice that the bundled version of the component looks like this:
+
+```js
+const App = () =>
+  react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(
+    'div',
+    null,
+    'hello webpack'
+  )
+```
+
+As we can see from the example above, the React elements that were written in JSX are now created with regular JavaScript by using React's [createElement](https://react.dev/reference/react/createElement) function.
+
+You can test the bundled application by opening the _build/index.html_ file with the _open file_ functionality of your browser:
+
+![alt text](assets/image34.png)
+
+It's worth noting that if the bundled application's source code uses _async/await_, the browser will not render anything on some browsers. [Googling the error message in the console](https://stackoverflow.com/questions/33527653/babel-6-regeneratorruntime-is-not-defined) will shed some light on the issue. With the [previous solution](https://babeljs.io/docs/en/babel-polyfill/) being deprecated we now have to install two more missing dependencies, that is [core-js](https://www.npmjs.com/package/core-js) and [regenerator-runtime](https://www.npmjs.com/package/regenerator-runtime):
+
+```
+npm install core-js regenerator-runtime
+```
+
+You need to import these dependencies at the top of the _index.js_ file:
+
+```js
+import 'core-js/stable/index.js'
+import 'regenerator-runtime/runtime.js'
+```
+
+Our configuration contains nearly everything that we need for React development.
+
