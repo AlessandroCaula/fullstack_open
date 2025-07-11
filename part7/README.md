@@ -1594,3 +1594,175 @@ The appearance of the resulting application is shown below:
 
 Styled components have seen consistent growth in popularity in recent times, and quite a lot of people consider it to be the best way of defining styles in React applications.
 
+## Part 7b - Webpack
+
+In the early days, React was somewhat famous for being very difficult to configure the tools required for application development. To make the situation easier, [Create React App](https://github.com/facebookincubator/create-react-app) was developed, which eliminated configuration-related problems. [Vite](https://vitejs.dev/), which is also used in the course, has recently replaced Create React App in new applications.
+
+Both Vite and Create React App use _bundlers_ to do the actual work. We will now familiarize ourselves with the bundler called [Webpack](https://webpack.js.org/) used by Create React App. Webpack was by far the most popular bundler for years. Recently, however, there have been several new generation bundlers such as [esbuild](https://esbuild.github.io/) used by Vite, which are significantly faster and easier to use than Webpack. However, e.g. esbuild still lacks some useful features (such as hot reload of the code in the browser), so next we will get to know the old ruler of bundlers, Webpack.
+
+### Bundling
+
+We have implemented our applications by dividing our code into separate modules that have been _imported_ to places that require them. Even though ES6 modules are defined in the ECMAScript standard, the older browsers do not know how to handle code that is divided into modules.
+
+For this reason, code that is divided into modules must be _bundled_ for browsers, meaning that all of the source code files are transformed into a single file that contains all of the application code. When we deployed our React frontend to production in [part 3](../part3/README.md#3b---deploying-app-to-internet), we performed the bundling of our application with the `npm run build` command. Under the hood, the npm script bundles the source, and this produces the following collection of files in the _dist_ directory:
+
+```
+├── assets
+│   ├── index-d526a0c5.css
+│   ├── index-e92ae01e.js
+│   └── react-35ef61ed.svg
+├── index.html
+└── vite.svg
+```
+
+The _index.html_ file located at the root of the _dist_ directory is the "main file" of the application which loads the bundled JavaScript file with a _script_ tag:
+
+```js
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <script type="module" crossorigin src="/assets/index-e92ae01e.js"></script>
+    <link rel="stylesheet" href="/assets/index-d526a0c5.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    
+  </body>
+</html>
+```
+
+As we can see from the example application that was created with Vite, the build script also bundles the application's CSS files into a single _/assets/index-d526a0c5.css_ file.
+
+In practice, bundling is done so that we define an entry point for the application, which typically is the _index.js_ file. When webpack bundles the code, it includes not only the code from the entry point but also the code that is imported by the entry point, as well as the code imported by its import statements, and so on.
+
+Since part of the imported files are packages like React, Redux, and Axios, the bundled JavaScript file will also contain the contents of each of these libraries.
+
+> The old way of dividing the application's code into multiple files was based on the fact that the _index.html_ file loaded all of the separate JavaScript files of the application with the help of script tags. This resulted in decreased performance, since the loading of each separate file results in some overhead. For this reason, these days the preferred method is to bundle the code into a single file.
+
+Next, we will create a webpack configuration by hand, suitable for a new React application.
+
+Let's create a new directory for the project with the following subdirectories (_build_ and _src_) and files:
+
+```
+├── build
+├── package.json
+├── src
+│   └── index.js
+└── webpack.config.js
+```
+
+The contents of the _package.json_ file can e.g. be the following:
+
+```js
+{
+  "name": "webpack-part7",
+  "version": "0.0.1",
+  "description": "practicing webpack",
+  "scripts": {},
+  "license": "MIT"
+}
+```
+
+Let's install webpack with the command:
+
+```
+npm install --save-dev webpack webpack-cli
+```
+
+We define the functionality of webpack in the _webpack.config.js_ file, which we initialize with the following content:
+
+```js
+const path = require('path')
+
+const config = () => {
+  return {
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, 'build'),
+      filename: 'main.js'
+    }
+  }
+}
+
+module.exports = config
+```
+
+__Note__: it would be possible to make the definition directly as an object instead of a function:
+
+```js
+const path = require('path')
+
+const config = {
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, 'build'),
+    filename: 'main.js'
+  }
+}
+
+module.exports = config
+```
+
+An object will suffice in many situations, but we will later need certain features that require the definition to be done as a function.
+
+We will then define a new npm script called _build_ that will execute the bundling with webpack:
+
+```js
+// ...
+"scripts": {
+  "build": "webpack --mode=development"
+},
+// ...
+```
+
+Let's add some more code to the _src/index.js_ file:
+
+```js
+const hello = name => {
+  console.log(`hello ${name}`)
+}
+```
+
+When we execute the `npm run build` command, our application code will be bundled by webpack. The operation will produce a new _main.js_ file that is added under the _build_ directory:
+
+![alt text](assets/image30.png)
+
+The file contains a lot of stuff that looks quite interesting. We can also see the code we wrote earlier at the end of the file:
+
+```js
+eval("const hello = name => {\n  console.log(`hello ${name}`)\n}\n\n//# sourceURL=webpack://webpack-osa7/./src/index.js?");
+```
+
+Let's add an _App.js_ file under the src directory with the following content:
+
+```js
+const App = () => {
+  return null
+}
+
+export default App
+```
+
+Let's import and use the _App_ module in the _index.js_ file:
+
+```js
+import App from './App';
+
+const hello = name => {
+  console.log(`hello ${name}`)
+}
+
+App()
+```
+
+When we bundle the application again with the `npm run build` command, we notice that webpack has acknowledged both files:
+
+![alt text](assets/image31.png)
+
+Our application code can be found at the end of the bundle file in a rather obscure format:
+
+![alt text](assets/image32.png)
