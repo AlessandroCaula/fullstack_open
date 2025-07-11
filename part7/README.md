@@ -1474,3 +1474,123 @@ Here are some other UI frameworks for your consideration. If you do not see your
 - https://ui.shadcn.com/
 - https://www.tremor.so/
 - https://headlessui.com/
+
+### Styled components
+
+There are also [other ways](https://blog.bitsrc.io/5-ways-to-style-react-components-in-2019-30f1ccc2b5b) of styling React applications that we have not yet taken a look at.
+
+The [styled components](https://styled-components.com/) library offers an interesting approach for defining styles through [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) that were introduced in ES6.
+
+Let's make a few changes to the styles of our application with the help of styled components. First, install the package with the command:
+
+```
+npm install styled-components
+```
+
+Then let's define two components with styles:
+
+```js
+import styled from 'styled-components'
+
+const Button = styled.button`
+  background: Bisque;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid Chocolate;
+  border-radius: 3px;
+`
+
+const Input = styled.input`
+  margin: 0.25em;
+`
+```
+
+The code above creates styled versions of the _button_ and _input_ HTML elements and then assigns them to the _Button_ and _Input_ variables.
+
+The syntax for defining the styles is quite interesting, as the CSS rules are defined inside of backticks.
+
+The styled components that we defined work exactly like regular _button_ and _input_ elements, and they can be used in the same way:
+
+```js
+const Login = (props) => {
+  // ...
+  return (
+    <div>
+      <h2>login</h2>
+      <form onSubmit={onSubmit}>
+        <div>
+          username:
+          <Input />
+        </div>
+        <div>
+          password:
+          <Input type='password' />
+        </div>
+        <Button type="submit" primary=''>login</Button>
+      </form>
+    </div>
+  )
+}
+```
+
+Let's create a few more components for styling this application which will be styled versions of _div_ elements:
+
+```js
+const Page = styled.div`
+  padding: 1em;
+  background: papayawhip;
+`
+
+const Navigation = styled.div`
+  background: BurlyWood;
+  padding: 1em;
+`
+
+const Footer = styled.div`
+  background: Chocolate;
+  padding: 1em;
+  margin-top: 1em;
+`
+```
+
+Let's use the components in our application:
+
+```js
+const App = () => {
+  // ...
+
+  return (
+     <Page>
+      <Navigation>
+        <Link style={padding} to="/">home</Link>
+        <Link style={padding} to="/notes">notes</Link>
+        <Link style={padding} to="/users">users</Link>
+        {user
+          ? <em>{user} logged in</em>
+          : <Link style={padding} to="/login">login</Link>
+        }
+      </Navigation>
+      
+      <Routes>
+        <Route path="/notes/:id" element={<Note note={note} />} />  
+        <Route path="/notes" element={<Notes notes={notes} />} />   
+        <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+        <Route path="/login" element={<Login onLogin={login} />} />
+        <Route path="/" element={<Home />} />      
+      </Routes>
+
+      <Footer>
+        <em>Note app, Department of Computer Science 2022</em>
+      </Footer>
+    </Page>
+  )
+}
+```
+
+The appearance of the resulting application is shown below:
+
+![alt text](assets/image29.png)
+
+Styled components have seen consistent growth in popularity in recent times, and quite a lot of people consider it to be the best way of defining styles in React applications.
+
