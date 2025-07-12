@@ -2063,3 +2063,70 @@ The bundling will succeed once again and the application gets new styles.
 
 ### Webpack-dev-server
 
+The current configuration makes it possible to develop our application but the workflow is awful (to the point where it resembles the development workflow with Java). Every time we make a change to the code, we have to bundle it and refresh the browser to test it.
+
+The [webpack-dev-server](https://webpack.js.org/guides/development/#using-webpack-dev-server) offers a solution to our problems. Let's install it with the command:
+
+```
+npm install --save-dev webpack-dev-server
+```
+
+Let's define an npm script for starting the dev server:
+
+```js
+{
+  // ...
+  "scripts": {
+    "build": "webpack --mode=development",
+    "start": "webpack serve --mode=development"
+  },
+  // ...
+}
+```
+
+Let's also add a new _devServer_ property to the configuration object in the _webpack.config.js_ file:
+
+```js
+const config = {
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, 'build'),
+    filename: 'main.js',
+  },
+  devServer: {
+    static: path.resolve(__dirname, 'build'),
+    compress: true,
+    port: 3000,
+  },
+  // ...
+};
+```
+
+The `npm start` command will now start the dev-server at port 3000, meaning that our application will be available by visiting http://localhost:3000 in the browser. When we make changes to the code, the browser will automatically refresh the page.
+
+The process for updating the code is fast. When we use the dev-server, the code is not bundled the usual way into the _main.js_ file. The result of the bundling exists only in memory.
+
+Let's extend the code by changing the definition of the _App_ component as shown below:
+
+```js
+import React, { useState } from 'react'
+import './index.css'
+
+const App = () => {
+  const [counter, setCounter] = useState(0)
+
+  return (
+    <div className="container">
+      hello webpack {counter} clicks
+      <button onClick={() => setCounter(counter + 1)}>
+        press
+      </button>
+    </div>
+  )
+}
+
+export default App
+```
+
+The application works nicely and the development workflow is quite smooth.
+
