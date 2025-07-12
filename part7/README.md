@@ -2923,3 +2923,45 @@ E.g. Using [Amazon's API](https://aws.amazon.com/api-gateway/) gateway it is pos
 
 Serverless is not about there not being a server in applications, but about how the server is defined. Software developers can shift their programming efforts to a higher level of abstraction as there is no longer a need to programmatically define the routing of HTTP requests, database relations, etc., since the cloud infrastructure provides all of this. Cloud functions also lend themselves to creating a well-scaling system, e.g. Amazon's Lambda can execute a massive amount of cloud functions per second. All of this happens automatically through the infrastructure and there is no need to initiate new servers, etc.
 
+### Useful libraries and interesting links
+
+The JavaScript developer community has produced a large variety of useful libraries. If you are developing anything more substantial, it is worth it to check if existing solutions are already available. Below are listed some libraries recommended by trustworthy parties.
+
+If your application has to handle complicated data, [lodash](https://www.npmjs.com/package/lodash), which we recommended in [part 4](../part4/README.md#exercise-43---47), is a good library to use. If you prefer the functional programming style, you might consider using [ramda](https://ramdajs.com/).
+
+If you are handling times and dates, [date-fns](https://github.com/date-fns/date-fns) offers good tools for that.
+
+If you have complex forms in your apps, have a look at whether [React Hook Form](https://react-hook-form.com/) would be a good fit.
+
+If your application displays graphs, there are multiple options to choose from. Both [recharts](https://recharts.org/en-US/) and [highcharts](https://github.com/highcharts/highcharts-react) are well-recommended.
+
+The [Immer](https://github.com/mweststrate/immer) provides immutable implementations of some data structures. The library could be of use when using Redux, since as we [remember](../part6/README.md#pure-functions-immutable) from part 6, reducers must be pure functions, meaning they must not modify the store's state but instead have to replace it with a new one when a change occurs.
+
+[Redux-saga](https://redux-saga.js.org/) provides an alternative way to make asynchronous actions for [Redux Thunk](https://fullstackopen.com/en/part6/communicating_with_server_in_a_redux_application#asynchronous-actions-and-redux-thunk) familiar from part 6. Some embrace the hype and like it. I don't.
+
+For single-page applications, the gathering of analytics data on the interaction between the users and the page is [more challenging](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications?implementation=browser-history) than for traditional web applications where the entire page is loaded. The [React Google Analytics 4](https://github.com/codler/react-ga4) library offers a solution.
+
+You can take advantage of your React know-how when developing mobile applications using Facebook's extremely popular [React Native](https://facebook.github.io/react-native/) library, which is the topic of [part 10](https://fullstackopen.com/en/part10) of the course.
+
+When it comes to the tools used for the management and bundling of JavaScript projects, the community has been very fickle. Best practices have changed rapidly (the years are approximations, nobody remembers that far back in the past):
+
+- 2011 [Bower](https://www.npmjs.com/package/bower)
+
+- 2012 [Grunt](https://www.npmjs.com/package/grunt)
+
+- 2013-14 [Gulp](https://www.npmjs.com/package/gulp)
+
+- 2012-14 [Browserify](https://www.npmjs.com/package/browserify)
+
+- 2015-2023 [Webpack](https://www.npmjs.com/package/webpack)
+
+- 2023- [esbuild](https://esbuild.github.io/)
+
+Hipsters seemed to have lost their interest in tool development after webpack started to dominate the markets. A few years ago, Parcel started to make the rounds marketing itself as simple (which Webpack is not) and faster than Webpack. However, after a promising start, Parcel has not gathered any steam. But recently, esbuild has been on a high rise and is already replacing Webpack.
+
+The site https://reactpatterns.com/ provides a concise list of best practices for React, some of which are already familiar from this course. Another similar list is [react bits](https://vasanthk.gitbooks.io/react-bits/).
+
+[Reactiflux](https://www.reactiflux.com/) is a big chat community of React developers on Discord. It could be one possible place to get support after the course has concluded. For example, numerous libraries have their own channels.
+
+If you know some recommendable links or libraries, make a pull request!
+
