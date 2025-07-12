@@ -2255,3 +2255,189 @@ The output of the minification process resembles old-school C code; all of the c
 ```js
 function h(){if(!d){var e=u(p);d=!0;for(var t=c.length;t;){for(s=c,c=[];++f<t;)s&&s[f].run();f=-1,t=c.length}s=null,d=!1,function(e){if(o===clearTimeout)return clearTimeout(e);if((o===l||!o)&&clearTimeout)return o=clearTimeout,clearTimeout(e);try{o(e)}catch(t){try{return o.call(null,e)}catch(t){return o.call(this,e)}}}(e)}}a.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)
 ```
+
+### Development and production configuration
+
+Next, let's add a backend to our application by repurposing the now-familiar note application backend.
+
+Let's store the following content in the _db.json_ file:
+
+```js
+{
+  "notes": [
+    {
+      "important": true,
+      "content": "HTML is easy",
+      "id": "5a3b8481bb01f9cb00ccb4a9"
+    },
+    {
+      "important": false,
+      "content": "Mongo can save js objects",
+      "id": "5a3b920a61e8c8d3f484bdd0"
+    }
+  ]
+}
+```
+
+Our goal is to configure the application with webpack in such a way that, when used locally, the application uses the json-server available in port 3001 as its backend.
+
+The bundled file will then be configured to use the backend available at the https://notes2023.fly.dev/api/notes URL.
+
+We will install _axios_, start the json-server, and then make the necessary changes to the application. For the sake of changing things up, we will fetch the notes from the backend with our [custom hook](https://fullstackopen.com/en/part7/custom_hooks) called `useNotes`:
+
+```js
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+const useNotes = (url) => {
+  const [notes, setNotes] = useState([])
+  useEffect(() => {
+    axios.get(url).then(response => {
+      setNotes(response.data)
+    })
+  }, [url])
+  return notes
+}
+
+const App = () => {
+  const [counter, setCounter] = useState(0)
+  const [values, setValues] = useState([])
+  const url = 'https://notes2023.fly.dev/api/notes'
+  const notes = useNotes(url)
+
+  const handleClick = () => {
+    setCounter(counter + 1)
+    setValues(values.concat(counter))
+  }
+
+  return (
+    <div className="container">
+      hello webpack {counter} clicks
+      <button onClick={handleClick}>press</button>
+      <div>{notes.length} notes on server {url}</div>
+    </div>
+  )
+}
+
+export default App
+```
+
+The address of the backend server is currently hardcoded in the application code. How can we change the address in a controlled fashion to point to the production backend server when the code is bundled for production?
+
+Webpack's configuration function has two parameters, _env_ and _argv_. We can use the latter to find out the _mode_ defined in the npm script:
+
+const path = require('path')
+
+```js
+const config = (env, argv) => {
+  console.log('argv.mode:', argv.mode)
+  return {
+    // ...
+  }
+}
+
+module.exports = config
+```
+
+Now, if we want, we can set Webpack to work differently depending on whether the application's operating environment, or _mode_, is set to production or development.
+
+We can also use webpack's [DefinePlugin](https://webpack.js.org/plugins/define-plugin/) for defining _global default constants_ that can be used in the bundled code. Let's define a new global constant *BACKEND_URL* that gets a different value depending on the environment that the code is being bundled for:
+
+```js
+const path = require('path')
+const webpack = require('webpack')
+
+const config = (env, argv) => {
+  console.log('argv', argv.mode)
+
+  const backend_url = argv.mode === 'production'
+    ? 'https://notes2023.fly.dev/api/notes'
+    : 'http://localhost:3001/notes'
+
+  return {
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, 'build'),
+      filename: 'main.js'
+    },
+    devServer: {
+      static: path.resolve(__dirname, 'build'),
+      compress: true,
+      port: 3000,
+    },
+    devtool: 'source-map',
+    module: {
+      // ...
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        BACKEND_URL: JSON.stringify(backend_url)
+      })
+    ]
+  }
+}
+
+module.exports = config
+```
+
+The global constant is used in the following way in the code:
+
+```js
+const App = () => {
+  const [counter, setCounter] = useState(0)
+  const [values, setValues] = useState([])
+  const notes = useNotes(BACKEND_URL)
+
+  // ...
+  return (
+    <div className="container">
+      hello webpack {counter} clicks
+      <button onClick={handleClick} >press</button>
+      <div>{notes.length} notes on server {BACKEND_URL}</div>
+    </div>
+  )
+}
+```
+
+If the configuration for development and production differs a lot, it may be a good idea to [separate the configuration](https://webpack.js.org/guides/production/) of the two into their own files.
+
+Now, if the application is started with the command `npm start` in development mode, it fetches the notes from the address http://localhost:3001/notes. The version bundled with the command `npm run build` uses the address https://notes2023.fly.dev/api/notes to get the list of notes.
+
+We can inspect the bundled production version of the application locally by executing the following command in the _build_ directory:
+
+```
+npx static-server
+```
+
+By default, the bundled application will be available at http://localhost:9080.
+
+### Polyfill
+
+Our application is finished and works with all relatively recent versions of modern browsers, except for Internet Explorer. The reason for this is that, because of `axios`, our code uses [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), and no existing version of IE supports them:
+
+![alt text](assets/image41.png)
+
+There are many other things in the standard that IE does not support. Something as harmless as the [find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) method of JavaScript arrays exceeds the capabilities of IE:
+
+![alt text](assets/image42.png)
+
+In these situations, it is not enough to transpile the code, as transpilation simply transforms the code from a newer version of JavaScript to an older one with wider browser support. IE understands Promises syntactically but it simply has not implemented their functionality. The `find` property of arrays in IE is simply _undefined_.
+
+If we want the application to be IE-compatible, we need to add a [polyfill](https://remysharp.com/2010/10/08/what-is-a-polyfill), which is code that adds the missing functionality to older browsers.
+
+Polyfills can be added with the help of [webpack and Babel](https://babeljs.io/docs/usage/polyfill/) or by installing one of many existing polyfill libraries.
+
+The polyfill provided by the [promise-polyfill](https://www.npmjs.com/package/promise-polyfill) library is easy to use. We simply have to add the following to our existing application code:
+
+```js
+import PromisePolyfill from 'promise-polyfill'
+
+if (!window.Promise) {
+  window.Promise = PromisePolyfill
+}
+```
+
+If the global `Promise` object does not exist, meaning that the browser does not support Promises, the polyfilled Promise is stored in the global variable. If the polyfilled Promise is implemented well enough, the rest of the code should work without issues.
+
+One exhaustive list of existing polyfills can be found [here](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills).
+
+The browser compatibility of different APIs can be checked by visiting https://caniuse.com or [Mozilla's website](https://developer.mozilla.org/en-US/).
