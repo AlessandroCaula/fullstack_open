@@ -1950,3 +1950,52 @@ import 'regenerator-runtime/runtime.js'
 
 Our configuration contains nearly everything that we need for React development.
 
+### Transpilers
+
+The process of transforming code from one form of JavaScript to another is called [transpiling](https://en.wiktionary.org/wiki/transpile). The general definition of the term is to compile source code by transforming it from one language to another.
+
+By using the configuration from the previous section, we are _transpiling_ the code containing JSX into regular JavaScript with the help of [babel](https://babeljs.io/), which is currently the most popular tool for the job.
+
+As mentioned in part 1, most browsers do not support the latest features that were introduced in ES6 and ES7, and for this reason, the code is usually transpiled to a version of JavaScript that implements the ES5 standard.
+
+The transpilation process that is executed by Babel is defined with [plugins](https://babeljs.io/docs/plugins/). In practice, most developers use ready-made [presets](https://babeljs.io/docs/plugins/) that are groups of pre-configured plugins.
+
+Currently, we are using the [@babel/preset-react](https://babeljs.io/docs/babel-preset-react/) preset for transpiling the source code of our application:
+
+```js
+{
+  test: /\.js$/,
+  loader: 'babel-loader',
+  options: {
+    presets: ['@babel/preset-react']
+  }
+}
+```
+
+Let's add the [@babel/preset-env](https://babeljs.io/docs/babel-preset-env/) plugin that contains everything needed to take code using all of the latest features and to transpile it to code that is compatible with the ES5 standard:
+
+```js
+{
+  test: /\.js$/,
+  loader: 'babel-loader',
+  options: {
+    presets: ['@babel/preset-env', '@babel/preset-react']
+  }
+}
+```
+
+Let's install the preset with the command:
+
+```
+npm install @babel/preset-env --save-dev
+```
+
+When we transpile the code, it gets transformed into old-school JavaScript. The definition of the transformed _App_ component looks like this:
+
+```js
+var App = function App() {
+  return _react2.default.createElement('div', null, 'hello webpack')
+};
+```
+
+As we can see, variables are declared with the `var` keyword, as ES5 JavaScript does not understand the `const` keyword. Arrow functions are also not used, which is why the function definition used the `function` keyword.
