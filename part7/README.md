@@ -1594,7 +1594,7 @@ The appearance of the resulting application is shown below:
 
 Styled components have seen consistent growth in popularity in recent times, and quite a lot of people consider it to be the best way of defining styles in React applications.
 
-## Part 7b - Webpack
+## Part 7d - Webpack
 
 In the early days, React was somewhat famous for being very difficult to configure the tools required for application development. To make the situation easier, [Create React App](https://github.com/facebookincubator/create-react-app) was developed, which eliminated configuration-related problems. [Vite](https://vitejs.dev/), which is also used in the course, has recently replaced Create React App in new applications.
 
@@ -2441,3 +2441,183 @@ If the global `Promise` object does not exist, meaning that the browser does not
 One exhaustive list of existing polyfills can be found [here](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills).
 
 The browser compatibility of different APIs can be checked by visiting https://caniuse.com or [Mozilla's website](https://developer.mozilla.org/en-US/).
+
+## Part 7e - Class components, Miscellaneous
+
+### Class Components
+
+During the course, we have only used React components having been defined as Javascript functions. This was not possible without the [hook](https://reactjs.org/docs/hooks-intro.html) functionality that came with version 16.8 of React. Before, when defining a component that uses state, one had to define it using Javascript's [Class](https://reactjs.org/docs/state-and-lifecycle.html#converting-a-function-to-a-class) syntax.
+
+It is beneficial to at least be familiar with Class Components to some extent since the world contains a lot of old React code, which will probably never be completely rewritten using the updated syntax.
+
+Let's get to know the main features of Class Components by producing yet another very familiar anecdote application. We store the anecdotes in the file _db.json_ using _json-server_. The contents of the file are lifted from [here](https://github.com/fullstack-hy/misc/blob/master/anecdotes.json).
+
+The initial version of the Class Component looks like this
+
+```js
+import React from 'react'
+
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>anecdote of the day</h1>
+      </div>
+    )
+  }
+}
+
+export default App
+```
+
+The component now has a [constructor](https://react.dev/reference/react/Component#constructor), in which nothing happens at the moment, and contains the method [render](https://react.dev/reference/react/Component#render). As one might guess, render defines how and what is rendered to the screen.
+
+Let's define a state for the list of anecdotes and the currently-visible anecdote. In contrast to when using the [useState](https://react.dev/reference/react/useState) hook, Class Components only contain one state. So if the state is made up of multiple "parts", they should be stored as properties of the state. The state is initialized in the constructor:
+
+```js
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      anecdotes: [],
+      current: 0
+    }
+  }
+
+  render() {
+    if (this.state.anecdotes.length === 0) {
+      return <div>no anecdotes...</div>
+    }
+
+    return (
+      <div>
+        <h1>anecdote of the day</h1>
+        <div>
+          {this.state.anecdotes[this.state.current].content}
+        </div>
+        <button>next</button>
+      </div>
+    )
+  }
+}
+```
+
+The component state is in the instance variable `this.state`. The state is an object having two properties. _this.state.anecdotes_ is the list of anecdotes and _this.state.current_ is the index of the currently-shown anecdote.
+
+In Functional components, the right place for fetching data from a server is inside an [effect hook](https://react.dev/reference/react/useEffect), which is executed when a component renders or less frequently if necessary, e.g. only in combination with the first render.
+
+The [lifecycle methods](https://react.dev/reference/react/Component#adding-lifecycle-methods-to-a-class-component) of Class Components offer corresponding functionality. The correct place to trigger the fetching of data from a server is inside the lifecycle method [componentDidMount](https://react.dev/reference/react/Component#componentdidmount), which is executed once right after the first time a component renders:
+
+```js
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      anecdotes: [],
+      current: 0
+    }
+  }
+
+  componentDidMount = () => {
+    axios.get('http://localhost:3001/anecdotes').then(response => {
+      this.setState({ anecdotes: response.data })
+    })
+  }
+
+  // ...
+}
+```
+
+The callback function of the HTTP request updates the component state using the method setState. The method only touches the keys that have been defined in the object passed to the method as an argument. The value for the key _current_ remains unchanged.
+
+Calling the method setState always triggers the rerender of the Class Component, i.e. calling the method `render`.
+
+We'll finish off the component with the ability to change the shown anecdote. The following is the code for the entire component with the addition highlighted:
+
+```js
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      anecdotes: [],
+      current: 0
+    }
+  }
+
+  componentDidMount = () => {
+    axios.get('http://localhost:3001/anecdotes').then(response => {
+      this.setState({ anecdotes: response.data })
+    })
+  }
+
+  handleClick = () => {
+    const current = Math.floor(
+      Math.random() * this.state.anecdotes.length
+    )
+    this.setState({ current })
+  }
+
+  render() {
+    if (this.state.anecdotes.length === 0 ) {
+      return <div>no anecdotes...</div>
+    }
+
+    return (
+      <div>
+        <h1>anecdote of the day</h1>
+        <div>{this.state.anecdotes[this.state.current].content}</div>
+        <button onClick={this.handleClick}>next</button>
+      </div>
+    )
+  }
+}
+```
+
+For comparison, here is the same application as a Functional component:
+
+```js
+const App = () => {
+  const [anecdotes, setAnecdotes] = useState([])
+  const [current, setCurrent] = useState(0)
+
+  useEffect(() =>{
+    axios.get('http://localhost:3001/anecdotes').then(response => {
+      setAnecdotes(response.data)
+    })
+  },[])
+
+  const handleClick = () => {
+    setCurrent(Math.round(Math.random() * (anecdotes.length - 1)))
+  }
+
+  if (anecdotes.length === 0) {
+    return <div>no anecdotes...</div>
+  }
+
+  return (
+    <div>
+      <h1>anecdote of the day</h1>
+      <div>{anecdotes[current].content}</div>
+      <button onClick={handleClick}>next</button>
+    </div>
+  )
+}
+```
+
+In the case of our example, the differences were minor. The biggest difference between Functional components and Class components is mainly that the state of a Class component is a single object, and that the state is updated using the method `setState`, while in Functional components the state can consist of multiple different variables, with all of them having their own update function.
+
+In some more advanced use cases, the effect hook offers a considerably better mechanism for controlling side effects compared to the lifecycle methods of Class Components.
+
+A notable benefit of using Functional components is not having to deal with the self-referencing `this` reference of the Javascript class.
+
+In my opinion, and the opinion of many others, Class Components offer little benefit over Functional components enhanced with hooks, except for the so-called [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) mechanism, which currently (15th February 2021) isn't yet in use by functional components.
+
+When writing fresh code, [there is no rational reason to use Class Components](https://reactjs.org/docs/hooks-faq.html#should-i-use-hooks-classes-or-a-mix-of-both) if the project is using React with a version number 16.8 or greater. On the other hand, [there is currently no need to rewrite all old React code](https://reactjs.org/docs/hooks-faq.html#do-i-need-to-rewrite-all-my-class-components) as Functional components.
+
