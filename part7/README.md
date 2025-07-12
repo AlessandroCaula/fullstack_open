@@ -1999,3 +1999,67 @@ var App = function App() {
 ```
 
 As we can see, variables are declared with the `var` keyword, as ES5 JavaScript does not understand the `const` keyword. Arrow functions are also not used, which is why the function definition used the `function` keyword.
+
+### CSS
+
+Let's add some CSS to our application. Let's create a new _src/index.css_ file:
+
+```js
+.container {
+  margin: 10px;
+  background-color: #dee8e4;
+}
+```
+
+Then let's use the style in the _App_ component:
+
+```js
+const App = () => {
+  return (
+    <div className="container">
+      hello webpack
+    </div>
+  )
+}
+```
+
+This will cause the transpilation process to break:
+
+![alt text](assets/image35.png)
+
+When using CSS, we have to use [css](https://webpack.js.org/loaders/css-loader/) and [style](https://webpack.js.org/loaders/style-loader/) loaders:
+
+```js
+{
+  rules: [
+    {
+      test: /\.js$/,
+      loader: 'babel-loader',
+      options: {
+        presets: ['@babel/preset-react', '@babel/preset-env'],
+      },
+    },
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    },
+  ],
+}
+```
+
+The job of the [css loader](https://webpack.js.org/loaders/css-loader/) is to load the CSS files and the job of the [style loader](https://webpack.js.org/loaders/style-loader/) is to generate and inject a _style_ element that contains all of the styles of the application.
+
+With this configuration, the CSS definitions are included in the _main.js_ file of the application. For this reason, there is no need to separately import the CSS styles in the main _index.html_ file.
+
+If needed, the application's CSS can also be generated into its own separate file, by using the [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin).
+
+When we install the loaders:
+
+```
+npm install style-loader css-loader --save-dev
+```
+
+The bundling will succeed once again and the application gets new styles. 
+
+### Webpack-dev-server
+
