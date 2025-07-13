@@ -38,29 +38,29 @@ export const initializeBlogs = () => {
 }
 
 // Add a new blog to the server and the store
-export const createBlog = content => {
+export const createBlog = blogToAdd => {
   return async dispatch => {
-    const newBlog = await blogsServices.create(content)
+    const newBlog = await blogsServices.create(blogToAdd)
     // Updating the blog state in the redux store
     dispatch(appendBlog(newBlog))
   }
 }
 
 // Increasing the number of likes for the blog
-export const updateBlog = content => {
+export const updateBlog = blogToUpdate => {
   return async dispatch => {
-    const updatedBlog = await blogsServices.update(content.id, content)
+    const updatedBlog = await blogsServices.update(blogToUpdate.id, blogToUpdate)
     // Updating the blog sate in the redux store
     dispatch(likeBlog(updatedBlog))
   }
 }
 
 // Delete blog
-export const deleteBlog = content => {
+export const deleteBlog = blogToDelete => {
   return async dispatch => {
-    await blogsServices.remove(content.id)
+    await blogsServices.remove(blogToDelete.id)
     // Updating the blog state in the redux store
-    dispatch(removeBlog(content.id))
+    dispatch(removeBlog(blogToDelete.id))
   }
 }
 

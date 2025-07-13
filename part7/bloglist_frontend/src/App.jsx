@@ -8,13 +8,16 @@ import Togglable from './components/Togglable'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
+import { loginUser, logoutUser, setUser } from './reducers/userReducer'
 
 const App = () => {
   // const [blogs, setBlogs] = useState([])
   // User login states
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+
+  // const [user, setUser] = useState(null)
+
   // Reference
   const blogFormRef = useRef()
   // Get the dispatch function so we can send actions to the Redux store
@@ -27,6 +30,7 @@ const App = () => {
 
   // Retrieve the blogs from the redux store
   const blogs = useSelector(allRedux => allRedux.blogs)
+  const user = useSelector(allRedux => allRedux.user)
 
   // Use effect to check if a user is already logged in at first DOM load
   useEffect(() => {
@@ -34,7 +38,8 @@ const App = () => {
     // If it exist, set the user
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      // Set the user to the store
+      dispatch(setUser(user))
       blogService.setToken(user.token)
     }
   }, [])
@@ -51,7 +56,9 @@ const App = () => {
       )
       // Setting the token for the logged in user.
       blogService.setToken(user.token)
-      setUser(user)
+
+      // Set the user to the redux store
+      dispatch(loginUser(user))
       setUsername('')
       setPassword('')
     } catch (exception) {
@@ -63,7 +70,7 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.clear()
-    setUser(null)
+    dispatch(logoutUser())
   }
 
   const addNewBlog = async (newBlog) => {
@@ -91,13 +98,7 @@ const App = () => {
 
     try {
       const deletedBlog = blogs.find(s => s.id === id)
-
-      // // Deleting the blog from the database
-      // await blogService.remove(id)
-      // // Deleting the blog from the blogs collection and update it
-      // const blogsAfterDeletion = blogs.filter(s => s.id !== id)
-      // setBlogs(blogsAfterDeletion)
-
+      // Dispatch the deletion of the blog
       dispatch(deleteBlog(deletedBlog))
 
       // Show Notification message

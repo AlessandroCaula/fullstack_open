@@ -3005,3 +3005,7 @@ You are free to manage the state for logging in and creating new blog posts by u
 
 Expand your solution so that it is again possible to like and delete a blog.
 
+#### 7.13: Redux, Step 4
+
+Store the information about the signed-in user in the Redux store.
+
