@@ -1,0 +1,36 @@
+###
+# POST a new user
+POST http://localhost:3003/api/users/
+Content-Type: application/json
+
+{
+  "username": "acaula",
+  "name": "Alessandro Caula",
+  "password": "provaprova"
+}
+
+# ###
+# # POST a new user
+# POST http://localhost:3003/api/users/
+# Content-Type: application/json
+
+# {
+#   "username": "bcaula",
+#   "name": "Bruno Caula",
+#   "password": "testest"
+# }
+
+###
+# Get all the users
+GET http://localhost:3003/api/users/
+
+###
+# POST a new user
+POST http://localhost:3003/api/users/
+Content-Type: application/json
+
+{
+  "username": "NewUser1",
+  "name": "Alessandro",
+  "password": "prova123"
+}

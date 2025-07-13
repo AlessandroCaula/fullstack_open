@@ -3012,3 +3012,8 @@ Store the information about the signed-in user in the Redux store.
 ### State Management: React Query and Context
 
 _There are two alternative versions to choose for exercises 7.10-7.13: you can do the state management of the application either using Redux or React Query and Context. If you want to maximize your learning, you should do both versions!_
+
+#### 7.10: React Query and Context step 1
+
+Refactor the app to use the useReducer-hook and context to manage the notification data.
+
