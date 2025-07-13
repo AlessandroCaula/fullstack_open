@@ -13,10 +13,14 @@ const blogSlice = createSlice({
       state.push(action.payload)
     },
     likeBlog(state, action) {
-      const changedBlog = action.payload
-      const id = changedBlog.id
-      // Updating the changed blog in the blog state
-      return state.map(blog => blog.id === id ? changedBlog : blog)
+      const updatedBlog = action.payload
+      const id = updatedBlog.id
+      // Updating the changed blog in the blog state. Preserving the user
+      return state.map(blog => 
+        blog.id === id 
+          ? {... updatedBlog, user: blog.user } 
+          : blog
+      )
     },
     removeBlog(state, action) {
       const id = action.payload

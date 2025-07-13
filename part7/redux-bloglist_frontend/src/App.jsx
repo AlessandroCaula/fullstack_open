@@ -11,13 +11,9 @@ import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/
 import { loginUser, logoutUser, setUser } from './reducers/userReducer'
 
 const App = () => {
-  // const [blogs, setBlogs] = useState([])
   // User login states
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-
-  // const [user, setUser] = useState(null)
-
   // Reference
   const blogFormRef = useRef()
   // Get the dispatch function so we can send actions to the Redux store
