@@ -11,16 +11,28 @@ const blogSlice = createSlice({
     },
     appendBlog(state, action) {
       state.push(action.payload)
+    },
+    likeBlog(state, action) {
+      const changedBlog = action.payload
+      const id = changedBlog.id
+      // Updating the changed blog in the blog state
+      return state.map(blog => blog.id === id ? changedBlog : blog)
+    },
+    removeBlog(state, action) {
+      const id = action.payload
+      // Removing the deleted blog from the state
+      return state.filter(blog => blog.id !== id)
     }
   }
 })
 
-export const { setBlogs, appendBlog } = blogSlice.actions
+export const { setBlogs, appendBlog, likeBlog, removeBlog } = blogSlice.actions
 
 // Initialize, getAll, the blogs from the server
 export const initializeBlogs = () => {
   return async dispatch => {
     const blogs = await blogsServices.getAll()
+    // Update the blog state in the redux store
     dispatch(setBlogs(blogs))
   }
 }
@@ -29,7 +41,26 @@ export const initializeBlogs = () => {
 export const createBlog = content => {
   return async dispatch => {
     const newBlog = await blogsServices.create(content)
+    // Updating the blog state in the redux store
     dispatch(appendBlog(newBlog))
+  }
+}
+
+// Increasing the number of likes for the blog
+export const updateBlog = content => {
+  return async dispatch => {
+    const updatedBlog = await blogsServices.update(content.id, content)
+    // Updating the blog sate in the redux store
+    dispatch(likeBlog(updatedBlog))
+  }
+}
+
+// Delete blog
+export const deleteBlog = content => {
+  return async dispatch => {
+    await blogsServices.remove(content.id)
+    // Updating the blog state in the redux store
+    dispatch(removeBlog(content.id))
   }
 }
 

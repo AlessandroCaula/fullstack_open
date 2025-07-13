@@ -7,7 +7,7 @@ import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
-import { createBlog, initializeBlogs } from './reducers/blogReducer'
+import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
 
 const App = () => {
   // const [blogs, setBlogs] = useState([])
@@ -17,7 +17,6 @@ const App = () => {
   const [user, setUser] = useState(null)
   // Reference
   const blogFormRef = useRef()
-
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
 
@@ -92,11 +91,15 @@ const App = () => {
 
     try {
       const deletedBlog = blogs.find(s => s.id === id)
-      // Deleting the blog from the database
-      await blogService.remove(id)
-      // Deleting the blog from the blogs collection and update it
-      const blogsAfterDeletion = blogs.filter(s => s.id !== id)
-      setBlogs(blogsAfterDeletion)
+
+      // // Deleting the blog from the database
+      // await blogService.remove(id)
+      // // Deleting the blog from the blogs collection and update it
+      // const blogsAfterDeletion = blogs.filter(s => s.id !== id)
+      // setBlogs(blogsAfterDeletion)
+
+      dispatch(deleteBlog(deletedBlog))
+
       // Show Notification message
       const message = `${deletedBlog.title} successfully deleted`
       handleNotificationShow(message, 'green')
@@ -114,10 +117,8 @@ const App = () => {
       const updatedLikes = blogToUpdate.likes + 1
       // Creating the new blog object, with the likes count updated by on
       const updatedBlog = { ...blogToUpdate, likes: updatedLikes }
-      // Updating the blog in the backend service
-      await blogService.update(id, updatedBlog)
-      // Update the blogs collection hook
-      setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
+      // Dispatching and updating the blog
+      dispatch(updateBlog(updatedBlog))
     } catch (exception) {
       const message = 'Likes cannot be updated'
       handleNotificationShow(message, 'red')
