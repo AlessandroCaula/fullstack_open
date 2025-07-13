@@ -40,4 +40,10 @@ const update = async (id, newObject) => {
   return response.data
 }
 
-export default { getAll, create, setToken, remove, update }
+export default { 
+  getAll, 
+  create, 
+  setToken, 
+  remove, 
+  update 
+}

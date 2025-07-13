@@ -5,11 +5,12 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
+import { createBlog, initializeBlogs } from './reducers/blogReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  // const [blogs, setBlogs] = useState([])
   // User login states
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -22,14 +23,11 @@ const App = () => {
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
-    // Since you cannot directly use an async function inside the useEffect hook. 
-    // We should define an async function inside the useEffect and call it.
-    const fetchBlogs = async () => {
-      const blogs = await blogService.getAll()
-      setBlogs(blogs)
-    }
-    fetchBlogs()
+    dispatch(initializeBlogs())
   }, [])
+
+  // Retrieve the blogs from the redux store
+  const blogs = useSelector(allRedux => allRedux.blogs)
 
   // Use effect to check if a user is already logged in at first DOM load
   useEffect(() => {
@@ -72,10 +70,10 @@ const App = () => {
   const addNewBlog = async (newBlog) => {
     try {
       // Use the Ref to close the newBlog form creation
-      blogFormRef.current.toggleVisibility()
-      const newBlogAdded = await blogService.create(newBlog)
-      const updatedBlogs = blogs.concat(newBlogAdded)
-      setBlogs(updatedBlogs)
+      blogFormRef.current.toggleVisibility()      
+      // Dispatch and add the new blog to the list of blogs
+      dispatch(createBlog(newBlog))
+
       // set Notification message and color
       const message = `A new blog: ${newBlog.title} by ${newBlog.author} added`
       handleNotificationShow(message, 'green')
