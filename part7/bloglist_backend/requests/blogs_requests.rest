@@ -1,0 +1,49 @@
+# Get home page, root directory
+GET http://localhost:3003
+
+###
+# Get list with all the stored blogs
+GET http://localhost:3003/api/blogs
+
+###
+# Post a new blog
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Blog 3",
+  "author": "Author 3",
+  "url": "url 3",
+  "likes": 3
+}
+
+###
+# Deleting a blog
+DELETE http://localhost:3003/api/blogs/68050f1e375be96ef95d1c28
+
+###
+# Updating a blog
+PUT http://localhost:3003/api/blogs/67f17c523398011aecf08a36
+Content-Type: application/json
+
+{
+  "likes": 42
+}
+
+###
+# Blog post with logged in user
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzY5ODAyLCJleHAiOjE3NDU3NzM0MDJ9.SgteCM2h3h5G1VoJCOSCeLCWrdZgDgskvd92h6Sfv3A
+
+{
+  "title": "Blog 7",
+  "author": "Author 7",
+  "url": "url 7",
+  "likes": 7
+}
+
+###
+# Deleting a blog. Can be deleted only by the user that posted it. 
+DELETE http://localhost:3003/api/blogs/680e57957f9b4726760a48d9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzY5ODAyLCJleHAiOjE3NDU3NzM0MDJ9.SgteCM2h3h5G1VoJCOSCeLCWrdZgDgskvd92h6Sfv3A

@@ -2963,5 +2963,32 @@ The site https://reactpatterns.com/ provides a concise list of best practices fo
 
 [Reactiflux](https://www.reactiflux.com/) is a big chat community of React developers on Discord. It could be one possible place to get support after the course has concluded. For example, numerous libraries have their own channels.
 
-If you know some recommendable links or libraries, make a pull request!
+## Part 7f - Exercises: extending the bloglist
 
+In addition to the eight exercises in the [React router](#part-7a---react-router) and [custom hooks](#part-7b---custom-hooks) sections of this seventh part of the course material, 13 exercises continue our work on the BlogList application that we worked on in parts four and five of the course material. Some of the following exercises are "features" that are independent of one another, meaning that there is no need to finish them in any particular order. You are free to skip over a part of the exercises if you wish to do so. Quite many of them are about applying the advanced state management technique (Redux, React Query and context) covered in [part 6](../part6/README.md).
+
+If you do not want to use your BlogList application, you are free to use the code from the model solution as a starting point for these exercises.
+
+Many of the exercises in this part of the course material will require the refactoring of existing code. This is a common reality of extending existing applications, meaning that refactoring is an important and necessary skill even if it may feel difficult and unpleasant at times.
+
+One good piece of advice for both refactoring and writing new code is to take _baby steps_. Losing your sanity is almost guaranteed if you leave the application in a completely broken state for long periods while refactoring.
+
+<hr style="border: 2px solid rgb(125, 204, 240)">
+
+### Exercises 7.9 - 7.21
+
+#### 7.9: Automatic Code Formatting
+
+In the previous parts, we used ESLint to ensure that the code follows the defined conventions. [Prettier](https://prettier.io/) is yet another approach for the same. According to the documentation, Prettier is an _opinionated code formatter_, that is, Prettier not only controls the code style but also formats the code according to the definition.
+
+Prettier is easy to integrate into the code editor so that when it is saved, it is automatically formatted.
+
+Take Prettier to use in your app and configure it to work with your editor.
+
+### State Management: Redux
+
+_There are two alternative versions to choose for exercises 7.10-7.13: you can do the state management of the application either using Redux or React Query and Context. If you want to maximize your learning, you should do both versions!_
+
+#### 7.10: Redux, Step 1
+
+Refactor the application to use Redux to manage the notification data.
