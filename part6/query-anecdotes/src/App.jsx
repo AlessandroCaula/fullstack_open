@@ -20,7 +20,6 @@ const App = () => {
     }
   })
   const handleVote = (anecdote) => {
-    
     // Display the notification
     notificationDispatch({ type: "VOTE_ANECDOTE", payload: anecdote.content })
     setTimeout(() => {
