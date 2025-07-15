@@ -16,7 +16,7 @@ const App = () => {
   const updateAnecdoteMutation = useMutation({
     mutationFn: updateAnecdote,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })  // Invalidate in order to re-render the anecdotes list
     }
   })
   const handleVote = (anecdote) => {

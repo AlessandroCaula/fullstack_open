@@ -10,8 +10,7 @@ const AnecdoteForm = ({ newAnecdoteMutation }) => {
     event.preventDefault()
     const content = event.target.anecdote.value
     event.target.anecdote.value = ''
-    // console.log('new anecdote')
-    
+        
     // Display the notification
     notificationDispatch({ type: "NEW_ANECDOTE", payload: content })
     setTimeout(() => {
