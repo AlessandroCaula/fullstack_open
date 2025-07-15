@@ -1,12 +1,13 @@
-const Notification = ({ message, color }) => {
-  // If there is no message, don't render anything
-  if (!message) {
-    return null
-  }
+import { useContext } from "react"
+import NotificationContext from "../NotificationContext"
+
+const Notification = () => { // color, message
   
+  const [notification] = useContext(NotificationContext)
+
   // Define the style of the notification
   const notificationStyle = {
-    color: color || 'black',
+    color: notification.color || 'black',
     fontSize: '18px',
     height: '30px',
     background: 'lightgrey',
@@ -20,7 +21,7 @@ const Notification = ({ message, color }) => {
 
   return (
     <div style={notificationStyle} data-testid='errorDiv'>
-      {message}
+      {notification.message}
     </div>
   )
 }

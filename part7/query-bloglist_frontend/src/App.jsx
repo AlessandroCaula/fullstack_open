@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
+import NotificationContext from './NotificationContext'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,11 +13,10 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  // Notification message
-  const [notificationMessage, setNotificationMessage] = useState('')
-  const [notificationColor, setNotificationColor] = useState('')
   // Reference
   const blogFormRef = useRef()
+  // useContext to dispatch the notification
+  const [notificationInfo, notificationDispatch] = useContext(NotificationContext)
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
@@ -56,9 +56,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      // alert('Wrong credentials')
-      const message = 'Wrong username or password'
-      handleNotificationShow(message, 'red')
+      handleNotificationShow('ERROR_LOGIN')
     }
   }
 
@@ -74,13 +72,10 @@ const App = () => {
       const newBlogAdded = await blogService.create(newBlog)
       const updatedBlogs = blogs.concat(newBlogAdded)
       setBlogs(updatedBlogs)
-      // set Notification message and color
-      const message = `A new blog: ${newBlog.title} by ${newBlog.author} added`
-      handleNotificationShow(message, 'green')
+      // Handle and show notification
+      handleNotificationShow('NEW_BLOG', {title: newBlog.title, author: newBlog.author})
     } catch (exception) {
-      // alert('Blog cannot be created')
-      const message = 'Blog cannot be created'
-      handleNotificationShow(message, 'red')
+      handleNotificationShow('ERROR_NEW_BLOG')
     }
   }
 
@@ -98,11 +93,9 @@ const App = () => {
       const blogsAfterDeletion = blogs.filter(s => s.id !== id)
       setBlogs(blogsAfterDeletion)
       // Show Notification message
-      const message = `${deletedBlog.title} successfully deleted`
-      handleNotificationShow(message, 'green')
+      handleNotificationShow('DELETE_BLOG', {title: deletedBlog.title})
     } catch (exception) {
-      const message = 'Not able to delete the blog'
-      handleNotificationShow(message, 'red')
+      handleNotificationShow('ERROR_DELETE_BLOG')
     }
   }
 
@@ -119,19 +112,17 @@ const App = () => {
       // Update the blogs collection hook
       setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
     } catch (exception) {
-      const message = 'Likes cannot be updated'
-      handleNotificationShow(message, 'red')
+      handleNotificationShow('ERROR_LIKES')
     }
   }
 
   // Handle notification 
-  const handleNotificationShow = (message, color) => {
-    setNotificationMessage(message)
-    setNotificationColor(color)
+  const handleNotificationShow = (type, payload=null) => {
+    // Dispatch the notification context
+    notificationDispatch({ type: type, payload: payload })
     // Set the timer, after which the Notification will disappear
     setTimeout(() => {
-      setNotificationMessage('')
-      setNotificationColor('')
+      notificationDispatch({ type: 'HIDE' })
     }, 2000)
   }
 
@@ -142,7 +133,7 @@ const App = () => {
         <h2>Log in to application</h2>
 
         {/* Show the notification if there is some message */}
-        {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
+        {notificationInfo.message && <Notification />}
         
         <form onSubmit={handleLogin} data-testid='login form'>
           {/* Username field */}
@@ -200,7 +191,7 @@ const App = () => {
       <h2>blogs</h2>
 
       {/* Show the notification if there is some message */}
-      {notificationMessage && <Notification message={notificationMessage} color={notificationColor}/>}
+      {notificationInfo.message && <Notification />}
 
       <p>{user.name} logged in</p>
 
