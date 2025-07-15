@@ -18,12 +18,10 @@ const getAll = async () => {
 
 // Creating a new blogs. Only logged-in user are allowed to do it.
 const create = async (newObject) => {
-  console.log('CREATE')
   const config = {
     headers: { Authorization: token },
   }
   const response = await axios.post(baseUrl, newObject, config)
-  console.log('create', response.data)
   return response.data
 }
 
