@@ -23,7 +23,7 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
         likes {blog.likes}
         <button onClick={blogLikesUpdate}>Like</button>
       </div>
-      <div>{blog.user.name}</div>
+      {/* <div>{blog.user.name}</div> */}
       <button style={{color: 'red'}} onClick={blogDeletion}>Delete</button>
     </>
   )

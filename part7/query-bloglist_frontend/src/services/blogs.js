@@ -18,10 +18,12 @@ const getAll = async () => {
 
 // Creating a new blogs. Only logged-in user are allowed to do it.
 const create = async (newObject) => {
+  console.log('CREATE')
   const config = {
     headers: { Authorization: token },
   }
   const response = await axios.post(baseUrl, newObject, config)
+  console.log('create', response.data)
   return response.data
 }
 
@@ -37,7 +39,6 @@ const remove = async (id) => {
 // Updating the likes count in the blogs
 const update = async (id, newObject) => {
   const response = await axios.put(`${baseUrl}/${id}`, newObject)
-  console.log('RESPONSE', response)
   return response.data
 }
 
