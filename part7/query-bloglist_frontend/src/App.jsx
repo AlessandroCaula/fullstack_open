@@ -6,7 +6,7 @@ import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import NotificationContext from './NotificationContext'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 const App = () => {
   // User login states
@@ -20,7 +20,8 @@ const App = () => {
   // Query Client for retrieving the data from the server
   const queryClient = useQueryClient()
 
-  // Retrieve the bloglist from the server with useQuery
+  // --- Retrieve the bloglist from the server with useQuery
+  // 
   const result = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAll,
@@ -33,6 +34,16 @@ const App = () => {
   }
   // Get the data (bloglist) from the result
   const blogs = result.data
+
+  // --- Add new bloglist
+  // 
+  // New mutation for adding a new bloglist
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }) // Invalidate in order to re-render the anecdote list
+    }
+  })
 
   // Use effect to check if a user is already logged in at first DOM load
   useEffect(() => {
@@ -72,12 +83,8 @@ const App = () => {
 
   const addNewBlog = async (newBlog) => {
     try {
-      // Use the Ref to close the newBlog form creation
-      blogFormRef.current.toggleVisibility()
-      const newBlogAdded = await blogService.create(newBlog)
-      const updatedBlogs = blogs.concat(newBlogAdded)
-      // setBlogs(updatedBlogs)
-
+      // Use the Mutation in order to add the new blog to the server and the list of blogs
+      newBlogMutation.mutate(newBlog)
       // Handle and show notification
       handleNotificationShow('NEW_BLOG', {title: newBlog.title, author: newBlog.author})
     } catch (exception) {
