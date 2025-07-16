@@ -6,9 +6,9 @@ import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import NotificationContext from './NotificationContext'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   // User login states
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -17,17 +17,22 @@ const App = () => {
   const blogFormRef = useRef()
   // useContext to dispatch the notification
   const [notificationInfo, notificationDispatch] = useContext(NotificationContext)
+  // Query Client for retrieving the data from the server
+  const queryClient = useQueryClient()
 
-  // Use Effect to retrieve all the blogs at first DOM load
-  useEffect(() => {
-    // Since you cannot directly use an async function inside the useEffect hook. 
-    // We should define an async function inside the useEffect and call it.
-    const fetchBlogs = async () => {
-      const blogs = await blogService.getAll()
-      setBlogs(blogs)
-    }
-    fetchBlogs()
-  }, [])
+  // Retrieve the bloglist from the server with useQuery
+  const result = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+    // retry: 1
+  })
+  console.log(result)
+  // If the communication encountered any error. Display an error message
+  if (result.isError) {
+    console.log('error')
+  }
+  // Get the data (bloglist) from the result
+  const blogs = result.data
 
   // Use effect to check if a user is already logged in at first DOM load
   useEffect(() => {
@@ -71,7 +76,8 @@ const App = () => {
       blogFormRef.current.toggleVisibility()
       const newBlogAdded = await blogService.create(newBlog)
       const updatedBlogs = blogs.concat(newBlogAdded)
-      setBlogs(updatedBlogs)
+      // setBlogs(updatedBlogs)
+
       // Handle and show notification
       handleNotificationShow('NEW_BLOG', {title: newBlog.title, author: newBlog.author})
     } catch (exception) {
@@ -91,7 +97,8 @@ const App = () => {
       await blogService.remove(id)
       // Deleting the blog from the blogs collection and update it
       const blogsAfterDeletion = blogs.filter(s => s.id !== id)
-      setBlogs(blogsAfterDeletion)
+      // setBlogs(blogsAfterDeletion)
+
       // Show Notification message
       handleNotificationShow('DELETE_BLOG', {title: deletedBlog.title})
     } catch (exception) {
@@ -110,7 +117,8 @@ const App = () => {
       // Updating the blog in the backend service
       await blogService.update(id, updatedBlog)
       // Update the blogs collection hook
-      setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
+      // setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
+
     } catch (exception) {
       handleNotificationShow('ERROR_LIKES')
     }
@@ -162,6 +170,11 @@ const App = () => {
         </form>
       </div>
     )
+  }
+
+  // If the blogs are not yet retrieved, return 
+  if (!blogs) {
+    return
   }
 
   // Rendering the Add new blog form
