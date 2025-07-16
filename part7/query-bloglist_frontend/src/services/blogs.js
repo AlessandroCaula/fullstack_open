@@ -22,7 +22,6 @@ const create = async (newObject) => {
     headers: { Authorization: token },
   }
   const response = await axios.post(baseUrl, newObject, config)
-  console.log('create', response.data)
   return response.data
 }
 
@@ -36,8 +35,8 @@ const remove = async (id) => {
 }
 
 // Updating the likes count in the blogs
-const update = async (id, newObject) => {
-  const response = await axios.put(`${baseUrl}/${id}`, newObject)
+const update = async (newObject) => {
+  const response = await axios.put(`${baseUrl}/${newObject.id}`, newObject)
   return response.data
 }
 

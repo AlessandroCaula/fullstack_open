@@ -41,7 +41,27 @@ const App = () => {
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] }) // Invalidate in order to re-render the anecdote list
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })  // Invalidate to re-render the blog list
+    }
+  })
+
+  // --- Change the number of likes
+  // 
+  // Create new mutation
+  const updateBlogLikesMutation = useMutation({
+    mutationFn: blogService.update,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })  // Invalidate to re-render the blog list
+    }
+  })
+
+  // --- Delete blog
+  // 
+  // Create new mutation
+  const deleteBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs' ]})  // Invalidate to re-render the blog list
     }
   })
 
@@ -99,13 +119,10 @@ const App = () => {
     }
 
     try {
+      // Retrieve the deleted blog
       const deletedBlog = blogs.find(s => s.id === id)
-      // Deleting the blog from the database
-      await blogService.remove(id)
-      // Deleting the blog from the blogs collection and update it
-      const blogsAfterDeletion = blogs.filter(s => s.id !== id)
-      // setBlogs(blogsAfterDeletion)
-
+      // Deleting the blog from the database with the mutation
+      deleteBlogMutation.mutate(id)
       // Show Notification message
       handleNotificationShow('DELETE_BLOG', {title: deletedBlog.title})
     } catch (exception) {
@@ -121,11 +138,8 @@ const App = () => {
       const updatedLikes = blogToUpdate.likes + 1
       // Creating the new blog object, with the likes count updated by on
       const updatedBlog = { ...blogToUpdate, likes: updatedLikes }
-      // Updating the blog in the backend service
-      await blogService.update(id, updatedBlog)
-      // Update the blogs collection hook
-      // setBlogs(blogs.map(blog => blog.id === id ? updatedBlog : blog))
-
+      // Updating the blog with the Mutation
+      updateBlogLikesMutation.mutate(updatedBlog)
     } catch (exception) {
       handleNotificationShow('ERROR_LIKES')
     }
