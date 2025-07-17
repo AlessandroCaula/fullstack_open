@@ -7,12 +7,17 @@ import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import NotificationContext from './NotificationContext'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import UserContext from './UserContext'
 
 const App = () => {
   // User login states
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+
+  // const [user, setUser] = useState(null)
+
+  const [user, userDispatch] = useContext(UserContext)
+
   // Reference
   const blogFormRef = useRef()
   // useContext to dispatch the notification
@@ -65,14 +70,23 @@ const App = () => {
     }
   })
 
-  // Use effect to check if a user is already logged in at first DOM load
+  // // Use effect to check if a user is already logged in at first DOM load
+  // useEffect(() => {
+  //   const loggedUserJSON = window.localStorage.getItem('loggedUser')
+  //   // If it exist, set the user
+  //   if (loggedUserJSON) {
+  //     const user = JSON.parse(loggedUserJSON)
+  //     setUser(user)
+  //     blogService.setToken(user.token)
+  //   }
+  // }, [])
+
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     // If it exist, set the user
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      userDispatch({ type: "LOGIN", payload: user})
     }
   }, [])
 
@@ -88,7 +102,10 @@ const App = () => {
       )
       // Setting the token for the logged in user.
       blogService.setToken(user.token)
-      setUser(user)
+      // setUser(user)
+
+      userDispatch({ type: "LOGIN", payload: user })
+
       setUsername('')
       setPassword('')
     } catch (exception) {
@@ -98,7 +115,10 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.clear()
-    setUser(null)
+    
+    // setUser(null)
+    
+    userDispatch({ type: "LOGOUT" })
   }
 
   const addNewBlog = async (newBlog) => {
