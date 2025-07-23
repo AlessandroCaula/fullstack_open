@@ -197,6 +197,12 @@ const App = () => {
 
       <p>{user.name} logged in</p>
 
+      {/* Button for logging out */}
+      <button onClick={handleLogout}>Log out</button>
+
+      {/* Add some spacing */}
+      <div style={{height: '20px'}} />
+
       {/* Rendering the toggle for the new blog creation */}
       {blogForm()}
 
@@ -208,9 +214,6 @@ const App = () => {
           blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
         />
       )}
-
-      {/* Button for logging out */}
-      <button onClick={handleLogout}>Log out</button>
 
     </div>
   )

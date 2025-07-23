@@ -24,7 +24,7 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
 
   const showBlogDetails = () => (
     <>
-      {console.log(blog)}
+      {/* {console.log(blog)} */}
       <div>{blog.url}</div>
       <div data-testid="blog-likes">
         likes {blog.likes}
