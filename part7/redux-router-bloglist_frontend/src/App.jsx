@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
-import loginService from './services/login'
+// import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
@@ -10,10 +10,10 @@ import { setNotification } from './reducers/notificationReducer'
 import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
 import { loginUser, logoutUser, setUser } from './reducers/userReducer'
 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import LoginForm from './components/LoginForm'
+
 const App = () => {
-  // User login states
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   // Reference
   const blogFormRef = useRef()
   // Get the dispatch function so we can send actions to the Redux store
@@ -39,30 +39,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username, password
-      })
-      // Saving the logged in user to the local storage
-      window.localStorage.setItem(
-        'loggedUser', JSON.stringify(user)
-      )
-      // Setting the token for the logged in user.
-      blogService.setToken(user.token)
-
-      // Set the user to the redux store
-      dispatch(loginUser(user))
-      setUsername('')
-      setPassword('')
-    } catch (exception) {
-      // alert('Wrong credentials')
-      const message = 'Wrong username or password'
-      handleNotificationShow(message, 'red')
-    }
-  }
 
   const handleLogout = () => {
     window.localStorage.clear()
@@ -128,41 +104,10 @@ const App = () => {
     dispatch(setNotification(message, color, 3))
   }
 
-  // If the user is not logged in, return the login form
   if (!user) {
+    // If the user has not logged in, then return the loginForm
     return (
-      <div>
-        <h2>Log in to application</h2>
-
-        {/* Notification component. It will be rendered only when there exists text */}
-        <Notification />
-
-        <form onSubmit={handleLogin} data-testid='login form'>
-          {/* Username field */}
-          <div>
-            Username
-            <input
-              type='text'
-              data-testid='username'
-              value={username}
-              name='Username'
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          {/* Password field */}
-          <div>
-            Password
-            <input
-              type='password'
-              data-testid='password'
-              value={password}
-              name='Password'
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type='submit'>login</button>
-        </form>
-      </div>
+      <LoginForm handleNotificationShow={handleNotificationShow} dispatch={dispatch} />
     )
   }
 
@@ -186,9 +131,42 @@ const App = () => {
     return sortedBlogs
   }
 
-  // If the user has logged in, return the blogs posted by the user
+  // Users component view
+  const UserView = () => (
+    <h1>
+      UserView
+    </h1>
+  )
+  // Users component view
+  const HomeView = () => (
+    <div>
+      {/* Rendering the toggle for the new blog creation */}
+      {blogForm()}
+
+      {blogsToRender().map(blog =>
+        <Blog
+          key={blog.id}
+          blog={blog}
+          blogDeletion={() => handleBlogDeletion(blog.id)}
+          blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
+        />
+      )}
+    </div>
+  )
+
+  const padding = {
+    padding: 5
+  }
+
+  // If the user has logged in, enter the application
   return (
     <div>
+
+      {/* NavBar */}
+      <div>
+        <Link style={padding} to='/'>Blogs</Link>
+        <Link style={padding} to='/users'>Users</Link>
+      </div>
 
       <h2>blogs</h2>
 
@@ -203,17 +181,10 @@ const App = () => {
       {/* Add some spacing */}
       <div style={{height: '20px'}} />
 
-      {/* Rendering the toggle for the new blog creation */}
-      {blogForm()}
-
-      {blogsToRender().map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          blogDeletion={() => handleBlogDeletion(blog.id)}
-          blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
-        />
-      )}
+      <Routes>
+        <Route path='/' element={<HomeView />} />
+        <Route path='/users' element={<UserView />} />
+      </Routes>
 
     </div>
   )
