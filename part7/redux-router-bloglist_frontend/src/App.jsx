@@ -8,8 +8,7 @@ import Togglable from './components/Togglable'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
-import { loginUser, logoutUser, setUser } from './reducers/userReducer'
-
+import { logoutUser, setUser } from './reducers/userReducer'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 
@@ -18,15 +17,13 @@ const App = () => {
   const blogFormRef = useRef()
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
+  // All users
+  const [allUser, setAllUser] = useState(null);
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
     dispatch(initializeBlogs())
   }, [])
-
-  // Retrieve the blogs from the redux store
-  const blogs = useSelector(allRedux => allRedux.blogs)
-  const user = useSelector(allRedux => allRedux.user)
 
   // Use effect to check if a user is already logged in at first DOM load
   useEffect(() => {
@@ -39,6 +36,12 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  // Fetch all the users from the backend
+
+  // Retrieve the blogs from the redux store
+  const blogs = useSelector(allRedux => allRedux.blogs)
+  const loggedUser = useSelector(allRedux => allRedux.loggedUser)
 
   const handleLogout = () => {
     window.localStorage.clear()
@@ -104,7 +107,7 @@ const App = () => {
     dispatch(setNotification(message, color, 3))
   }
 
-  if (!user) {
+  if (!loggedUser) {
     // If the user has not logged in, then return the loginForm
     return (
       <LoginForm handleNotificationShow={handleNotificationShow} dispatch={dispatch} />
@@ -124,7 +127,7 @@ const App = () => {
   const blogsToRender = () => {
     // Filter the blogs to displayed based on the logged user
     const userBlogs = blogs.filter(
-      blog => blog.user && (blog.user.id === user.id || blog.user === user.id)
+      blog => blog.user && (blog.user.id === loggedUser.id || blog.user === loggedUser.id)
     )
     // Sort the blogs based on likes count
     const sortedBlogs = userBlogs.sort((a, b) => b.likes - a.likes)
@@ -132,11 +135,29 @@ const App = () => {
   }
 
   // Users component view
-  const UserView = () => (
-    <h1>
-      UserView
-    </h1>
-  )
+  const UserView = () => {
+    const test = ["A", "B", "C"]
+
+    console.log(blogs)
+
+    return (
+      <div>
+        <h1>Users</h1>
+        <div style={{ display: 'flex', fontWeight: 'bold' }}>
+          <div style={{ width: '150px' }}></div>
+          <div style={{ width: '150px' }}>blogs created</div>
+        </div>
+        {/* Mapping through all the Users and display them */}
+        {test.map((user, i) => (
+          <div key={i} style={{ display: 'flex' }}>
+            <div style={{ width: '150px' }}>{user}</div>
+            <div style={{ width: '150px' }}>{i}</div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   // Users component view
   const HomeView = () => (
     <div>
@@ -173,7 +194,7 @@ const App = () => {
       {/* Show the notification if there is some message */}
       <Notification />
 
-      <p>{user.name} logged in</p>
+      <p>{loggedUser.name} logged in</p>
 
       {/* Button for logging out */}
       <button onClick={handleLogout}>Log out</button>

@@ -17,8 +17,6 @@ const LoginForm = ({ handleNotificationShow, dispatch }) => {
         username, password
       })
 
-      console.log(user)
-
       // Saving the logged in user to the local storage
       window.localStorage.setItem(
         'loggedUser', JSON.stringify(user)
