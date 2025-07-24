@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
+import usersService from './services/users'
 // import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
@@ -37,8 +38,6 @@ const App = () => {
     }
   }, [])
 
-  // Fetch all the users from the backend
-
   // Retrieve the blogs from the redux store
   const blogs = useSelector(allRedux => allRedux.blogs)
   const loggedUser = useSelector(allRedux => allRedux.loggedUser)
@@ -54,7 +53,6 @@ const App = () => {
       blogFormRef.current.toggleVisibility()      
       // Dispatch and add the new blog to the list of blogs
       dispatch(createBlog(newBlog))
-
       // set Notification message and color
       const message = `A new blog: ${newBlog.title} by ${newBlog.author} added`
       handleNotificationShow(message, 'green')
@@ -136,9 +134,19 @@ const App = () => {
 
   // Users component view
   const UserView = () => {
-    const test = ["A", "B", "C"]
+    // Fetch all the users
+    useEffect(() => {
+      const fetchUsers = async () => {
+        const fetchedUsers = await usersService.getAll()
+        setAllUser(fetchedUsers)
+      }
+      fetchUsers()
+    }, [])
 
-    console.log(blogs)
+    // If all the users are not yet fetched return 
+    if (!allUser) {
+      return
+    }
 
     return (
       <div>
@@ -148,10 +156,10 @@ const App = () => {
           <div style={{ width: '150px' }}>blogs created</div>
         </div>
         {/* Mapping through all the Users and display them */}
-        {test.map((user, i) => (
-          <div key={i} style={{ display: 'flex' }}>
-            <div style={{ width: '150px' }}>{user}</div>
-            <div style={{ width: '150px' }}>{i}</div>
+        {allUser.map(user => (
+          <div key={user.id} style={{ display: 'flex' }}>
+            <div style={{ width: '150px' }}>{user.name}</div>
+            <div style={{ width: '150px' }}>{user.blogs.length}</div>
           </div>
         ))}
       </div>

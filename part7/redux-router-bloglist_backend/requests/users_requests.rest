@@ -15,9 +15,9 @@ Content-Type: application/json
 # Content-Type: application/json
 
 # {
-#   "username": "bcaula",
-#   "name": "Bruno Caula",
-#   "password": "testest"
+#   "username": "acampo",
+#   "name": "Alessia Campo",
+#   "password": "amorini"
 # }
 
 ###
