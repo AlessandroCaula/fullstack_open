@@ -9,45 +9,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
 import { logoutUser, setUser } from './reducers/userReducer'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useMatch } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
-
-// Users component view
-const UsersView = () => {
-  // All users
-  const [allUser, setAllUser] = useState(null);
-
-  // Fetch all the users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const fetchedUsers = await usersService.getAll()
-      setAllUser(fetchedUsers)
-    }
-    fetchUsers()
-  }, [])
-
-  // If all the users are not yet fetched return 
-  if (!allUser) {
-    return
-  }
-
-  return (
-    <div>
-      <h1>Users</h1>
-      <div style={{ display: 'flex', fontWeight: 'bold' }}>
-        <div style={{ width: '150px' }}></div>
-        <div style={{ width: '150px' }}>blogs created</div>
-      </div>
-      {/* Mapping through all the Users and display them */}
-      {allUser.map(user => (
-        <div key={user.id} style={{ display: 'flex' }}>
-          <div style={{ width: '150px' }}>{user.name}</div>
-          <div style={{ width: '150px' }}>{user.blogs.length}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 // Users component view
 const HomeView = ({ loggedUser }) => {
@@ -155,9 +118,54 @@ const HomeView = ({ loggedUser }) => {
   )
 }
 
+// Users component view
+const UsersView = ({ allUser, setAllUser }) => {
+  // Fetch all the users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const fetchedUsers = await usersService.getAll()
+      setAllUser(fetchedUsers)
+    }
+    fetchUsers()
+  }, [])
+
+  // If all the users are not yet fetched return 
+  if (!allUser) {
+    return
+  }
+
+  return (
+    <div>
+      <h1>Users</h1>
+      <div style={{ display: 'flex', fontWeight: 'bold' }}>
+        <div style={{ width: '150px' }}></div>
+        <div style={{ width: '150px' }}>blogs created</div>
+      </div>
+      {/* Mapping through all the Users and display them */}
+      {allUser.map(user => (
+        <div key={user.id} style={{ display: 'flex' }}>
+          {/* <div style={{ width: '150px' }}>{user.name}</div> */}
+          <Link style={{ width: '150px' }} to={`/users/${user.id}`}>{user.name}</Link>
+          <div style={{ width: '150px' }}>{user.blogs.length}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const UserView = () => {  //selectedUser
+  return (
+    <div>
+      prova
+    </div>
+  )
+}
+
 const App = () => {
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
+  // All users
+  const [allUser, setAllUser] = useState(null);
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
@@ -191,9 +199,20 @@ const App = () => {
     )
   }
 
+  // Defining padding for the style
   const padding = {
     padding: 5
   }
+
+  // // Only if all the users have been fetched, match it with the one selected from the route
+  // let selectedUser = null
+  // if (allUser) {
+  //   // Matching the selected user with the router
+  //   const match = useMatch('/users/:id')
+  //   selectedUser = match && allUser
+  //     ? allUser.find(user => user.id === Number(match.params.id))
+  //     : null
+  // }
 
   // If the user has logged in, enter the application
   return (
@@ -220,9 +239,10 @@ const App = () => {
       <div style={{height: '20px'}} />
 
       <Routes>
+        {/* selectedUser={selectedUser} */}
+        <Route path='/users/:id' element={<UserView />} />
+        <Route path='/users' element={<UsersView allUser={allUser} setAllUser={setAllUser}/>} />
         <Route path='/' element={<HomeView loggedUser={loggedUser}/>} />
-        <Route path='/users' element={<UsersView />} />
-        {/* <Route path='/users' element={<UserView />} /> */}
       </Routes>
 
     </div>
