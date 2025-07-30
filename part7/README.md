@@ -3040,3 +3040,37 @@ The rest of the tasks are common to both the Redux and React Query versions.
 Implement a view to the application that displays all of the basic information related to users:
 
 ![alt text](assets/image48.png)
+
+#### 7.15: Individual User View
+
+Implement a view for individual users that displays all of the blog posts added by that user:
+
+![alt text](assets/image49.png)
+
+You can access this view by clicking the name of the user in the view that lists all users:
+
+![alt text](assets/image50.png)
+
+__NB__: you will almost certainly stumble across the following error message during this exercise:
+
+![alt text](assets/image51.png)
+
+The error message will occur if you refresh the individual user page.
+
+The cause of the issue is that, when we navigate directly to the page of an individual user, the React application has not yet received the data from the backend. One solution for this problem is to use conditional rendering:
+
+```js
+const User = () => {
+  const user = ...
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <div>
+      // ...
+    </div>
+  )
+}
+```
