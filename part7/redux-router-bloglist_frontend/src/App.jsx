@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import usersService from './services/users'
-// import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
@@ -10,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog, deleteBlog, initializeBlogs, updateBlog } from './reducers/blogReducer'
 import { logoutUser, setUser } from './reducers/userReducer'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 
 // Users component view
@@ -52,6 +51,8 @@ const UsersView = () => {
 
 // Users component view
 const HomeView = ({ loggedUser }) => {
+  // Get the dispatch function so we can send actions to the Redux store
+  const dispatch = useDispatch()
   // Reference
   const blogFormRef = useRef()
   // Retrieve the blogs from the redux store
@@ -90,7 +91,8 @@ const HomeView = ({ loggedUser }) => {
       dispatch(updateBlog(updatedBlog))
     } catch (exception) {
       const message = 'Likes cannot be updated'
-      handleNotificationShow(message, 'red')
+      // handleNotificationShow(message, 'red')
+      dispatch(setNotification(message, 'red', 3))
     }
   }
 
@@ -108,10 +110,12 @@ const HomeView = ({ loggedUser }) => {
 
       // Show Notification message
       const message = `${deletedBlog.title} successfully deleted`
-      handleNotificationShow(message, 'green')
+      // handleNotificationShow(message, 'green')
+      dispatch(setNotification(message, 'green', 3))
     } catch (exception) {
       const message = 'Not able to delete the blog'
-      handleNotificationShow(message, 'red')
+      // handleNotificationShow(message, 'red')
+      dispatch(setNotification(message, 'red', 3))
     }
   }
 
@@ -124,11 +128,13 @@ const HomeView = ({ loggedUser }) => {
       dispatch(createBlog(newBlog))
       // set Notification message and color
       const message = `A new blog: ${newBlog.title} by ${newBlog.author} added`
-      handleNotificationShow(message, 'green')
+      // handleNotificationShow(message, 'green')
+      dispatch(setNotification(message, 'green', 3))
     } catch (exception) {
       // alert('Blog cannot be created')
       const message = 'Blog cannot be created'
-      handleNotificationShow(message, 'red')
+      // handleNotificationShow(message, 'red')
+      dispatch(setNotification(message, 'red', 3))
     }
   }
 
@@ -178,16 +184,10 @@ const App = () => {
     dispatch(logoutUser())
   }
 
-  // Handle notification 
-  const handleNotificationShow = (message, color) => {
-    // Dispatching the notification text and color to the redux store
-    dispatch(setNotification(message, color, 3))
-  }
-
   if (!loggedUser) {
     // If the user has not logged in, then return the loginForm
     return (
-      <LoginForm handleNotificationShow={handleNotificationShow} dispatch={dispatch} />
+      <LoginForm />
     )
   }
 

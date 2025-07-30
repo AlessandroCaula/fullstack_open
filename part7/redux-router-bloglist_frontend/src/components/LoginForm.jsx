@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import loginService from '../services/login'
 import { loginUser } from '../reducers/userReducer'
 import Notification from './Notification'
 import blogService from '../services/blogs'
+import { useDispatch } from 'react-redux'
 
-const LoginForm = ({ handleNotificationShow, dispatch }) => {
+const LoginForm = () => {
+  // Get the dispatch function so we can send actions to the Redux store
+  const dispatch = useDispatch()
 
   // User login states
   const [username, setUsername] = useState('')
@@ -32,7 +35,8 @@ const LoginForm = ({ handleNotificationShow, dispatch }) => {
       // alert('Wrong credentials')
       console.log(exception)
       const message = 'Wrong username or password'
-      handleNotificationShow(message, 'red')
+      // handleNotificationShow(message, 'red')
+      dispatch(setNotification(message, 'red', 3))
     }
   }
 
