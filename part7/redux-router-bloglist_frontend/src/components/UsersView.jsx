@@ -1,18 +1,7 @@
-import { useEffect } from "react"
-import usersService from "../services/users"
 import { Link } from "react-router-dom"
 
 // Users component view
-const UsersView = ({ allUsers, setAllUsers }) => {
-  // Fetch all the users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const fetchedUsers = await usersService.getAll()
-      setAllUsers(fetchedUsers)
-    }
-    fetchUsers()
-  }, [])
-
+const UsersView = ({ allUsers }) => {
   // If all the users are not yet fetched return 
   if (!allUsers) {
     return

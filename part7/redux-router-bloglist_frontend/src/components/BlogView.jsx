@@ -25,7 +25,7 @@ const BlogView = ({ handleBlogLikesUpdate }) => {
         likes {selectedBlog.likes}
         <button onClick={() => handleBlogLikesUpdate(selectedBlog.id)}>Like</button>
       </div>
-      <p>Added by {selectedBlog.user.name ?? 'Someone'}</p>
+      <p>added by {selectedBlog.user.name ?? 'Someone'}</p>
     </>
   )
 }

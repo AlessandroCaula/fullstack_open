@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import blogService from './services/blogs'
+import usersService from './services/users'
 import Notification from './components/Notification'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs, updateBlog } from './reducers/blogReducer'
 import { logoutUser, setUser } from './reducers/userReducer'
 import { setNotification } from './reducers/notificationReducer'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 import UserView from './components/UserView'
 import UsersView from './components/UsersView'
@@ -19,6 +20,8 @@ const App = () => {
   const [allUsers, setAllUsers] = useState(null);
   // Retrieve the blogs from the redux store
   const blogs = useSelector(allRedux => allRedux.blogs)
+  // Use Navigate to automatically navigate to the HomeView ("/") when user changed and at first load
+  const navigate = useNavigate()
 
   // Use Effect to retrieve all the blogs at first DOM load
   useEffect(() => {
@@ -37,12 +40,23 @@ const App = () => {
     }
   }, [])
 
+  // Fetch all the users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const fetchedUsers = await usersService.getAll()
+      setAllUsers(fetchedUsers)
+    }
+    fetchUsers()
+  }, [])
+
   // Retrieve the logged user from the redux store
   const loggedUser = useSelector(allRedux => allRedux.loggedUser)
 
   const handleLogout = () => {
     window.localStorage.clear()
     dispatch(logoutUser())
+    // Reset to the HomeView
+    navigate("/")
   }
 
   // Handle like blog - It's here cause the like can be done both in the HomeView and the BlogView
@@ -72,7 +86,7 @@ const App = () => {
 
   // Defining padding for the style
   const padding = {
-    padding: 5
+    padding: 10
   }
 
   // If the user has logged in, enter the application
@@ -80,9 +94,12 @@ const App = () => {
     <div>
 
       {/* NavBar */}
-      <div>
+      <div style={{background: 'lightgray', height: '20px'}}>
         <Link style={padding} to='/'>Blogs</Link>
         <Link style={padding} to='/users'>Users</Link>
+        {/* Logged in user text */}
+        {loggedUser.name} logged in
+        <button style={{marginLeft: '5px'}} onClick={handleLogout}>Log out</button>
       </div>
 
       <h2>blogs</h2>
@@ -90,20 +107,14 @@ const App = () => {
       {/* Show the notification if there is some message */}
       <Notification />
 
-      {/* Logged in user text */}
-      <p>{loggedUser.name} logged in</p>
-
-      {/* Button for logging out */}
-      <button onClick={handleLogout}>Log out</button>
-
       {/* Add some spacing */}
       <div style={{height: '20px'}} />
 
       <Routes>
         <Route path='/' element={<HomeView handleBlogLikesUpdate={handleBlogLikesUpdate}/>} /> 
-        <Route path='/users' element={<UsersView allUsers={allUsers} setAllUsers={setAllUsers}/>} />
-        <Route path='/users/:id' element={<UserView allUsers={allUsers}/>} />
-        <Route path='/blogs/:id' element={<BlogView handleBlogLikesUpdate={handleBlogLikesUpdate}/>}/>
+        <Route path='/users' element={<UsersView allUsers={allUsers} />} />
+        <Route path='/users/:id' element={<UserView allUsers={allUsers} />} />
+        <Route path='/blogs/:id' element={<BlogView handleBlogLikesUpdate={handleBlogLikesUpdate} />} />
       </Routes>
 
     </div>
