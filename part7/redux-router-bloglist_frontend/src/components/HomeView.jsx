@@ -4,16 +4,18 @@ import Togglable from "./Togglable"
 import BlogForm from "./BlogForm"
 import Blog from "./Blog"
 import { setNotification } from "../reducers/notificationReducer"
-import { createBlog, deleteBlog, updateBlog } from "../reducers/blogReducer"
+import { createBlog, deleteBlog } from "../reducers/blogReducer"
 
 // Blogs component view
-const HomeView = ({ loggedUser }) => {
+const HomeView = ({ handleBlogLikesUpdate }) => {
   // Get the dispatch function so we can send actions to the Redux store
   const dispatch = useDispatch()
   // Reference
   const blogFormRef = useRef()
   // Retrieve the blogs from the redux store
   const blogs = useSelector(allRedux => allRedux.blogs)
+  // Retrieve the logged user from the redux store
+  const loggedUser = useSelector(allRedux => allRedux.loggedUser)
 
   // Rendering the Add new blog form
   const blogForm = () => (
@@ -33,24 +35,6 @@ const HomeView = ({ loggedUser }) => {
     // Sort the blogs based on likes count
     const sortedBlogs = userBlogs.sort((a, b) => b.likes - a.likes)
     return sortedBlogs
-  }
-
-  // Handle like blog
-  const handleBlogLikesUpdate = async (id) => {
-    try {
-      // Find the blog that we want to update
-      const blogToUpdate = blogs.find(b => b.id === id)
-      // Compute the new number of likes
-      const updatedLikes = blogToUpdate.likes + 1
-      // Creating the new blog object, with the likes count updated by on
-      const updatedBlog = { ...blogToUpdate, likes: updatedLikes }
-      // Dispatching and updating the blog
-      dispatch(updateBlog(updatedBlog))
-    } catch (exception) {
-      const message = 'Likes cannot be updated'
-      // handleNotificationShow(message, 'red')
-      dispatch(setNotification(message, 'red', 3))
-    }
   }
 
   // Handle deletion blog

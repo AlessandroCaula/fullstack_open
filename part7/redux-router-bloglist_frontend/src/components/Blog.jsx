@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 
 const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   const [isDetailVisible, setIsDetailVisible] = useState(false)
@@ -38,7 +39,8 @@ const Blog = ({ blog, blogDeletion, blogLikesUpdate }) => {
   return (
     <div style={blogStyle} className="blog">
       <div style={{ display: 'flex', gap: '5px' }} className="blog-author-title">
-        {blog.title} {blog.author}
+        {/* {blog.title} {blog.author} */}
+        <Link style={{ width: '150px' }} to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
         <button style={blogButtonViewHide} onClick={handleVisibility} className="blog-button">
           {/* Show hide button when details are visible and vice-versa */}
           {isDetailVisible ? 'Hide' : 'View details'}
