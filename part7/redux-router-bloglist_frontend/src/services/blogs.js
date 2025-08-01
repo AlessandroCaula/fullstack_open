@@ -40,10 +40,17 @@ const update = async (id, newObject) => {
   return response.data
 }
 
+// Adding a new comment to the blog
+const addComment = async (id, comment) => {
+  const response = await axios.post(`${baseUrl}/${id}/comments`, { comment })
+  return response.data
+}
+
 export default { 
   getAll, 
   create, 
   setToken, 
   remove, 
-  update 
+  update,
+  addComment 
 }

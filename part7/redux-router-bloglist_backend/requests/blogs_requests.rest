@@ -47,3 +47,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjY
 # Deleting a blog. Can be deleted only by the user that posted it. 
 DELETE http://localhost:3003/api/blogs/680e57957f9b4726760a48d9
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJjYXVsYSIsImlkIjoiNjgwZDA4MzRkZDAyYzIyN2EzMzRlOWViIiwiaWF0IjoxNzQ1NzY5ODAyLCJleHAiOjE3NDU3NzM0MDJ9.SgteCM2h3h5G1VoJCOSCeLCWrdZgDgskvd92h6Sfv3A
+
+###
+# Adding a comment to the blog
+POST http://localhost:3003/api/blogs/680d0855dd02c227a334e9f0/comments
+Content-Type: application/json
+
+{
+  "comment": "This is a comment"
+}
