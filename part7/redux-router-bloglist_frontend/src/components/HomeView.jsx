@@ -63,6 +63,7 @@ const HomeView = ({ handleBlogLikesUpdate }) => {
   // Handling adding new blog
   const addNewBlog = async (newBlog) => {
     try {
+      console.log(newBlog)
       // Use the Ref to close the newBlog form creation
       blogFormRef.current.toggleVisibility()      
       // Dispatch and add the new blog to the list of blogs

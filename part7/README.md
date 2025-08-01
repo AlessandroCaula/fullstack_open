@@ -3104,4 +3104,3 @@ Comments should be anonymous, meaning that they are not associated with the user
 In this exercise, it is enough for the frontend to only display the comments that the application receives from the backend.
 
 An appropriate mechanism for adding comments to a blog post would be an HTTP POST request to the _api/blogs/:id/comments_ endpoint.
-

@@ -77,7 +77,6 @@ blogsRouter.delete("/:id", async (request, response, next) => {
 // Updating the likes of a blog
 blogsRouter.put("/:id", async (request, response, next) => {
   const { likes } = request.body;
-
   try {
     // Retrieve the blog that we want to update by its id
     const blogToUpdate = await Blog.findById(request.params.id);
@@ -97,5 +96,23 @@ blogsRouter.put("/:id", async (request, response, next) => {
     next(exception);
   }
 });
+
+// Adding a new comment to the blog
+blogsRouter.post('/:id/comments', async (request, response, next) => {
+  try {
+    const comment = request.body.comment
+    const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+      return response.status(404).end()
+    }
+    // Add the comment to the blog
+    blog.comments = blog.comments.concat(comment)
+    // Save the blog with the added comment
+    const updatedBlog = await blog.save()
+    response.status(204).json(updatedBlog)
+  } catch {
+    next(exception)
+  }
+})
 
 module.exports = blogsRouter;
