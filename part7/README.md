@@ -3115,3 +3115,6 @@ Extend your application so that users can add comments to blog posts from the fr
 
 Improve the appearance of your application by applying one of the methods shown in the course material.
 
+#### 7.21: Style, step 2
+
+You can mark this exercise as finished if you use an hour or more for styling your application.

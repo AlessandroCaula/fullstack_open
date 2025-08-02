@@ -1,4 +1,6 @@
+import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material"
 import { useParams } from "react-router-dom"
+import CircleIcon from '@mui/icons-material/Circle'
 
 // User view component
 const UserView = ({ allUsers }) => {  
@@ -14,12 +16,19 @@ const UserView = ({ allUsers }) => {
     <div>
       <h1>{selectedUser.name}</h1>
       <h3>Added blogs</h3>
-      <ul>
+      <List dense='dense'>
         {/* Loop through all the blogs added from the selected user */}
         {selectedUserBlogs.map(blog => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListItem key={blog.id} >
+            <ListItemIcon>
+              <CircleIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText 
+              primary={blog.title}
+            />
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </div>
   )
 }

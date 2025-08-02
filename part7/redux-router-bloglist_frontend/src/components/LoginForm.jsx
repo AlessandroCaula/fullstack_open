@@ -4,6 +4,7 @@ import { loginUser } from '../reducers/userReducer'
 import Notification from './Notification'
 import blogService from '../services/blogs'
 import { useDispatch } from 'react-redux'
+import { setNotification } from '../reducers/notificationReducer'
 
 const LoginForm = () => {
   // Get the dispatch function so we can send actions to the Redux store

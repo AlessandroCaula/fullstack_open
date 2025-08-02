@@ -12,7 +12,7 @@ import UserView from './components/UserView'
 import UsersView from './components/UsersView'
 import HomeView from './components/HomeView'
 import BlogView from './components/BlogView'
-import { Container } from '@mui/material'
+import { AppBar, Button, Container, IconButton, Toolbar } from '@mui/material'
 
 const App = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -95,13 +95,20 @@ const App = () => {
     <Container>
 
       {/* NavBar */}
-      <div style={{background: 'lightgray', height: '20px'}}>
-        <Link style={padding} to='/'>Blogs</Link>
-        <Link style={padding} to='/users'>Users</Link>
-        {/* Logged in user text */}
-        {loggedUser.name} logged in
-        <button style={{marginLeft: '5px'}} onClick={handleLogout}>Log out</button>
-      </div>
+      <AppBar position='static'> {/* sx={{ height: 50 }}} */}
+        <Toolbar size='small'>
+          <Button color='inherit' component={Link} to='/'>
+            Blogs
+          </Button>
+          <Button color='inherit' component={Link} to='/users'>
+            Users
+          </Button>
+          <span style={{ display: 'flex', alignItems: 'center' }}>{loggedUser.name} logged in</span>
+          <Button style={{marginLeft: '5px'}} onClick={handleLogout} variant="outlined" size='small' color=''>
+            Log out
+          </Button>
+        </Toolbar>
+      </AppBar>
 
       <h2>blogs</h2>
 
