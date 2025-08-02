@@ -1,3 +1,6 @@
+import { Button } from "@mui/material"
+import ClearIcon from '@mui/icons-material/Clear'
+import CreateIcon from '@mui/icons-material/Create'
 import PropTypes from "prop-types"
 import { forwardRef, useImperativeHandle, useState } from "react"
 
@@ -21,11 +24,31 @@ const Togglable = forwardRef((props, refs) => {
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <Button 
+          onClick={toggleVisibility}
+          style={{ marginBottom: '5px' }}
+          variant="contained"
+          color="primary"
+          size="small"
+          startIcon={<CreateIcon />}
+        >
+          {props.buttonLabel}
+        </Button>
       </div>
       <div style={showWhenVisible}>
         {props.children}
-        <button onClick={toggleVisibility}>Cancel</button>
+        {/* <button onClick={toggleVisibility}>Cancel</button> */}
+        <Button
+          onClick={toggleVisibility}
+          style={{ marginBottom: '5px' }}
+          variant="contained" 
+          color="error" 
+          size="small"
+          margin="dense"
+          startIcon={<ClearIcon />}
+        >
+          Cancel
+        </Button>
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import BlogForm from "./BlogForm"
 import Blog from "./Blog"
 import { setNotification } from "../reducers/notificationReducer"
 import { createBlog, deleteBlog } from "../reducers/blogReducer"
+import { Paper, Table, TableBody, TableContainer } from "@mui/material"
 
 // Blogs component view
 const HomeView = ({ handleBlogLikesUpdate }) => {
@@ -93,6 +94,22 @@ const HomeView = ({ handleBlogLikesUpdate }) => {
           blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
         />
       )}
+
+      {/* <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {blogsToRender().map(blog =>
+              <Blog
+                key={blog.id}
+                blog={blog}
+                blogDeletion={() => handleBlogDeletion(blog.id)}
+                blogLikesUpdate={() => handleBlogLikesUpdate(blog.id)}
+              />
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer> */}
+
     </div>
   )
 }

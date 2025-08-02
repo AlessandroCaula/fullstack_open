@@ -1,3 +1,5 @@
+import { Button, TextField } from "@mui/material"
+import CheckIcon from '@mui/icons-material/Check'
 import { useState } from "react"
 
 const BlogForm = ({ createBlog }) => {
@@ -26,41 +28,52 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={addNewBlog}> 
         {/* Blog title */}
         <div>
-          Title:
-          <input 
-            type='text'
-            // data-testid='blogTitle'
+          <TextField 
+            label="Blog Title" 
+            size="small"
+            type="text"
+            margin="dense"
             value={blogTitle}
             name='BlogTitle'
             onChange={({ target }) => setBlogTitle(target.value)}
-            placeholder="Blog Title"
           />
         </div>
         {/* Blog author */}
         <div>
-          Author: 
-          <input 
-            type='text'
-            // data-testid='blogAuthor'
+          <TextField 
+            label='Blog Author'
+            type="text"
             value={blogAuthor}
-            name='BlogAuthor'
+            name="BlogAuthor"
+            margin="dense"
+            size="small"
             onChange={({ target }) => setBlogAuthor(target.value)}
-            placeholder="Blog Author"
           />
         </div>
         {/* Blog url */}
         <div>
-          Url:
-          <input 
-            type='text'
-            // data-testid='blogUrl'
+          <TextField 
+            label='Url'
+            type="text"
             value={blogUrl}
-            name='BlogUrl'
+            name="BlogUrl"
+            margin="dense"
+            size="small"
             onChange={({ target }) => setBlogUrl(target.value)}
-            placeholder="Blog URL"
           />
         </div>
-        <button type='submit'>Create</button>
+        {/* <button type='submit'>Create</button> */}
+        <Button 
+          style={{ marginBottom: '5px' }}
+          type="submit" 
+          variant="contained" 
+          color="success" 
+          size="small"
+          margin="dense"
+          startIcon={<CheckIcon />}
+        >
+          Create
+        </Button>
       </form>
     </div>
   )

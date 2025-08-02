@@ -12,6 +12,7 @@ import UserView from './components/UserView'
 import UsersView from './components/UsersView'
 import HomeView from './components/HomeView'
 import BlogView from './components/BlogView'
+import { Container } from '@mui/material'
 
 const App = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -91,7 +92,7 @@ const App = () => {
 
   // If the user has logged in, enter the application
   return (
-    <div>
+    <Container>
 
       {/* NavBar */}
       <div style={{background: 'lightgray', height: '20px'}}>
@@ -117,7 +118,7 @@ const App = () => {
         <Route path='/blogs/:id' element={<BlogView handleBlogLikesUpdate={handleBlogLikesUpdate} />} />
       </Routes>
 
-    </div>
+    </Container>
   )
 }
 
