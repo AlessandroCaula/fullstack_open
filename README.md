@@ -17,3 +17,5 @@ Fullstack course project that can be found here: https://fullstackopen.com/en/
     We'll learn about the lightweight version of Redux directly supported by React, namely the React context and useReducer hook, as well as the React Query library that simplifies the server state management.
 - [Part7 - React router, custom hooks, styling app with CSS and webpack](./part7/)
     - The seventh part of the course touches on several different themes. First, we'll get familiar with React Router. React Router helps us divide the application into different views that are shown based on the URL in the browser's address bar. After this, we'll look at a few more ways to add CSS styles to React applications. During the entire course, we've used Vite to build all of our applications. It is also possible to configure the whole toolchain yourself, and in this part we will see how this can be done with a tool called Webpack. We shall also have a look at hook functions and how to define a custom hook.
+- [GraphQL](#./part8/)
+    - This part of the course is about GraphQL, Facebook's alternative to REST for communication between browser and server.
