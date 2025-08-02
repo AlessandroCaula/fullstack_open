@@ -3,6 +3,89 @@ The seventh part of the course touches on several different themes. First, we'll
 # Table of Contents
 
 - [Part 7](#part-7)
+  - [Part 7a - React Router](#part-7a---react-router)
+    - [Application navigation structure](#application-navigation-structure)
+    - [React Router](#react-router)
+    - [Parameterized route](#parameterized-route)
+    - [useNavigate](#usenavigate)
+    - [Redirect](#redirect)
+    - [Parameterized route revisited](#parameterized-route-revisited)
+    - [Exercises 7.1 - 7.3](#exercises-71---73)
+      - [7.1: Routed Anecdotes, step 1](#71-routed-anecdotes-step-1)
+      - [7.2: Routed Anecdotes, step 2](#72-routed-anecdotes-step-2)
+      - [7.3: Routed Anecdotes, step 3](#73-routed-anecdotes-step-3)
+  - [Part 7b - Custom hooks](#part-7b---custom-hooks)
+    - [Custom hooks](#custom-hooks)
+    - [Spread attributes](#spread-attributes)
+    - [More about hooks](#more-about-hooks)
+    - [Exercises 7.4 - 7.8](#exercises-74---78)
+      - [7.4: Anecdotes and Hooks, step 1](#74-anecdotes-and-hooks-step-1)
+      - [7.5: Anecdotes and Hooks, step 2](#75-anecdotes-and-hooks-step-2)
+      - [7.6: Anecdotes and Hooks, step 3](#76-anecdotes-and-hooks-step-3)
+      - [7.7: Country hook](#77-country-hook)
+      - [7.8: Ultimate Hooks](#78-ultimate-hooks)
+  - [Part 7c - More about styles](#part-7c---more-about-styles)
+    - [Ready-made UI libraries](#ready-made-ui-libraries)
+    - [React Bootstrap](#react-bootstrap)
+      - [Tables](#tables)
+      - [Forms](#forms)
+      - [Notification](#notification)
+      - [Navigation structure](#navigation-structure)
+    - [Material UI](#material-ui)
+      - [Table](#table)
+      - [Form](#form)
+      - [Notification](#notification-1)
+      - [Navigation structure](#navigation-structure-1)
+    - [Other UI frameworks](#other-ui-frameworks)
+    - [Styled components](#styled-components)
+    - [Closing thoughts](#closing-thoughts)
+  - [Part 7d - Webpack](#part-7d---webpack)
+    - [Bundling](#bundling)
+    - [Configuration file](#configuration-file)
+    - [Transpilers](#transpilers)
+    - [CSS](#css)
+    - [Webpack-dev-server](#webpack-dev-server)
+    - [Source maps](#source-maps)
+    - [Minifying the code](#minifying-the-code)
+    - [Development and production configuration](#development-and-production-configuration)
+    - [Polyfill](#polyfill)
+  - [Part 7e - Class components, Miscellaneous](#part-7e---class-components-miscellaneous)
+    - [Class Components](#class-components)
+    - [Organization of the code in React application](#organization-of-the-code-in-react-application)
+    - [Frontend and backend in the same repository](#frontend-and-backend-in-the-same-repository)
+    - [Changes on the server](#changes-on-the-server)
+    - [Virtual DOM](#virtual-dom)
+    - [On the role of React in applications](#on-the-role-of-react-in-applications)
+    - [React/node-application security](#reactnode-application-security)
+    - [Current trends](#current-trends)
+      - [Typed version of JavaScript](#typed-version-of-javascript)
+      - [Server-side rendering, isomorphic applications and universal code](#server-side-rendering-isomorphic-applications-and-universal-code)
+      - [Progressive web apps](#progressive-web-apps)
+      - [Microservice architecture](#microservice-architecture)
+      - [Serverless](#serverless)
+      - [Useful libraries and interesting links](#useful-libraries-and-interesting-links)
+  - [Part 7f - Exercises: extending the bloglist](#part-7f---exercises-extending-the-bloglist)
+    - [Exercises 7.9 - 7.21](#exercises-79---721)
+      - [7.9: Automatic Code Formatting](#79-automatic-code-formatting)
+      - [State Management: Redux](#state-management-redux)
+        - [7.10: Redux, Step 1](#710-redux-step-1)
+        - [7.11: Redux, Step 2](#711-redux-step-2)
+        - [7.12: Redux, Step 3](#712-redux-step-3)
+        - [7.13: Redux, Step 4](#713-redux-step-4)
+      - [State Management: React Query and Context](#state-management-react-query-and-context)
+        - [7.10: React Query and Context step 1](#710-react-query-and-context-step-1)
+        - [7.11: React Query and Context step 2](#711-react-query-and-context-step-2)
+        - [7.12: React Query and Context step 3](#712-react-query-and-context-step-3)
+        - [7.13: React Query and Context step 4](#713-react-query-and-context-step-4)
+      - [Views](#views)
+        - [7.14: User view](#714-user-view)
+        - [7.15: Individual User View](#715-individual-user-view)
+        - [7.16: Blog View](#716-blog-view)
+        - [7.17: Navigation](#717-navigation)
+        - [7.18: Comments, step 1](#718-comments-step-1)
+        - [7.19: Comments, step 2](#719-comments-step-2)
+        - [7.20: Style, step 1](#720-style-step-1)
+        - [7.21: Style, step 2](#721-style-step-2)
 
 # Part 7
 
@@ -775,89 +858,6 @@ const person = {
   firstName: 'Arto',
   lastName: 'Hellas'
 }
-
-<Greeting {...person} />
-```
-
-The application gets simplified into the following format:
-
-```js
-const App = () => {
-  const name = useField('text')
-  const born = useField('date')
-  const height = useField('number')
-
-  return (
-    <div>
-      <form>
-        name: 
-        <input  {...name} /> 
-        <br/> 
-        birthdate:
-        <input {...born} />
-        <br /> 
-        height:
-        <input {...height} />
-      </form>
-      <div>
-        {name.value} {born.value} {height.value}
-      </div>
-    </div>
-  )
-}
-```
-
-Dealing with forms is greatly simplified when the unpleasant nitty-gritty details related to synchronizing the state of the form are encapsulated inside our custom hook.
-
-Custom hooks are not only a tool for reusing code; they also provide a better way for dividing it into smaller modular parts.
-
-### More about hooks
-
-The internet is starting to fill up with more and more helpful material related to hooks. The following sources are worth checking out:
-
-- [Awesome React Hooks Resources](https://github.com/rehooks/awesome-react-hooks)
-
-- [Easy to understand React Hook recipes by Gabe Ragland](https://usehooks.com/)
-
-- [Why Do React Hooks Rely on Call Order?](https://overreacted.io/why-do-hooks-rely-on-call-order/)
-
-<hr style="border: 2px solid rgb(125, 204, 240)">
-
-### Exercises 7.4 - 7.8
-
-We'll continue with the app from the [exercises](#exercises-71---73) of the react [router chapter](#part-7a---react-router).
-
-#### 7.4: Anecdotes and Hooks, step 1
-
-Simplify the anecdote creation form of your application with the `useField` custom hook we defined earlier.
-
-One natural place to save the custom hooks of your application is in the _/src/hooks/index.js_ file.
-
-If you use the [named export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Description) instead of the default export:
-
-```js
-import { useState } from 'react'
-
-export const useField = (type) => {
-  const [value, setValue] = useState('')
-
-  const onChange = (event) => {
-    setValue(event.target.value)
-  }
-
-  return {
-    type,
-    value,
-    onChange
-  }
-}
-
-// modules can have several named exports
-export const useAnotherHook = () => {
-  // ...
-}
-```
-
 Then [importing](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) happens in the following way:
 
 ```js
