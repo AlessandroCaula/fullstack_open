@@ -1,3 +1,4 @@
+import { Alert } from '@mui/material'
 import { useSelector } from 'react-redux'
 
 const Notification = () => {  // { color }
@@ -25,13 +26,18 @@ const Notification = () => {  // { color }
     padding: '5px',
     marginBottom: '5px'
   }
+  const severity = color === 'green' ? 'success' : 'error'
 
   return (
     // If the message as something, then show the notification.
     message && 
-      <div style={notificationStyle} data-testid='errorDiv'>
-        { message}
-      </div>
+      // <div style={notificationStyle} data-testid='errorDiv'>
+      //   { message}
+      // </div>
+
+      <Alert severity={severity}>
+        {message}
+      </Alert>
   )
 }
 

@@ -5,6 +5,8 @@ import Notification from './Notification'
 import blogService from '../services/blogs'
 import { useDispatch } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
+import { Button, TextField } from '@mui/material'
+import LoginIcon from '@mui/icons-material/Login'
 
 const LoginForm = () => {
   // Get the dispatch function so we can send actions to the Redux store
@@ -51,27 +53,39 @@ const LoginForm = () => {
       <form onSubmit={handleLogin} data-testid='login form'>
         {/* Username field */}
         <div>
-          Username
-          <input
-            type='text'
+          <TextField 
+            label='Username'
             data-testid='username'
+            type="text"
             value={username}
-            name='Username'
+            name="Username"
+            margin="dense"
+            size="small"
             onChange={({ target }) => setUsername(target.value)}
           />
         </div>
         {/* Password field */}
         <div>
-          Password
-          <input
-            type='password'
+          <TextField 
+            label='Password'
             data-testid='password'
+            type="password"
             value={password}
-            name='Password'
+            name="Password"
+            margin="dense"
+            size="small"
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type='submit'>login</button>
+        <Button
+          style={{ marginTop: '5px' }}
+          type="submit" 
+          variant="contained" 
+          color="primary" 
+          size="small"
+          margin="dense"
+          startIcon={<LoginIcon />}
+        >Log In</Button>
       </form>
     </div>
   )

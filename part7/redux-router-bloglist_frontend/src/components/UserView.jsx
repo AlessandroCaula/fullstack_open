@@ -16,7 +16,7 @@ const UserView = ({ allUsers }) => {
     <div>
       <h1>{selectedUser.name}</h1>
       <h3>Added blogs</h3>
-      <List dense='dense'>
+      <List dense={true}>
         {/* Loop through all the blogs added from the selected user */}
         {selectedUserBlogs.map(blog => (
           <ListItem key={blog.id} >
