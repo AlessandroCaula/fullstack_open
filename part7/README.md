@@ -3110,3 +3110,8 @@ An appropriate mechanism for adding comments to a blog post would be an HTTP POS
 Extend your application so that users can add comments to blog posts from the frontend:
 
 ![alt text](assets/image56.png)
+
+#### 7.20: Style, step 1
+
+Improve the appearance of your application by applying one of the methods shown in the course material.
+
