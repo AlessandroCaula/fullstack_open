@@ -237,3 +237,153 @@ GraphQL query describes only the data moving between a server and the client. On
 
 Despite its name, GraphQL does not actually have anything to do with databases. It does not care how the data is saved. The data a GraphQL API uses can be saved into a relational database, document database, or to other servers which a GraphQL server can access with for example REST.
 
+### Apollo Server
+
+Let's implement a GraphQL server with today's leading library: [Apollo Server](https://www.apollographql.com/docs/apollo-server/).
+
+Create a new npm project with `npm init` and install the required dependencies.
+
+```
+npm install @apollo/server graphql
+```
+
+Also create a `index.js` file in your project's root directory.
+
+The initial code is as follows:
+
+```js
+const { ApolloServer } = require('@apollo/server')
+const { startStandaloneServer } = require('@apollo/server/standalone')
+
+let persons = [
+  {
+    name: "Arto Hellas",
+    phone: "040-123543",
+    street: "Tapiolankatu 5 A",
+    city: "Espoo",
+    id: "3d594650-3436-11e9-bc57-8b80ba54c431"
+  },
+  {
+    name: "Matti Luukkainen",
+    phone: "040-432342",
+    street: "Malminkaari 10 A",
+    city: "Helsinki",
+    id: '3d599470-3436-11e9-bc57-8b80ba54c431'
+  },
+  {
+    name: "Venla Ruuska",
+    street: "Nallemäentie 22 C",
+    city: "Helsinki",
+    id: '3d599471-3436-11e9-bc57-8b80ba54c431'
+  },
+]
+
+const typeDefs = `
+  type Person {
+    name: String!
+    phone: String
+    street: String!
+    city: String! 
+    id: ID!
+  }
+
+  type Query {
+    personCount: Int!
+    allPersons: [Person!]!
+    findPerson(name: String!): Person
+  }
+`
+
+const resolvers = {
+  Query: {
+    personCount: () => persons.length,
+    allPersons: () => persons,
+    findPerson: (root, args) =>
+      persons.find(p => p.name === args.name)
+  }
+}
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+})
+
+startStandaloneServer(server, {
+  listen: { port: 4000 },
+}).then(({ url }) => {
+  console.log(`Server ready at ${url}`)
+})
+```
+
+The heart of the code is an [ApolloServer](https://www.apollographql.com/docs/apollo-server/api/apollo-server/), which is given two parameters:
+
+```js
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+})
+```
+
+The first parameter, `typeDefs`, contains the GraphQL schema.
+
+The second parameter is an object, which contains the [resolvers](https://www.apollographql.com/docs/apollo-server/data/resolvers/) of the server. These are the code, which defines _how_ GraphQL queries are responded to.
+
+The code of the resolvers is the following:
+
+```js
+const resolvers = {
+  Query: {
+    personCount: () => persons.length,
+    allPersons: () => persons,
+    findPerson: (root, args) =>
+      persons.find(p => p.name === args.name)
+  }
+}
+```
+
+As you can see, the resolvers correspond to the queries described in the schema.
+
+```js
+type Query {
+  personCount: Int!
+  allPersons: [Person!]!
+  findPerson(name: String!): Person
+}
+```
+
+So there is a field under _Query_ for every query described in the schema.
+
+The query
+
+```js
+query {
+  personCount
+}
+```
+
+Has the resolver
+
+```js
+() => persons.length
+```
+
+So the response to the query is the length of the array `persons`.
+
+The query which fetches all persons
+
+```js
+query {
+  allPersons {
+    name
+  }
+}
+```
+
+has a resolver which returns _all_ objects from the `persons` array.
+
+```js
+() => persons
+```
+
+Start the server by running `node index.js` in the terminal.
+
