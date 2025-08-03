@@ -387,3 +387,13 @@ has a resolver which returns _all_ objects from the `persons` array.
 
 Start the server by running `node index.js` in the terminal.
 
+### Apollo Studio Explorer
+
+When Apollo server is run in development mode the page http://localhost:4000 has a button _Query your server_ that takes us to [GraphOS Studio Explorer](https://www.apollographql.com/docs/graphos/platform/explorer). This is very useful for a developer, and can be used to make queries to the server.
+
+Let's try it out:
+
+![alt text](assets/image.png)
+
+At the left side Explorer shows the API-documentation that it has automatically generated based on the schema.
+
