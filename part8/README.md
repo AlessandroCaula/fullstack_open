@@ -397,3 +397,77 @@ Let's try it out:
 
 At the left side Explorer shows the API-documentation that it has automatically generated based on the schema.
 
+### Parameters of a resolver
+
+The query fetching a single person
+
+```js
+query {
+  findPerson(name: "Arto Hellas") {
+    phone 
+    city 
+    street
+  }
+}
+```
+
+has a resolver which differs from the previous ones because it is given _two parameters_:
+
+```js
+(root, args) => persons.find(p => p.name === args.name)
+```
+
+The second parameter, `args`, contains the parameters of the query. The resolver then returns from the array `persons` the person whose name is the same as the value of _args.name_. The resolver does not need the first parameter `root`.
+
+In fact, all resolver functions are given [four parameters](https://www.graphql-tools.com/docs/resolvers#resolver-function-signature). With JavaScript, the parameters don't have to be defined if they are not needed. We will be using the first and the third parameter of a resolver later in this part.
+
+### The default resolver
+
+When we do a query, for example
+
+```js
+query {
+  findPerson(name: "Arto Hellas") {
+    phone 
+    city 
+    street
+  }
+}
+```
+
+the server knows to send back exactly the fields required by the query. How does that happen?
+
+A GraphQL server must define resolvers for _each_ field of each type in the schema. We have so far only defined resolvers for fields of the type _Query_, so for each query of the application.
+
+Because we did not define resolvers for the fields of the type _Person_, Apollo has defined [default resolvers](https://www.graphql-tools.com/docs/resolvers/#default-resolver) for them. They work like the one shown below:
+
+```js
+const resolvers = {
+  Query: {
+    personCount: () => persons.length,
+    allPersons: () => persons,
+    findPerson: (root, args) => persons.find(p => p.name === args.name)
+  },
+
+  Person: {
+    name: (root) => root.name,
+    phone: (root) => root.phone,
+    street: (root) => root.street,
+    city: (root) => root.city,
+    id: (root) => root.id
+  }
+}
+```
+
+The default resolver returns the value of the corresponding field of the object. The object itself can be accessed through the first parameter of the resolver, `root`.
+
+If the functionality of the default resolver is enough, you don't need to define your own. It is also possible to define resolvers for only some fields of a type, and let the default resolvers handle the rest.
+
+We could for example define that the address of all persons is _Manhattan New York_ by hard-coding the following to the resolvers of the street and city fields of the type _Person_:
+
+```js
+Person: {
+  street: (root) => "Manhattan",
+  city: (root) => "New York"
+}
+```
