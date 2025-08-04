@@ -773,3 +773,46 @@ Query: {
     persons.find(p => p.name === args.name)
 },
 ```
+
+### Changing a phone number
+
+Let's add a mutation for changing the phone number of a person. The schema of this mutation looks as follows:
+
+```js
+type Mutation {
+  addPerson(
+    name: String!
+    phone: String
+    street: String!
+    city: String!
+  ): Person
+
+  editNumber(
+    name: String!
+    phone: String!
+  ): Person
+}
+```
+
+and is done by a resolver:
+
+```js
+Mutation: {
+  // ...
+  editNumber: (root, args) => {
+    const person = persons.find(p => p.name === args.name)
+    if (!person) {
+      return null
+    }
+
+    const updatedPerson = { ...person, phone: args.phone }
+    persons = persons.map(p => p.name === args.name ? updatedPerson : p)
+    return updatedPerson
+  }   
+}
+```
+
+The mutation finds the person to be updated by the field _name_.
+
+The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-3), branch _part8-3_.
+
