@@ -816,3 +816,109 @@ The mutation finds the person to be updated by the field _name_.
 
 The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-3), branch _part8-3_.
 
+### More on queries
+
+With GraphQL, it is possible to combine multiple fields of type Query, or "separate queries" into one query. For example, the following query returns both the amount of persons in the phonebook and their names:
+
+```js
+query {
+  personCount
+  allPersons {
+    name
+  }
+}
+```
+
+The response looks as follows:
+
+```json
+{
+  "data": {
+    "personCount": 3,
+    "allPersons": [
+      {
+        "name": "Arto Hellas"
+      },
+      {
+        "name": "Matti Luukkainen"
+      },
+      {
+        "name": "Venla Ruuska"
+      }
+    ]
+  }
+}
+```
+
+Combined query can also use the same query multiple times. You must however give the queries alternative names like so:
+
+```js
+query {
+  havePhone: allPersons(phone: YES){
+    name
+  }
+  phoneless: allPersons(phone: NO){
+    name
+  }
+}
+```
+
+The response looks like:
+
+```json
+{
+  "data": {
+    "havePhone": [
+      {
+        "name": "Arto Hellas"
+      },
+      {
+        "name": "Matti Luukkainen"
+      }
+    ],
+    "phoneless": [
+      {
+        "name": "Venla Ruuska"
+      }
+    ]
+  }
+}
+```
+
+In some cases, it might be beneficial to name the queries. This is the case especially when the queries or mutations have [parameters](https://graphql.org/learn/queries/#variables). We will get into parameters soon.
+
+<hr style="border: 2px solid rgba(90, 171, 163, 1)">
+
+### Exercises 8.1 - 8.7
+
+Through the exercises, we will implement a GraphQL backend for a small library. Start with [this file](https://github.com/fullstack-hy2020/misc/blob/master/library-backend.js). Remember to `npm init` and to install dependencies!
+
+#### 8.1: The number of books and authors
+
+Implement queries `bookCount` and `authorCount1 which return the number of books and the number of authors. 
+
+The query
+
+```js
+query {
+  bookCount
+  authorCount
+}
+```
+
+should return
+
+```json
+{
+  "data": {
+    "bookCount": 7,
+    "authorCount": 5
+  }
+}
+```
+
+
+
+<hr style="border: 2px solid rgba(90, 171, 163, 1)">
+
+
