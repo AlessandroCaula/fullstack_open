@@ -101,10 +101,16 @@ const typeDefs = `
     genres: [String!]!
   }
 
+  type Author {
+    name: String!
+    bookCount: Int!
+  }
+
   type Query {
     bookCount: Int!
     authorCount: Int!
     allBooks: [Book!]!
+    allAuthors: [Author!]!
   }
 `
 
@@ -112,7 +118,17 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: () => books
+    allBooks: () => books,
+    allAuthors: () => authors
+  },
+  
+  // Adding a field-resolver for Author.bookCount. 
+  // This means that when GraphQL receives a request for bookCount on an author, it will use this resolver to compute it.
+  Author: {
+    bookCount: (root) => {
+      // For each Author returned from allAuthors this runs and counts how many books have .author equal to author's name
+      return books.filter(book => book.author === root.name).length
+    }
   }
 }
 

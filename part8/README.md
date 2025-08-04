@@ -934,6 +934,53 @@ query {
 }
 ```
 
+#### All authors
+
+Implement query `allAuthors`, which returns the details of all authors. The response should include a field `bookCount` containing the number of books the author has written.
+
+For example the query
+
+```js
+query {
+  allAuthors {
+    name
+    bookCount
+  }
+}
+```
+
+should return 
+
+```json
+{
+  "data": {
+    "allAuthors": [
+      {
+        "name": "Robert Martin",
+        "bookCount": 2
+      },
+      {
+        "name": "Martin Fowler",
+        "bookCount": 1
+      },
+      {
+        "name": "Fyodor Dostoevsky",
+        "bookCount": 2
+      },
+      {
+        "name": "Joshua Kerievsky",
+        "bookCount": 1
+      },
+      {
+        "name": "Sandi Metz",
+        "bookCount": 1
+      }
+    ]
+  }
+}
+```
+
+
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 
