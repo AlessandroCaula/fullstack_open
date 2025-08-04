@@ -471,3 +471,246 @@ Person: {
   city: (root) => "New York"
 }
 ```
+
+### Object within an object
+
+Let's modify the schema a bit
+
+```js
+type Address {
+  street: String!
+  city: String! 
+}
+
+type Person {
+  name: String!
+  phone: String
+
+  address: Address!
+  id: ID!
+}
+
+type Query {
+  personCount: Int!
+  allPersons: [Person!]!
+  findPerson(name: String!): Person
+}
+```
+
+so a person now has a field with the type _Address_, which contains the street and the city.
+
+The queries requiring the address change into
+
+```js
+query {
+  findPerson(name: "Arto Hellas") {
+    phone 
+    address {
+      city 
+      street
+    }
+  }
+}
+```
+
+and the response is now a person object, which _contains_ an address object.
+
+```json
+{
+  "data": {
+    "findPerson": {
+      "phone": "040-123543",
+      "address":  {
+        "city": "Espoo",
+        "street": "Tapiolankatu 5 A"
+      }
+    }
+  }
+}
+```
+
+We still save the persons in the server the same way we did before.
+
+```js
+let persons = [
+  {
+    name: "Arto Hellas",
+    phone: "040-123543",
+    street: "Tapiolankatu 5 A",
+    city: "Espoo",
+    id: "3d594650-3436-11e9-bc57-8b80ba54c431"
+  },
+  // ...
+]
+```
+
+The person-objects saved in the server are not exactly the same as the GraphQL type _Person_ objects described in the schema.
+
+Contrary to the _Person_ type, the _Address_ type does not have an _id_ field, because they are not saved into their own separate data structure in the server.
+
+Because the objects saved in the array do not have an _address_ field, the default resolver is not sufficient. Let's add a resolver for the _address_ field of _Person_ type:
+
+```js
+const resolvers = {
+  Query: {
+    personCount: () => persons.length,
+    allPersons: () => persons,
+    findPerson: (root, args) =>
+      persons.find(p => p.name === args.name)
+  },
+
+  Person: {
+    address: (root) => {
+      return { 
+        street: root.street,
+        city: root.city
+      }
+    }
+  }
+}
+```
+
+So every time a _Person_ object is returned, the fields _name_, _phone_ and _id_ are returned using their default resolvers, but the field _address_ is formed by using a self-defined resolver. The parameter `root` of the resolver function is the person-object, so the street and the city of the address can be taken from its fields.
+
+The current code of the application can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-1), branch _part8-1_.
+
+### Mutations
+
+Let's add a functionality for adding new persons to the phonebook. In GraphQL, all operations which cause a change are done with [mutations](https://graphql.org/learn/mutations). Mutations are described in the schema as the keys of type _Mutation_.
+
+The schema for a mutation for adding a new person looks as follows:
+
+```js
+type Mutation {
+  addPerson(
+    name: String!
+    phone: String
+    street: String!
+    city: String!
+  ): Person
+}
+```
+
+The Mutation is given the details of the person as parameters. The parameter _phone_ is the only one which is nullable. The Mutation also has a return value. The return value is type _Person_, the idea being that the details of the added person are returned if the operation is successful and if not, null. Value for the field _id_ is not given as a parameter. Generating an id is better left for the server.
+
+Mutations also require a resolver:
+
+```js
+const { v1: uuid } = require('uuid')
+
+// ...
+
+const resolvers = {
+  // ...
+  Mutation: {
+    addPerson: (root, args) => {
+      const person = { ...args, id: uuid() }
+      persons = persons.concat(person)
+      return person
+    }
+  }
+}
+```
+
+The mutation adds the object given to it as a parameter `args` to the array `persons`, and returns the object it added to the array.
+
+The _id_ field is given a unique value using the [uuid](https://github.com/kelektiv/node-uuid#readme) library.
+
+A new person can be added with the following mutation
+
+```js
+mutation {
+  addPerson(
+    name: "Pekka Mikkola"
+    phone: "045-2374321"
+    street: "Vilppulantie 25"
+    city: "Helsinki"
+  ) {
+    name
+    phone
+    address{
+      city
+      street
+    }
+    id
+  }
+}
+```
+
+Note that the person is saved to the `persons` array as
+
+```js
+{
+  name: "Pekka Mikkola",
+  phone: "045-2374321",
+  street: "Vilppulantie 25",
+  city: "Helsinki",
+  id: "2b24e0b0-343c-11e9-8c2a-cb57c2bf804f"
+}
+```
+
+But the response to the mutation is
+
+```js
+{
+  "data": {
+    "addPerson": {
+      "name": "Pekka Mikkola",
+      "phone": "045-2374321",
+      "address": {
+        "city": "Helsinki",
+        "street": "Vilppulantie 25"
+      },
+      "id": "2b24e0b0-343c-11e9-8c2a-cb57c2bf804f"
+    }
+  }
+}
+```
+
+So the resolver of the _address_ field of the _Person_ type formats the response object to the right form.
+
+### Error handling
+
+If we try to create new person, but the parameters fo not correspond with the schema description, the server gives an error message:
+
+![alt text](assets/image1.png)
+
+So some of the error handling can be automatically done with GraphQL [validation](https://graphql.org/learn/validation/).
+
+However, GraphQL cannot handle everything automatically. For example, stricter rules for data sent to a Mutation have to be added manually. An error could be handled by throwing [GraphQLError](https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors) with a proper [error code](https://www.apollographql.com/docs/apollo-server/data/errors/#built-in-error-codes).
+
+Let's prevent adding the same name to the phonebook multiple times:
+
+```js
+const { GraphQLError } = require('graphql')
+
+// ...
+
+const resolvers = {
+  // ..
+  Mutation: {
+    addPerson: (root, args) => {
+
+      if (persons.find(p => p.name === args.name)) {
+        throw new GraphQLError('Name must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name
+          }
+        })
+      }
+
+      const person = { ...args, id: uuid() }
+      persons = persons.concat(person)
+      return person
+    }
+  }
+}
+```
+
+So if the name to be added already exists in the phonebook, throw `GraphQLError` error.
+
+![alt text](assets/image2.png)
+
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-2), branch _part8-2_.
+
