@@ -917,6 +917,22 @@ should return
 }
 ```
 
+#### 8.2 - All books
+
+Implement query `allBooks`, which returns the details of all books. 
+
+In the end, the user should be able to do the following query:
+
+```js
+query {
+  allBooks { 
+    title 
+    author
+    published 
+    genres
+  }
+}
+```
 
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
