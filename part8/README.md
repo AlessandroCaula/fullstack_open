@@ -980,8 +980,36 @@ should return
 }
 ```
 
+#### 8.4: Books of an author
+
+Modify the `allBooks` query so that a user can give an optional parameter _author_. The response should include only books written by that author.
+
+For example query
+
+```js
+query {
+  allBooks(author: "Robert Martin") {
+    title
+  }
+}
+```
+
+should return 
+
+```json
+{
+  "data": {
+    "allBooks": [
+      {
+        "title": "Clean Code"
+      },
+      {
+        "title": "Agile software development"
+      }
+    ]
+  }
+}
+```
 
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
-
-
