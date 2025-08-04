@@ -714,3 +714,62 @@ So if the name to be added already exists in the phonebook, throw `GraphQLError`
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-2), branch _part8-2_.
 
+### Enum
+
+Let's add a possibility to filter the query returning all persons with the parameter _phone_ so that it returns only persons with a phone number
+
+```js
+query {
+  allPersons(phone: YES) {
+    name
+    phone 
+  }
+}
+```
+
+or persons without a phone number 
+
+```js
+query {
+  allPersons(phone: NO) {
+    name
+  }
+}
+```
+
+The schema changes like so:
+
+```js
+enum YesNo {
+  YES
+  NO
+}
+
+type Query {
+  personCount: Int!
+
+  allPersons(phone: YesNo): [Person!]!
+  findPerson(name: String!): Person
+}
+```
+
+The type _YesNo_ is a GraphQL [enum](https://graphql.org/learn/schema/#enumeration-types), or an enumerable, with two possible values: _YES_ or _NO_. In the query `allPersons`, the parameter `phone` has the type _YesNo_, but is nullable.
+
+The resolver changes like so:
+
+```js
+Query: {
+  personCount: () => persons.length,
+
+  allPersons: (root, args) => {
+    if (!args.phone) {
+      return persons
+    }
+    const byPhone = (person) =>
+      args.phone === 'YES' ? person.phone : !person.phone
+    return persons.filter(byPhone)
+  },
+  findPerson: (root, args) =>
+    persons.find(p => p.name === args.name)
+},
+```
