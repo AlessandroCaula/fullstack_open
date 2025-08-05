@@ -1011,5 +1011,60 @@ should return
 }
 ```
 
+#### 8.5: Books by genre
+
+Modify the query `allBooks` so that a user can give an optional parameter _genre_. The response should include only books of that genre.
+
+For example query
+
+```js
+query {
+  allBooks(genre: "refactoring") {
+    title
+    author
+  }
+}
+```
+
+should return 
+
+```json
+{
+  "data": {
+    "allBooks": [
+      {
+        "title": "Clean Code",
+        "author": "Robert Martin"
+      },
+      {
+        "title": "Refactoring, edition 2",
+        "author": "Martin Fowler"
+      },
+      {
+        "title": "Refactoring to patterns",
+        "author": "Joshua Kerievsky"
+      },
+      {
+        "title": "Practical Object-Oriented Design, An Agile Primer Using Ruby",
+        "author": "Sandi Metz"
+      }
+    ]
+  }
+}
+```
+
+The query must work when both optional parameters are given:
+
+```js
+query {
+  allBooks(author: "Robert Martin", genre: "refactoring") {
+    title
+    author
+  }
+}
+```
+
+
+
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
