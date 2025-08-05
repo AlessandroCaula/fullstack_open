@@ -1064,7 +1064,68 @@ query {
 }
 ```
 
+#### 8.6: Adding a book 
 
+Implement mutation `addBook`, which can be used like this:
+
+```js
+mutation {
+  addBook(
+    title: "NoSQL Distilled",
+    author: "Martin Fowler",
+    published: 2012,
+    genres: ["database", "nosql"]
+  ) {
+    title,
+    author
+  }
+}
+```
+
+The mutation works even if the author is not already saved to the server:
+
+```js
+mutation {
+  addBook(
+    title: "Pimeyden tango",
+    author: "Reijo Mäki",
+    published: 1997,
+    genres: ["crime"]
+  ) {
+    title,
+    author
+  }
+}
+```
+
+If the author is not yer saved to the server, a new author is added to the system. The birth years of authors are ot saved to the server yet, so the query
+
+```js
+query {
+  allAuthors {
+    name
+    born
+    bookCount
+  }
+}
+```
+
+returns
+
+```json
+{
+  "data": {
+    "allAuthors": [
+      // ...
+      {
+        "name": "Reijo Mäki",
+        "born": null,
+        "bookCount": 1
+      }
+    ]
+  }
+}
+```
 
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">

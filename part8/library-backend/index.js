@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
+const { v1: uuid } = require('uuid')
 
 let authors = [
   {
@@ -103,6 +104,7 @@ const typeDefs = `
 
   type Author {
     name: String!
+    born: Int
     bookCount: Int!
   }
 
@@ -111,6 +113,15 @@ const typeDefs = `
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ) : Book
   }
 `
 
@@ -132,14 +143,42 @@ const resolvers = {
       return filteredBooks
     },
     allAuthors: () => authors
-  },
-  
+  },  
   // Adding a field-resolver for Author.bookCount. 
   // This means that when GraphQL receives a request for bookCount on an author, it will use this resolver to compute it.
   Author: {
     bookCount: (root) => {
       // For each Author returned from allAuthors this runs and counts how many books have .author equal to author's name
       return books.filter(book => book.author === root.name).length
+    }
+  },
+  Mutation: {
+    // Resolver for the addBook mutation
+    addBook: (root, args) => {
+      // Create a new book object using the provided arguments
+      // Add a unique ID to it using uuid()
+      const newBook = {
+        ...args, 
+        id: uuid()
+      }
+      // Add the new book to the 'books' collection (stored in memory)
+      books = books.concat(newBook)
+
+      // check if the book's author already exists in the authors collection
+      const authorExists = authors.some(author => author.name === args.author)
+      // If the author does not already exist, create and add them
+      if (!authorExists) {
+        const newAuthor = {
+          name: args.author,
+          id: uuid(),   // Generate a unique ID for the author
+          born: null    // No birth year is provided at this point
+        }
+        // Add the new author to the authors collection
+        authors = authors.concat(newAuthor)
+      }
+
+      // Return the newly created book. This will be sent as the response to the mutation
+      return newBook
     }
   }
 }
