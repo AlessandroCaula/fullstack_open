@@ -1164,3 +1164,100 @@ If the author is not in the system, _null_ is returned:
 ```
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
+
+## Part 8b - React and GraphQL
+
+We will next implement a React app that uses the GraphQL server we created.
+
+The current code of the server can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-3), branch _part8-3_.
+
+In theory, we could use GraphQL with HTTP POST requests. The following shows an example of this with Postman:
+
+![alt text](assets/image3.png)
+
+The communication works by sending HTTP POST requests to http://localhost:4000/graphql. The query itself is a string sent as the value of the key _query_.
+
+We could take care of the communication between the React app and GraphQL by using Axios. However, most of the time, it is not very sensible to do so. It is a better idea to use a higher-order library capable of abstracting the unnecessary details of the communication.
+
+At the moment, there are two good options: [Relay](https://facebook.github.io/relay/) by Facebook and [Apollo Client](https://www.apollographql.com/docs/react/), which is the client side of the same library we used in the previous section. Apollo is absolutely the most popular of the two, and we will use it in this section as well.
+
+### Apollo client
+
+Let us create a new React app, and can continue installing dependencies required by [Apollo client](https://www.apollographql.com/docs/react/get-started/).
+
+```
+npm install @apollo/client graphql
+```
+
+We'll start with the following code for our application:
+
+```js
+import ReactDOM from 'react-dom/client'
+import App from './App'
+
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000',
+  cache: new InMemoryCache(),
+})
+
+const query = gql`
+  query {
+    allPersons  {
+      name,
+      phone,
+      address {
+        street,
+        city
+      }
+      id
+    }
+  }
+`
+
+client.query({ query })
+  .then((response) => {
+    console.log(response.data)
+  })
+
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+```
+
+The beginning of the code creates a new client object, which is then used to send a query to the server:
+
+```js
+client.query({ query })
+  .then((response) => {
+    console.log(response.data)
+  })
+```
+
+The server's response is printed to the console:
+
+![alt text](assets/image4.png)
+
+The application can communicate with a GraphQL server using the `client` object. The client can be made accessible for all components of the application by wrapping the _App_ component with [ApolloProvider](https://www.apollographql.com/docs/react/get-started#step-4-connect-your-client-to-react).
+
+```js
+import ReactDOM from 'react-dom/client'
+import App from './App'
+
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+} from '@apollo/client'
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000',
+  cache: new InMemoryCache(),
+})
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>
+)
+```
