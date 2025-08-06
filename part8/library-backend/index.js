@@ -121,7 +121,11 @@ const typeDefs = `
       author: String!
       published: Int!
       genres: [String!]!
-    ) : Book
+    ): Book
+    editAuthor (
+      name: String!
+      born: Int!
+    ): Author
   }
 `
 
@@ -179,6 +183,20 @@ const resolvers = {
 
       // Return the newly created book. This will be sent as the response to the mutation
       return newBook
+    },
+    editAuthor: (root, args) => {
+      // Retrieve the author that we want to modify
+      const author = authors.find(a => a.name === args.name)
+      // If no author is find, then return null
+      if (!author) {
+        return null
+      }
+      // Otherwise update the author born date
+      const updateAuthor = { ...author, born: args.born }
+      // Add it to to the author collection
+      authors = authors.map(a => a.name === args.name ? updateAuthor : p)
+      // Return the updated author
+      return updateAuthor
     }
   }
 }
