@@ -1261,3 +1261,41 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </ApolloProvider>
 )
 ```
+
+### Making queries
+
+We are ready to implement the main view of the application, which shows a list of person's name and phone number.
+
+Apollo Client offers a few alternatives for making [queries](https://www.apollographql.com/docs/react/data/queries/). Currently, the use of the hook function [useQuery](https://www.apollographql.com/docs/react/api/react/hooks/#usequery) is the dominant practice.
+
+The query is made by the _App_ component, the code of which is as follows:
+
+```js
+import { gql, useQuery } from '@apollo/client'
+
+const ALL_PERSONS = gql`
+query {
+  allPersons {
+    name
+    phone
+    id
+  }
+}
+`
+
+const App = () => {
+  const result = useQuery(ALL_PERSONS)
+
+  if (result.loading) {
+    return <div>loading...</div>
+  }
+
+  return (
+    <div>
+      {result.data.allPersons.map(p => p.name).join(', ')}
+    </div>
+  )
+}
+
+export default App
+```
