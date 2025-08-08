@@ -1348,3 +1348,161 @@ const App = () => {
   )
 }
 ```
+
+### Named queries and variables
+
+Let's implement functionality for viewing the address details of a person. The _findPerson_ query is well-suited for this.
+
+The queries we did in the last chapter had the parameter hardcoded into the query:
+
+```js
+query {
+  findPerson(name: "Arto Hellas") {
+    phone 
+    city 
+    street
+    id
+  }
+}
+```
+
+When we do queries programmatically, we must be able to give them parameters dynamically.
+
+GraphQL [variables](https://graphql.org/learn/queries/#variables) are well-suited for this. To be able to use variables, we must also name our queries.
+
+A good format for the query is this:
+
+```js
+query findPersonByName($nameToSearch: String!) {
+  findPerson(name: $nameToSearch) {
+    name
+    phone 
+    address {
+      street
+      city
+    }
+  }
+}
+```
+
+The name of the query is _findPersonByName_, and it is given a string _$nameToSearch_ as a parameter.
+
+It is also possible to do queries with parameters with the Apollo Explorer. The parameters are given in _Variables_:
+
+![alt text](assets/image5.png)
+
+The `useQuery` hook is well-suited for situations where the query is done when the component is rendered. However, we now want to make the query only when a user wants to see the details of a specific person, so the query is done only [as required](https://www.apollographql.com/docs/react/data/queries/#executing-queries-manually).
+
+One possibility for this kind of situations is the hook function [useLazyQuery](https://www.apollographql.com/docs/react/api/react/hooks/#uselazyquery) that would make it possible to define a query which is executed _when_ the user wants to see the detailed information of a person.
+
+However, in our case we can stick to `useQuery` and use the option [skip](https://www.apollographql.com/docs/react/data/queries#skipoptional), which makes it possible to do the query only if a set condition is true.
+
+The solution is as follows:
+
+```js
+import { useState } from 'react'
+import { gql, useQuery } from '@apollo/client'
+
+const FIND_PERSON = gql`
+  query findPersonByName($nameToSearch: String!) {
+    findPerson(name: $nameToSearch) {
+      name
+      phone
+      id
+      address {
+        street
+        city
+      }
+    }
+  }
+`
+
+const Person = ({ person, onClose }) => {
+  return (
+    <div>
+      <h2>{person.name}</h2>
+      <div>
+        {person.address.street} {person.address.city}
+      </div>
+      <div>{person.phone}</div>
+      <button onClick={onClose}>close</button>
+    </div>
+  )
+}
+
+const Persons = ({ persons }) => {
+  const [nameToSearch, setNameToSearch] = useState(null)
+  const result = useQuery(FIND_PERSON, {
+    variables: { nameToSearch },
+    skip: !nameToSearch,
+  })
+
+  if (nameToSearch && result.data) {
+    return (
+      <Person
+        person={result.data.findPerson}
+        onClose={() => setNameToSearch(null)}
+      />
+    )
+  }
+
+  return (
+    <div>
+      <h2>Persons</h2>
+      {persons.map((p) => (
+        <div key={p.name}>
+          {p.name} {p.phone} 
+          <button onClick={() => setNameToSearch(p.name)}>
+            show address
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default Persons
+```
+
+The code has changed quite a lot, and all of the changes are not completely apparent.
+
+When the button _show address_ of a person is pressed, the name of the person is set to state _nameToSearch_:
+
+```js
+<button onClick={() => setNameToSearch(p.name)}>
+  show address
+</button>
+```
+
+This causes the component to re-render itself. On render the query *FIND_PERSON* that fetches the detailed information of a user is executed if the variable _nameToSearch_ has a value:
+
+```js
+const result = useQuery(FIND_PERSON, {
+  variables: { nameToSearch },
+  skip: !nameToSearch,
+})
+```
+
+When the user is not interested in seeing the detailed info of any person, the state variable _nameToSearch_ is null and the query is not executed.
+
+If the state _nameToSearch_ has a value and the query result is ready, the component _Person_ renders the detailed info of a person:
+
+```js
+if (nameToSearch && result.data) {
+  return (
+    <Person
+      person={result.data.findPerson}
+      onClose={() => setNameToSearch(null)}
+    />
+  )
+}
+```
+
+A single-person view looks like this:
+
+![alt text](assets/image6.png)
+
+When a user wants to return to the person list, the `nameToSearch` state is set to `null`.
+
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-1) branch _part8-1_.
+
