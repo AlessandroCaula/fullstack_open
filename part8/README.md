@@ -1506,3 +1506,17 @@ When a user wants to return to the person list, the `nameToSearch` state is set 
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-1) branch _part8-1_.
 
+### Cache
+
+When we do multiple queries, for example with the address details of Arto Hellas, we notice something interesting: the query to the backend is done only the first time around. After this, despite the same query being done again by the code, the query is not sent to the backend.
+
+![alt text](assets/image7.png)
+
+Apollo client saves the responses of queries to [cache](https://www.apollographql.com/docs/react/caching/overview/). To optimize performance if the response to a query is already in the cache, the query is not sent to the server at all.
+
+![alt text](assets/image8.png)
+
+Cache shows the detailed info of Arto Hellas after the query _findPerson_:
+
+![alt text](assets/image9.png)
+
