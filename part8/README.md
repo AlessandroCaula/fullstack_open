@@ -1520,3 +1520,107 @@ Cache shows the detailed info of Arto Hellas after the query _findPerson_:
 
 ![alt text](assets/image9.png)
 
+### Doing mutations
+
+Let's implement functionality for adding new persons.
+
+In the previous chapter, we hardcoded the parameters for mutations. Now, we need a version of the addPerson mutation which uses [variables](https://graphql.org/learn/queries/#variables):
+
+```js
+const CREATE_PERSON = gql`
+mutation createPerson($name: String!, $street: String!, $city: String!, $phone: String) {
+  addPerson(
+    name: $name,
+    street: $street,
+    city: $city,
+    phone: $phone
+  ) {
+    name
+    phone
+    id
+    address {
+      street
+      city
+    }
+  }
+}
+`
+```
+
+The hook function [useMutation](https://www.apollographql.com/docs/react/api/react/hooks/#usemutation) provides the functionality for making mutations.
+
+Let's create a new component for adding a new person to the directory:
+
+```js
+import { useState } from 'react'
+import { gql, useMutation } from '@apollo/client'
+
+const CREATE_PERSON = gql`
+  // ...
+`
+
+const PersonForm = () => {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [street, setStreet] = useState('')
+  const [city, setCity] = useState('')
+
+  const [ createPerson ] = useMutation(CREATE_PERSON)
+
+  const submit = (event) => {
+    event.preventDefault()
+
+    createPerson({  variables: { name, phone, street, city } })
+
+    setName('')
+    setPhone('')
+    setStreet('')
+    setCity('')
+  }
+
+  return (
+    <div>
+      <h2>create new</h2>
+      <form onSubmit={submit}>
+        <div>
+          name <input value={name}
+            onChange={({ target }) => setName(target.value)}
+          />
+        </div>
+        <div>
+          phone <input value={phone}
+            onChange={({ target }) => setPhone(target.value)}
+          />
+        </div>
+        <div>
+          street <input value={street}
+            onChange={({ target }) => setStreet(target.value)}
+          />
+        </div>
+        <div>
+          city <input value={city}
+            onChange={({ target }) => setCity(target.value)}
+          />
+        </div>
+        <button type='submit'>add!</button>
+      </form>
+    </div>
+  )
+}
+
+export default PersonForm
+```
+
+The code of the form is straightforward and the interesting lines have been highlighted. We can define mutation functions using the `useMutation` hook. The hook returns an _array_, the first element of which contains the function to cause the mutation.
+
+```js
+const [ createPerson ] = useMutation(CREATE_PERSON)
+```
+
+The query variables receive values when the query is made:
+
+```js
+createPerson({  variables: { name, phone, street, city } })
+```
+
+New persons are added just fine, but the screen is not updated. This is because Apollo Client cannot automatically update the cache of an application, so it still contains the state from before the mutation. We could update the screen by reloading the page, as the cache is emptied when the page is reloaded. However, there must be a better way to do this.
