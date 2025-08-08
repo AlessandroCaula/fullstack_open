@@ -1299,3 +1299,52 @@ const App = () => {
 
 export default App
 ```
+
+When called, `useQuery` makes the query it receives as a parameter. It returns an object with multiple [fields](https://www.apollographql.com/docs/react/api/react/hooks/#result). The field _loading_ is true if the query has not received a response yet. Then the following code gets rendered:
+
+```js
+if (result.loading) {
+  return <div>loading...</div>
+}
+```
+
+When a response is received, the result of the _allPersons_ query can be found in the data field, and we can render the list of names to the screen.
+
+```js
+<div>
+  {result.data.allPersons.map(p => p.name).join(', ')}
+</div>
+```
+
+Let's separate displaying the list of persons into its own component:
+
+```js
+const Persons = ({ persons }) => {
+  return (
+    <div>
+      <h2>Persons</h2>
+      {persons.map(p =>
+        <div key={p.name}>
+          {p.name} {p.phone}
+        </div>  
+      )}
+    </div>
+  )
+}
+```
+
+The `App` component still makes the query, and passes the result to the new component to be rendered:
+
+```js
+const App = () => {
+  const result = useQuery(ALL_PERSONS)
+
+  if (result.loading)  {
+    return <div>loading...</div>
+  }
+
+  return (
+    <Persons persons={result.data.allPersons}/>
+  )
+}
+```
