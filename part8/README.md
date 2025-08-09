@@ -1624,3 +1624,104 @@ createPerson({  variables: { name, phone, street, city } })
 ```
 
 New persons are added just fine, but the screen is not updated. This is because Apollo Client cannot automatically update the cache of an application, so it still contains the state from before the mutation. We could update the screen by reloading the page, as the cache is emptied when the page is reloaded. However, there must be a better way to do this.
+
+### Updating the cache
+
+There are a few different solutions for this. One way is to make the query for all persons [poll](https://www.apollographql.com/docs/react/data/queries/#polling) the server, or make the query repeatedly.
+
+The change is small. Let's set the query to poll every two seconds:
+
+```js
+const App = () => {
+  const result = useQuery(ALL_PERSONS, {
+    pollInterval: 2000
+  })
+
+  if (result.loading)  {
+    return <div>loading...</div>
+  }
+
+  return (
+    <div>
+      <Persons persons = {result.data.allPersons}/>
+      <PersonForm />
+    </div>
+  )
+}
+
+export default App
+```
+
+The solution is simple, and every time a user adds a new person, it appears immediately on the screens of all users.
+
+The bad side of the solution is all the pointless web traffic.
+
+Another easy way to keep the cache in sync is to use the `useMutation` hook's [refetchQueries](https://www.apollographql.com/docs/react/data/refetching/) parameter to define that the query fetching all persons is done again whenever a new person is created.
+
+```js
+const ALL_PERSONS = gql`
+  query  {
+    allPersons  {
+      name
+      phone
+      id
+    }
+  }
+`
+
+const PersonForm = (props) => {
+  // ...
+
+  const [ createPerson ] = useMutation(CREATE_PERSON, {
+    refetchQueries: [ { query: ALL_PERSONS } ]
+  })
+```
+
+The pros and cons of this solution are almost opposite of the previous one. There is no extra web traffic because queries are not done just in case. However, if one user now updates the state of the server, the changes do not show to other users immediately.
+
+If you want to do multiple queries, you can pass multiple objects inside refetchQueries. This will allow you to update different parts of your app at the same time. Here is an example:
+
+```js
+    const [ createPerson ] = useMutation(CREATE_PERSON, {
+    refetchQueries: [ { query: ALL_PERSONS }, { query: OTHER_QUERY }, { query: ... } ] // pass as many queries as you need
+  })
+```
+
+There are other ways to update the cache. More about those later in this part.
+
+At the moment, queries and components are defined in the same place in our code. Let's separate the query definitions into their own file _queries.js_:
+
+```js
+import { gql } from '@apollo/client'
+
+export const ALL_PERSONS = gql`
+  query {
+    // ...
+  }
+`
+export const FIND_PERSON = gql`
+  query findPersonByName($nameToSearch: String!) {
+    // ...
+  }
+`
+
+export const CREATE_PERSON = gql`
+  mutation createPerson($name: String!, $street: String!, $city: String!, $phone: String) {
+    // ...
+  }
+`
+```
+
+Each component then imports the queries it needs:
+
+```js
+import { ALL_PERSONS } from './queries'
+
+const App = () => {
+  const result = useQuery(ALL_PERSONS)
+  // ...
+}
+```
+
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-2) branch _part8-2_.
+
