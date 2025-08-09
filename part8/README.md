@@ -1796,3 +1796,73 @@ Now the user is informed about an error with a simple notification.
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-3) branch _part8-3_.
 
+### Update a phone number
+
+Let's add the possibility to change the phone numbers of persons to our application. The solution is almost identical to the one we used for adding new persons.
+
+Again, the mutation requires parameters.
+
+```js
+export const EDIT_NUMBER = gql`
+  mutation editNumber($name: String!, $phone: String!) {
+    editNumber(name: $name, phone: $phone) {
+      name
+      phone
+      address {
+        street
+        city
+      }
+      id
+    }
+  }
+`
+```
+
+The _PhoneForm_ component responsible for the change is straightforward. The form has fields for the person's name and new phone number, and calls the `changeNumber` function. The function is done using the `useMutation` hook. Interesting lines on the code have been highlighted.
+
+```js
+import { useState } from 'react'
+import { useMutation } from '@apollo/client'
+
+import { EDIT_NUMBER } from '../queries'
+
+const PhoneForm = () => {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+
+  const [ changeNumber ] = useMutation(EDIT_NUMBER)
+
+  const submit = (event) => {
+    event.preventDefault()
+
+    changeNumber({ variables: { name, phone } })
+
+    setName('')
+    setPhone('')
+  }
+
+  return (
+    <div>
+      <h2>change number</h2>
+
+      <form onSubmit={submit}>
+        <div>
+          name <input
+            value={name}
+            onChange={({ target }) => setName(target.value)}
+          />
+        </div>
+        <div>
+          phone <input
+            value={phone}
+            onChange={({ target }) => setPhone(target.value)}
+          />
+        </div>
+        <button type='submit'>change number</button>
+      </form>
+    </div>
+  )
+}
+
+export default PhoneForm
+```
