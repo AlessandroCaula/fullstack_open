@@ -1725,3 +1725,74 @@ const App = () => {
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-2) branch _part8-2_.
 
+### Handling mutation errors
+
+Trying to create a person with invalid data causes an error:
+
+![alt text](assets/image10.png)
+
+We should handle the exception. We can register an error handler function to the mutation using the `useMutation` hook's `onError` [option](https://www.apollographql.com/docs/react/api/react/hooks/#params-2).
+
+Let's register the mutation with an error handler that uses the `setError` function it receives as a parameter to set an error message:
+
+```js
+const PersonForm = ({ setError }) => {
+  // ... 
+
+  const [ createPerson ] = useMutation(CREATE_PERSON, {
+    refetchQueries: [  {query: ALL_PERSONS } ],
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      setError(messages)
+    }
+  })
+  // ...
+}
+```
+
+We can then render the error message on the screen as necessary:
+
+```js
+const App = () => {
+  const [errorMessage, setErrorMessage] = useState(null)
+
+  const result = useQuery(ALL_PERSONS)
+
+  if (result.loading)  {
+    return <div>loading...</div>
+  }
+
+  const notify = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 10000)
+  }
+
+  return (
+    <div>
+      <Notify errorMessage={errorMessage} />
+      <Persons persons = {result.data.allPersons} />
+      <PersonForm setError={notify} />
+    </div>
+  )
+}
+
+const Notify = ({errorMessage}) => {
+  if ( !errorMessage ) {
+    return null
+  }
+  return (
+    <div style={{color: 'red'}}>
+    {errorMessage}
+    </div>
+  )
+}
+```
+
+Now the user is informed about an error with a simple notification.
+
+![alt text](assets/image11.png)
+
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-3) branch _part8-3_.
+
