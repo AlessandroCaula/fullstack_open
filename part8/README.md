@@ -1906,3 +1906,27 @@ If a person cannot be found, or the `result.data.editNumber` is `null`, the comp
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-4) branch _part8-4_.
 
+### Apollo Client and the application state
+
+In our example, management of the applications state has mostly become the responsibility of Apollo Client. This is quite a typical solution for GraphQL applications. Our example uses the state of the React components only to manage the state of a form and to show error notifications. As a result, it could be that there are no justifiable reasons to use Redux to manage application state when using GraphQL.
+
+When necessary, Apollo enables saving the application's local state to [Apollo cache](https://www.apollographql.com/docs/react/local-state/local-state-management/).
+
+<hr style="border: 2px solid rgba(90, 171, 163, 1)">
+
+### Exercises 8.8 - 8.12
+
+Through these exercises, we'll implement a frontend for the GraphQL library.
+
+Take [this project](https://github.com/fullstack-hy2020/library-frontend) as a start for your application.
+
+Note if you want, you can also use [React router](../part7/README.md#part-7a---react-router) to implement the application's navigation!
+
+#### 8.8: Authors view
+
+Implement an Authors view to show the details of all authors on a page as follows:
+
+![alt text](image.png)
+
+<hr style="border: 2px solid rgba(90, 171, 163, 1)">
+
