@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EDIT_NUMBER } from "../queries"
 import { useMutation } from "@apollo/client";
 
-const PhoneForm = () => {
+const PhoneForm = ({ setError }) => {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
 
-  const [changeNumber] = useMutation(EDIT_NUMBER)
+  const [changeNumber, result] = useMutation(EDIT_NUMBER)
 
   const submit = (event) => {
     event.preventDefault()
@@ -16,6 +16,12 @@ const PhoneForm = () => {
     setName('')
     setPhone('')
   }
+
+  useEffect(() => {
+    if (result.data && result.data.editNumber === null) {
+      setError('person not found')
+    }
+  }, [result.data])
 
   return (
     <div>

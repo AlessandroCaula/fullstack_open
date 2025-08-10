@@ -1796,7 +1796,7 @@ Now the user is informed about an error with a simple notification.
 
 The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-3) branch _part8-3_.
 
-### Update a phone number
+### Updating a phone number
 
 Let's add the possibility to change the phone numbers of persons to our application. The solution is almost identical to the one we used for adding new persons.
 
@@ -1866,3 +1866,43 @@ const PhoneForm = () => {
 
 export default PhoneForm
 ```
+
+It looks bleak, but it works:
+
+![alt text](assets/image12.png)
+
+Surprisingly, when a person's number is changed, the new number automatically appears on the list of persons rendered by the _Persons_ component. This happens because each person has an identifying field of type _ID_, so the person's details saved to the cache update automatically when they are changed with the mutation.
+
+Our application still has one small flaw. If we try to change the phone number for a name which does not exist, nothing seems to happen. This happens because if a person with the given name cannot be found, the mutation response is _null_:
+
+![alt text](assets/image13.png)
+
+For GraphQL, this is not an error, so registering an `onError` error handler is not useful.
+
+We can use the `result` field returned by the `useMutation` hook as its second parameter to generate an error message.
+
+```js
+const PhoneForm = ({ setError }) => {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+
+  const [ changeNumber, result ] = useMutation(EDIT_NUMBER)
+
+  const submit = (event) => {
+    // ...
+  }
+
+  useEffect(() => {
+    if (result.data && result.data.editNumber === null) {
+      setError('person not found')
+    }
+  }, [result.data])
+
+  // ...
+}
+```
+
+If a person cannot be found, or the `result.data.editNumber` is `null`, the component uses the callback function it received as props to set a suitable error message. We want to set the error message only when the result of the mutation `result.data` changes, so we use the useEffect hook to control setting the error message.
+
+The current code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/graphql-phonebook-frontend/tree/part8-4) branch _part8-4_.
+
