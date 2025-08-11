@@ -1954,7 +1954,13 @@ Implement a possibility to set authors birth year. You can create a new view for
 
 Make sure that the Authors view is kept up to date after setting a birth year.
 
+#### 8.12: Authors birth year advanced
 
+Change the birth year form so that a birth year can be set only for an existing author. Use [select tag](https://react.dev/reference/react-dom/components/select), [react select](https://github.com/JedWatson/react-select), or some other mechanism.
+
+A solution using the react select library looks as follows:
+
+![alt text](assets/image19.png)
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 

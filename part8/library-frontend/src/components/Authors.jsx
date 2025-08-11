@@ -22,6 +22,7 @@ const Authors = () => {
 
   const editBornYear = async (event) => {
     event.preventDefault()
+    console.log(name)
     await editAuthor({ variables: { name, born: Number(born) } })
 
     // Reset the states
@@ -51,11 +52,16 @@ const Authors = () => {
       <h2>Set birthyear</h2>
       <form onSubmit={editBornYear}>
         <div>
-          name 
-          <input 
-            value={name}
+          name
+          <select 
+            value={name} 
             onChange={({ target }) => setName(target.value)}
-          />
+          >
+            <option value='' disabled>Select an author</option>
+            {authors.map((a, i) => (
+              <option key={i} value={a.name}>{a.name}</option>
+            ))}
+          </select>
         </div>
         <div>
           born 
