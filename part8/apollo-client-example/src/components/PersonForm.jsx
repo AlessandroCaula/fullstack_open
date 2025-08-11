@@ -19,7 +19,7 @@ const PersonForm = ({ setError }) => {
   const submit = (event) => {
     event.preventDefault()
 
-    createPerson( { variables: { name, phone, street, city }})
+    createPerson({ variables: { name, phone, street, city }})
 
     setName('')
     setPhone('')

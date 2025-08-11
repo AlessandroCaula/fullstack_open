@@ -1934,5 +1934,18 @@ Implement a Books view that shows the details of all books except their genres.
 
 ![alt text](assets/image15.png)
 
+#### 8.10: Adding a book
+
+Implement a possibility to add new books to your application. The functionality can look like this:
+
+![alt text](assets/image16.png)
+
+Make sure that the Authors and Books views are kept up to date after a new book is added.
+
+In case of problems when making queries or mutations, check from the developer console what the server response is:
+
+![alt text](assets/image17.png)
+
+
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 
