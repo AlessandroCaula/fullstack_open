@@ -1946,6 +1946,15 @@ In case of problems when making queries or mutations, check from the developer c
 
 ![alt text](assets/image17.png)
 
+#### 8.11: Authors birth year
+
+Implement a possibility to set authors birth year. You can create a new view for setting the birth year, or place it on the Authors view:
+
+![alt text](assets/image18.png)
+
+Make sure that the Authors view is kept up to date after setting a birth year.
+
+
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 

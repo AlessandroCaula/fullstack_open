@@ -194,7 +194,7 @@ const resolvers = {
       // Otherwise update the author born date
       const updateAuthor = { ...author, born: args.born }
       // Add it to to the author collection
-      authors = authors.map(a => a.name === args.name ? updateAuthor : p)
+      authors = authors.map(a => a.name === args.name ? updateAuthor : a)
       // Return the updated author
       return updateAuthor
     }
