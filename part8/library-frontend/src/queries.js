@@ -16,7 +16,6 @@ export const ALL_BOOKS = gql`
       title
       published
       author
-      genres
     }
   }
 `

@@ -1926,7 +1926,13 @@ Note if you want, you can also use [React router](../part7/README.md#part-7a---r
 
 Implement an Authors view to show the details of all authors on a page as follows:
 
-![alt text](image.png)
+![alt text](assets/image14.png)
+
+#### 8.9: Books view
+
+Implement a Books view that shows the details of all books except their genres.
+
+![alt text](assets/image15.png)
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 
