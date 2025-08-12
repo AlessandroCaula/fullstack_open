@@ -2066,3 +2066,51 @@ const resolvers = {
   },
 }
 ```
+
+The changes are pretty straightforward. However, there are a few noteworthy things. As we remember, in Mongo, the identifying field of an object is called *_id* and we previously had to parse the name of the field to _id_ ourselves. Now GraphQL can do this automatically.
+
+Another noteworthy thing is that the resolver functions now return a _promise_, when they previously returned normal objects. When a resolver returns a promise, Apollo server [sends back](https://www.apollographql.com/docs/apollo-server/data/resolvers#return-values) the value which the promise resolves to.
+
+For example, if the following resolver function is executed,
+
+```js
+allPersons: async (root, args) => {
+  return Person.find({})
+},
+```
+
+Apollo server waits for the promise to resolve, and returns the result. So Apollo works roughly like this:
+
+```js
+allPersons: async (root, args) => {
+  const result = await Person.find({})
+  return result
+}
+```
+
+Let's complete the `allPersons` resolver so it takes the optional parameter `phone` into account:
+
+```js
+Query: {
+  // ..
+  allPersons: async (root, args) => {
+    if (!args.phone) {
+      return Person.find({})
+    }
+
+    return Person.find({ phone: { $exists: args.phone === 'YES' } })
+  },
+},
+```
+
+So if the query has not been given a parameter `phone`, all persons are returned. If the parameter has the value _YES_, the result of the query
+
+```js
+Person.find({ phone: { $exists: true }})
+```
+
+is returned, so the objects in which the field `phone` has a value. If the parameter has the value _NO_, the query returns the objects in which the `phone` field has no value:
+
+```js
+Person.find({ phone: { $exists: false }})
+```

@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
     minlength: 5
   },
   phone: {
-    type: String, 
+    type: String,
     minlength: 5
   },
   street: {
@@ -19,7 +19,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 3
-  }
+  },
 })
 
-module.exports = mongoose.model("Person", schema)
+module.exports = mongoose.model('Person', schema)
