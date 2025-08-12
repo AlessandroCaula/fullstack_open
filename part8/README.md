@@ -1975,3 +1975,94 @@ Install Mongoose and dotenv:
 ```
 npm install mongoose dotenv
 ```
+
+We will imitate what we did in parts [3](../part3/README.md#3c---saving-data-to-mongodb) and [4](../part4/README.md#part-4a---structure-of-backend-application-introduction-to-testing).
+
+The person schema has been defined as follows:
+
+```js
+const mongoose = require('mongoose')
+
+const schema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 5
+  },
+  phone: {
+    type: String,
+    minlength: 5
+  },
+  street: {
+    type: String,
+    required: true,
+    minlength: 5
+  },
+  city: {
+    type: String,
+    required: true,
+    minlength: 3
+  },
+})
+
+module.exports = mongoose.model('Person', schema)
+```
+
+We also included a few validations. `required: true`, which makes sure that a value exists, is actually redundant: we already ensure that the fields exist with GraphQL. However, it is good to also keep validation in the database.
+
+We can get the application to mostly work with the following changes:
+
+```js
+// ...
+const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
+const Person = require('./models/person')
+
+require('dotenv').config()
+
+const MONGODB_URI = process.env.MONGODB_URI
+
+console.log('connecting to', MONGODB_URI)
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connection to MongoDB:', error.message)
+  })
+
+const typeDefs = gql`
+  ...
+`
+
+const resolvers = {
+  Query: {
+    personCount: async () => Person.collection.countDocuments(),
+    allPersons: async (root, args) => {
+      // filters missing
+      return Person.find({})
+    },
+    findPerson: async (root, args) => Person.findOne({ name: args.name }),
+  },
+  Person: {
+    address: (root) => {
+      return {
+        street: root.street,
+        city: root.city,
+      }
+    },
+  },
+  Mutation: {
+    addPerson: async (root, args) => {
+      const person = new Person({ ...args })
+      return person.save()
+    },
+    editNumber: async (root, args) => {
+      const person = await Person.findOne({ name: args.name })
+      person.phone = args.phone
+      return person.save()
+    },
+  },
+}
+```

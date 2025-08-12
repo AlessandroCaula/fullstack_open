@@ -26,6 +26,14 @@ let persons = [
   },
 ]
 
+const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
+const Person = require('./models/person')
+
+require('dotenv').config()
+
+
+
 const typeDefs = `
   type Address {
     street: String!
