@@ -2163,4 +2163,180 @@ We have also added the Mongoose error and the data that caused the error to the 
 
 The code of the backend can be found on [Github](https://github.com/fullstack-hy2020/graphql-phonebook-backend/tree/part8-4), branch _part8-4_.
 
+### User and log in
 
+Let's add user management to our application. For simplicity's sake, let's assume that all users have the same password which is hardcoded to the system. It would be straightforward to save individual passwords for all users following the principles from [part 4](../part4/README.md#part-4c---user-administration), but because our focus is on GraphQL, we will leave out all that extra hassle this time.
+
+The user schema is as follows:
+
+```js
+const mongoose = require('mongoose')
+
+const schema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    minlength: 3
+  },
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Person'
+    }
+  ],
+})
+
+module.exports = mongoose.model('User', schema)
+```
+
+Every user is connected to a bunch of other persons in the system through the `friends` field. The idea is that when a user, e.g. _mluukkai_, adds a person, e.g. _Arto Hellas_, to the list, the person is added to their `friends` list. This way, logged-in users can have their own personalized view in the application.
+
+Logging in and identifying the user are handled the same way we used in [part 4](https://fullstackopen.com/en/part4/token_authentication) when we used REST, by using tokens.
+
+Let's extend the schema like so:
+
+```js
+type User {
+  username: String!
+  friends: [Person!]!
+  id: ID!
+}
+
+type Token {
+  value: String!
+}
+
+type Query {
+  // ..
+  me: User
+}
+
+type Mutation {
+  // ...
+  createUser(
+    username: String!
+  ): User
+  login(
+    username: String!
+    password: String!
+  ): Token
+}
+```
+
+The query `me` returns the currently logged-in user. New users are created with the `createUser` mutation, and logging in happens with the `login` mutation.
+
+The resolvers of the mutations are as follows:
+
+```js
+const jwt = require('jsonwebtoken')
+
+Mutation: {
+  // ..
+  createUser: async (root, args) => {
+    const user = new User({ username: args.username })
+
+    return user.save()
+      .catch(error => {
+        throw new GraphQLError('Creating the user failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.username,
+            error
+          }
+        })
+      })
+  },
+  login: async (root, args) => {
+    const user = await User.findOne({ username: args.username })
+
+    if ( !user || args.password !== 'secret' ) {
+      throw new GraphQLError('wrong credentials', {
+        extensions: {
+          code: 'BAD_USER_INPUT'
+        }
+      })        
+    }
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+  },
+},
+```
+
+The new user mutation is straightforward. The login mutation checks if the username/password pair is valid. And if it is indeed valid, it returns a jwt token familiar from [part 4](../part4/README.md#part-4d---token-authentication). Note that the `JWT_SECRET` must be defined in the _.env_ file.
+
+User creation is done now as follows:
+
+```js
+mutation {
+  createUser (
+    username: "mluukkai"
+  ) {
+    username
+    id
+  }
+}
+```
+
+The mutation for logging in looks like this:
+
+```js
+mutation {
+  login (
+    username: "mluukkai"
+    password: "secret"
+  ) {
+    value
+  }
+}
+```
+
+Just like in the previous case with REST, the idea now is that a logged-in user adds a token they receive upon login to all of their requests. And just like with REST, the token is added to GraphQL queries using the _Authorization_ header.
+
+In the Apollo Explorer, the header is added to a query like so:
+
+![alt text](assets/image20.png)
+
+Modify the startup of the backend by giving the function that handles the startup [startStandaloneServer](https://www.apollographql.com/docs/apollo-server/api/standalone/) another parameter [context](https://www.apollographql.com/docs/apollo-server/data/context/)
+
+```js
+startStandaloneServer(server, {
+  listen: { port: 4000 },
+  context: async ({ req, res }) => {
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.startsWith('Bearer ')) {
+      const decodedToken = jwt.verify(
+        auth.substring(7), process.env.JWT_SECRET
+      )
+      const currentUser = await User
+        .findById(decodedToken.id).populate('friends')
+      return { currentUser }
+    }
+  },
+}).then(({ url }) => {
+  console.log(`Server ready at ${url}`)
+})
+```
+
+The object returned by context is given to all resolvers as their _third parameter_. Context is the right place to do things which are shared by multiple resolvers, like [user identification](https://www.apollographql.com/blog/authorization-in-graphql/).
+
+So our code sets the object corresponding to the user who made the request to the `currentUser` field of the context. If there is no user connected to the request, the value of the field is undefined.
+
+The resolver of the `me` query is very simple: it just returns the logged-in user it receives in the `currentUser` field of the third parameter of the resolver, `context`. It's worth noting that if there is no logged-in user, i.e. there is no valid token in the header attached to the request, the query returns _null_:
+
+```js
+Query: {
+  // ...
+  me: (root, args, context) => {
+    return context.currentUser
+  }
+},
+```
+
+If the header has the correct value, the query returns the user information identified by the header
+
+![alt text](assets/image21.png)
