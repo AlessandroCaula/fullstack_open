@@ -1964,3 +1964,14 @@ A solution using the react select library looks as follows:
 
 <hr style="border: 2px solid rgba(90, 171, 163, 1)">
 
+## Part 8c - Database and user administration
+
+We will now add user management to our application, but let's first start using a database for storing data.
+
+### Mongoose and Apollo
+
+Install Mongoose and dotenv:
+
+```
+npm install mongoose dotenv
+```
