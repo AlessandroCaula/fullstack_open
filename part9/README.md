@@ -9,7 +9,7 @@ This part is created by Tuomo Torppa, Tuukka Peuraniemi and Jani Rapo, the aweso
 
 # Part 9
 
-## Part9 - Background and introduction
+## Part 9a - Background and introduction
 
 [TypeScript](https://www.typescriptlang.org/) is a programming language designed for large-scale JavaScript development created by Microsoft. For example, Microsoft's _Azure Management Portal_ (1,2 million lines of code) and _Visual Studio Code_ (300 000 lines of code) have both been written in TypeScript. To support building large-scale JavaScript applications, TypeScript offers features such as better development-time tooling, static code analysis, compile-time type checking and code-level documentation.
 
@@ -120,15 +120,129 @@ As mentioned above, TypeScript's type annotations and type checking exist only a
 
 Lastly, below, we list some issues many have with TypeScript, which might be good to be aware of:
 
-__Incomplete, invalid or missing types in external libraries__
+#### Incomplete, invalid or missing types in external libraries
 
 When using external libraries, you may find that some have either missing or in some way invalid type declarations. Most often, this is due to the library not being written in TypeScript, and the person adding the type declarations manually not doing such a good job with it. In these cases, you might need to define the type declarations yourself. However, there is a good chance someone has already added typings for the package you are using. Always check the DefinitelyTyped [GitHub page](https://github.com/DefinitelyTyped/DefinitelyTyped) first. It is probably the most popular source for type declaration files. Otherwise, you might want to start by getting acquainted with TypeScript's [documentation](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html) regarding type declarations.
 
-__Sometimes, type inference needs assistance__
+#### Sometimes, type inference needs assistance
 
 The type inference in TypeScript is pretty good but not quite perfect. Sometimes, you may feel like you have declared your types perfectly, but the compiler still tells you that the property does not exist or that this kind of usage is not allowed. In these cases, you might need to help the compiler out by doing something like an "extra" type check. One should be careful with type casting (that is quite often called type assertion) or type guards: when using those, you are giving your word to the compiler that the value is of the type that you declare. You might want to check out TypeScript's documentation regarding [type assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) and [type guarding/narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).
 
-__Mysterious type errors__
+#### Mysterious type errors
 
 The errors given by the type system may sometimes be quite hard to understand, especially if you use complex types. As a rule of thumb, the TypeScript error messages have the most useful information at the end of the message. When running into long confusing messages, start reading them from the end.
+
+## Part 9b - First steps with TypeScript
+
+After the brief introduction to the main principles of TypeScript, we are now ready to start our journey toward becoming FullStack TypeScript developers. Rather than giving you a thorough introduction to all aspects of TypeScript, we will focus in this part on the most common issues that arise when developing an Express backend or a React frontend with TypeScript. In addition to language features, we will also have a strong emphasis on tooling.
+
+### Setting things up
+
+Install TypeScript support to your editor of choice. Visual Studio Code works natively with TypeScript.
+
+As mentioned earlier, TypeScript code is not executable by itself. It has to be first compiled into executable JavaScript. When TypeScript is compiled into JavaScript, the code becomes subject to type erasure. This means that type annotations, interfaces, type aliases, and other type system constructs are removed and the result is pure ready-to-run JavaScript.
+
+In a production environment, the need for compilation often means that you have to set up a "build step." During the build step, all TypeScript code is compiled into JavaScript in a separate folder, and the production environment then runs the code from that folder. In a development environment, it is often easier to make use of real-time compilation and auto-reloading so one can see the resulting changes more quickly.
+
+Let's start writing our first TypeScript app. To keep things simple, let's start by using the npm package [ts-node](https://github.com/TypeStrong/ts-node). It compiles and executes the specified TypeScript file immediately so that there is no need for a separate compilation step.
+
+You can install both ts-node and the official typescript package globally by running:
+
+```
+npm install --location=global ts-node typescript
+```
+
+If you can't or don't want to install global packages, you can create an npm project that has the required dependencies and run your scripts in it. We will also take this approach.
+
+As we recall from [part 3](../part3/), an npm project is set by running the command `npm init` in an empty directory. Then we can install the dependencies by running
+
+```
+npm install --save-dev ts-node typescript
+```
+
+and setting up `scripts` within the package.json:
+
+```json
+{
+  // ..
+  "scripts": {
+    "ts-node": "ts-node"
+  },
+  // ..
+}
+```
+
+You can now use `ts-node` within this directory by running `npm run ts-node`. Note that if you are using ts-node through package.json, command-line arguments that include short or long-form options for the `npm run script` need to be prefixed with `--`. So if you want to run file.ts with `ts-node` and options `-s` and `--someoption`, the whole command is:
+
+```bash
+npm run ts-node file.ts -- -s --someoption
+```
+
+It is worth mentioning that TypeScript also provides an online playground, where you can quickly try out TypeScript code and instantly see the resulting JavaScript and possible compilation errors. You can access TypeScript's official playground [here](https://www.typescriptlang.org/play/index.html).
+
+__NB__: The playground might contain different tsconfig rules (which will be introduced later) than your local environment, which is why you might see different warnings there compared to your local environment. The playground's tsconfig is modifiable through the config dropdown menu.
+
+#### A note about the coding style
+
+JavaScript is a quite relaxed language in itself, and things can often be done in multiple different ways. For example, we have named vs anonymous functions, using const and let or var, and the optional use of `semicolons`. This part of the course differs from the rest by using semicolons. It is not a TypeScript-specific pattern but a general coding style decision taken when creating any kind of JavaScript project. Whether to use them or not is usually in the hands of the programmer, but since it is expected to adapt one's coding habits to the existing codebase, you are expected to use semicolons and adjust to the coding style in the exercises for this part. This part has some other coding style differences compared to the rest of the course as well, e.g. in the directory naming conventions.
+
+Let us add a configuration file `tsconfig.json` to the project with the following content:
+
+```json
+{
+  "compilerOptions":{
+    "noImplicitAny": false
+  }
+}
+```
+
+The `tsconfig.json` file is used to define how the TypeScript compiler should interpret the code, how strictly the compiler should work, which files to watch or ignore, and [much more](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html). For now, we will only use the compiler option [noImplicitAny](https://www.typescriptlang.org/tsconfig#noImplicitAny), which does not require having types for all variables used.
+
+Let's start by creating a simple Multiplier. It looks exactly as it would in JavaScript.
+
+```js
+const multiplicator = (a, b, printText) => {
+  console.log(printText,  a * b);
+}
+
+multiplicator(2, 4, 'Multiplied numbers 2 and 4, the result is:');
+```
+
+As you can see, this is still ordinary basic JavaScript with no additional TS features. It compiles and runs nicely with `npm run ts-node -- multiplier.ts`, as it would with Node.
+
+But what happens if we end up passing the wrong `types` of arguments to the multiplicator function?
+
+Let's try it out!
+
+```js
+const multiplicator = (a, b, printText) => {
+  console.log(printText,  a * b);
+}
+
+multiplicator('how about a string?', 4, 'Multiplied a string and 4, the result is:');
+```
+
+Now when we run the code, the output is: `Multiplied a string and 4, the result is: NaN`.
+
+Wouldn't it be nice if the language itself could prevent us from ending up in situations like this? This is where we see the first benefits of TypeScript. Let's add types to the parameters and see where it takes us.
+
+TypeScript natively supports multiple types including `number`, `string` and `Array`. See the comprehensive list [here](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html). More complex custom types can also be created.
+
+The first two parameters of our function are of type number and the last one is of type string, both types are [primitives](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#the-primitives-string-number-and-boolean):
+
+```ts
+const multiplicator = (a: number, b: number, printText: string) => {
+  console.log(printText,  a * b);
+}
+
+multiplicator('how about a string?', 4, 'Multiplied a string and 4, the result is:');
+```
+
+Now the code is no longer valid JavaScript but in fact TypeScript. When we try to run the code, we notice that it does not compile:
+
+![alt text](assets/image1.png)
+
+One of the best things about TypeScript's editor support is that you don't necessarily need to even run the code to see the issues. VSCode is so efficient, that it informs you immediately when you are trying to use an incorrect type:
+
+![alt text](assets/image2.png)
 
