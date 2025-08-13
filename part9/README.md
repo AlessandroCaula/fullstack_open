@@ -246,3 +246,106 @@ One of the best things about TypeScript's editor support is that you don't neces
 
 ![alt text](assets/image2.png)
 
+### Creating your first own types
+
+Let's expand our multiplicator into a slightly more versatile calculator that also supports addition and division. The calculator should accept three arguments: two numbers and the operation, either `multiply`, `add` or `divide`, which tells it what to do with the numbers.
+
+In JavaScript, the code would require additional validation to make sure the last argument is indeed a string. TypeScript offers a way to define specific types for inputs, which describe exactly what type of input is acceptable. On top of that, TypeScript can also show the info on the accepted values already at the editor level.
+
+We can create a `type` using the TypeScript native keyword `type`. Let's describe our type `Operation`:
+
+```ts
+type Operation = 'multiply' | 'add' | 'divide';
+```
+
+Now the `Operation` type accepts only three kinds of values; exactly the three strings we wanted. Using the OR operator `|` we can define a variable to accept multiple values by creating a [union type](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types). In this case, we used exact strings (that, in technical terms, are called [string literal types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)) but with unions, you could also make the compiler accept for example both string and number: `string | number`.
+
+The `type` keyword defines a new name for a type: [a type alias](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases). Since the defined type is a union of three possible values, it is handy to give it an alias that has a representative name.
+
+Let's look at our calculator now:
+
+```js
+type Operation = 'multiply' | 'add' | 'divide';
+
+const calculator = (a: number, b: number, op: Operation) => {
+  if (op === 'multiply') {
+    return a * b;
+  } else if (op === 'add') {
+    return a + b;
+  } else if (op === 'divide') {
+    if (b === 0) return 'can\'t divide by 0!';
+    return a / b;
+  }
+}
+```
+
+Now, when we hover on top of the `Operation` type in the calculator function, we can immediately see suggestions on what to do with it:
+
+![alt text](assets/image3.png)
+
+And if we try to use a value that is not within the `Operation` type, we get the familiar red warning signal and extra info from our editor:
+
+![alt text](assets/image4.png)
+
+This is already pretty nice, but one thing we haven't touched yet is typing the return value of a function. Usually, you want to know what a function returns, and it would be nice to have a guarantee that it returns what it says it does. Let's add a return value `number` to the calculator function:
+
+```ts
+type Operation = 'multiply' | 'add' | 'divide';
+
+const calculator = (a: number, b: number, op: Operation): number => {
+  if (op === 'multiply') {
+    return a * b;
+  } else if (op === 'add') {
+    return a + b;
+  } else if (op === 'divide') {
+    if (b === 0) return 'this cannot be done';
+    return a / b;
+  }
+}
+```
+
+The compiler complains straight away because, in one case, the function returns a string. There are a couple of ways to fix this:
+
+We could extend the return type to allow string values, like so:
+
+```ts
+const calculator = (a: number, b: number, op: Operation): number | string =>  {
+  // ...
+}
+```
+
+But now the question is if it's `really` okay for the function to return a string?
+
+When your code can end up in a situation where something is divided by 0, something has probably gone terribly wrong and an error should be thrown and handled where the function was called. When you are deciding to return values you weren't originally expecting, the warnings you see from TypeScript prevent you from making rushed decisions and help you to keep your code working as expected.
+
+One more thing to consider is, that even though we have defined types for our parameters, the generated JavaScript used at runtime does not contain the type checks. So if, for example, the `Operation` parameter's value comes from an external interface, there is no definite guarantee that it will be one of the allowed values. Therefore, it's still better to include error handling and be prepared for the unexpected to happen. In this case, when there are multiple possible accepted values and all unexpected ones should result in an error, the [switch...case](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) statement suits better than if...else in our code.
+
+The code of our calculator should look something like this:
+
+```ts
+type Operation = 'multiply' | 'add' | 'divide';
+
+const calculator = (a: number, b: number, op: Operation) : number => {
+  switch(op) {
+    case 'multiply':
+      return a * b;
+    case 'divide':
+      if (b === 0) throw new Error('Can\'t divide by 0!');
+      return a / b;
+    case 'add':
+      return a + b;
+    default:
+      throw new Error('Operation is not multiply, add or divide!');
+  }
+}
+
+try {
+  console.log(calculator(1, 5 , 'divide'));
+} catch (error: unknown) {
+  let errorMessage = 'Something went wrong: '
+  if (error instanceof Error) {
+    errorMessage += error.message;
+  }
+  console.log(errorMessage);
+}
+```
