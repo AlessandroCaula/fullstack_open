@@ -388,3 +388,170 @@ Here the narrowing was done with the [instanceof](https://www.typescriptlang.org
 
 ### Accessing command line arguments
 
+The programs we have written are alright, but it sure would be better if we could use command-line arguments instead of always having to change the code to calculate different things.
+
+Let's try it out, as we would in a regular Node application, by accessing `process.argv`. If you are using a recent npm-version (7.0 or later), there are no problems, but with an older setup something is not right:
+
+![alt text](assets/image5.png)
+
+So what is the problem with older setups?
+
+### @types/{npm_package}
+
+Let's return to the basic idea of TypeScript. TypeScript expects all globally-used code to be typed, as it does for your code when your project has a reasonable configuration. The TypeScript library itself contains only typings for the code of the TypeScript package. It is possible to write your own typing for a library, but that is rarely needed - since the TypeScript community has done it for us!
+
+As with npm, the TypeScript world also celebrates open-source code. The community is active and continuously reacting to updates and changes in commonly used npm packages. You can almost always find the typings for npm packages, so you don't have to create types for all of your thousands of dependencies alone.
+
+Usually, types for existing packages can be found from the `@types` organization within npm, and you can add the relevant types to your project by installing an npm package with the name of your package with a `@types/` prefix. For example:
+
+```bash
+npm install --save-dev @types/react @types/express @types/lodash @types/jest @types/mongoose
+```
+
+and so on and so on. The `@types/` are maintained by [Definitely typed](https://github.com/DefinitelyTyped/DefinitelyTyped), a community project to maintain types of everything in one place.
+
+Sometimes, an npm package can also include its types within the code and, in that case, installing the corresponding `@types/` is not necessary.
+
+> __NB__: Since the typings are only used before compilation, the typings are not needed in the production build and they should `always` be in the devDependencies of the package.json.
+
+Since the global variable `process` is defined by the Node itself, we get its typings from the package `@types/node`.
+
+Since version 10.0 `ts-node` has defined `@types/node` as a peer dependency. If the version of npm is at least 7.0, the [peer dependencies](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#peerdependencies) of a project are automatically installed by npm. If you have an older npm, the peer dependency must be installed explicitly:
+
+```bash
+npm install --save-dev @types/node
+```
+
+When the package `@types/node` is installed, the compiler does not complain about the variable `process`. Note that there is no need to require the types to the code, the installation of the package is enough!
+
+### Improving the project
+
+Next, let's add npm scripts to run our two programs `multiplier` and `calculator`:
+
+```json
+{
+  "name": "fs-open",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "ts-node": "ts-node",
+    "multiply": "ts-node multiplier.ts",
+    "calculate": "ts-node calculator.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  }
+}
+```
+
+We can get the multiplier to work with command-line parameters with the following changes:
+
+```js
+const multiplicator = (a: number, b: number, printText: string) => {
+  console.log(printText,  a * b);
+}
+
+const a: number = Number(process.argv[2])
+const b: number = Number(process.argv[3])
+multiplicator(a, b, `Multiplied ${a} and ${b}, the result is:`);
+```
+
+And we can run it with:
+
+```bash
+npm run multiply 5 2
+```
+
+If the program is run with parameters that are not of the right type, e.g.
+
+```bash
+npm run multiply 5 lol
+```
+
+it "works" but gives us the answer:
+
+```bash
+Multiplied 5 and NaN, the result is: NaN
+```
+
+The reason for this is, that `Number('lol')` returns `NaN`, which is actually of type `number`, so TypeScript has no power to rescue us from this kind of situation.
+
+To prevent this kind of behavior, we have to validate the data given to us from the command line.
+
+The improved version of the multiplicator looks like this:
+
+```js
+interface MultiplyValues {
+  value1: number;
+  value2: number;
+}
+
+const parseArguments = (args: string[]): MultiplyValues => {
+  if (args.length < 4) throw new Error('Not enough arguments');
+  if (args.length > 4) throw new Error('Too many arguments');
+
+  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
+    return {
+      value1: Number(args[2]),
+      value2: Number(args[3])
+    }
+  } else {
+    throw new Error('Provided values were not numbers!');
+  }
+}
+
+const multiplicator = (a: number, b: number, printText: string) => {
+  console.log(printText,  a * b);
+}
+
+try {
+  const { value1, value2 } = parseArguments(process.argv);
+  multiplicator(value1, value2, `Multiplied ${value1} and ${value2}, the result is:`);
+} catch (error: unknown) {
+  let errorMessage = 'Something bad happened.'
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message;
+  }
+  console.log(errorMessage);
+}
+```
+
+When we now run the program:
+
+```bash
+npm run multiply 1 lol
+```
+
+we get a proper error message:
+
+```bash
+Something bad happened. Error: Provided values were not numbers!
+```
+
+There is quite a lot going on in the code. The most important addition is the function `parseArguments` which ensures that the parameters given to `multiplicator` are of the right type. If not, an exception is thrown with a descriptive error message.
+
+The definition of the function has a couple of interesting things:
+
+```js
+const parseArguments = (args: string[]): MultiplyValues => {
+  // ...
+}
+```
+
+Firstly, the parameter `args` is an [array](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays) of strings.
+
+The return value of the function has the type `MultiplyValues`, which is defined as follows:
+
+```js
+interface MultiplyValues {
+  value1: number;
+  value2: number;
+}
+```
+
+The definition utilizes TypeScript's [Interface](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces) keyword, which is one way to define the "shape" an object should have. In our case, it is quite obvious that the return value should be an object with the two properties `value1` and `value2`, which should both be of type number.
+
