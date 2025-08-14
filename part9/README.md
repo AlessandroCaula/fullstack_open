@@ -555,3 +555,24 @@ interface MultiplyValues {
 
 The definition utilizes TypeScript's [Interface](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces) keyword, which is one way to define the "shape" an object should have. In our case, it is quite obvious that the return value should be an object with the two properties `value1` and `value2`, which should both be of type number.
 
+### The alternative array syntax
+
+Note that there is also an alternative syntax for [arrays](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays) in TypeScript. Instead of writing
+
+```js
+let values: number[];
+```
+
+We could use the "generic syntax" and write
+
+```js
+let values: Array<number>;
+```
+
+In this course we shall mostly be following the convention enforced by the Eslint rule [array-simple](https://typescript-eslint.io/rules/array-type/#array-simple) that suggests writing the simple arrays with the `[]` syntax and using the `<>` syntax for the more complex ones, see [here](https://typescript-eslint.io/rules/array-type/#array-simple) for examples.
+
+<hr style="border: 2px solid #92AF7D">
+
+
+
+<hr style="border: 2px solid #92AF7D">
