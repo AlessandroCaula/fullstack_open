@@ -358,3 +358,33 @@ Both the possible causes of exception (wrong operator or division by zero) will 
 
 If our code would be JavaScript, we could print the error message by just referring to the field [message](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/message) of the object `error` as follows:
 
+```js
+try {
+  console.log(calculator(1, 5 , 'divide'));
+} catch (error) {
+
+  console.log('Something went wrong: ' + error.message);
+}
+```
+
+Since the default type of the `error` object in TypeScript is `unknown`, we have to [narrow](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) the type to access the field:
+
+```ts
+try {
+  console.log(calculator(1, 5 , 'divide'));
+} catch (error: unknown) {
+  let errorMessage = 'Something went wrong: '
+  // here we can not use error.message
+  if (error instanceof Error) {
+    // the type is narrowed and we can refer to error.message
+    errorMessage += error.message;
+  }
+  // here we can not use error.message
+  console.log(errorMessage);
+}
+```
+
+Here the narrowing was done with the [instanceof](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) type guard, that is just one of the many ways to narrow a type. We shall see many others later in this part.
+
+### Accessing command line arguments
+
