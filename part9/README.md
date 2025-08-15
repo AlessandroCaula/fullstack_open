@@ -571,8 +571,27 @@ let values: Array<number>;
 
 In this course we shall mostly be following the convention enforced by the Eslint rule [array-simple](https://typescript-eslint.io/rules/array-type/#array-simple) that suggests writing the simple arrays with the `[]` syntax and using the `<>` syntax for the more complex ones, see [here](https://typescript-eslint.io/rules/array-type/#array-simple) for examples.
 
-<hr style="border: 2px solid #92AF7D">
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.1 - 9.3
+
+#### setup
+
+Exercises 9.1-9.7. will all be made in the same node project. Create the project in an empty directory with `npm init` and install the ts-node and typescript packages. Also, create the file `tsconfig.json` in the directory with the following content:
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+  }
+}
+```
+
+The compiler option [noImplicitAny](https://www.typescriptlang.org/tsconfig#noImplicitAny) makes it mandatory to have types for all variables used. This option is currently a default, but it lets us define it explicitly.
 
 
 
-<hr style="border: 2px solid #92AF7D">
+
+
+
+<hr style="border: 2px solid #D4FCB5">
