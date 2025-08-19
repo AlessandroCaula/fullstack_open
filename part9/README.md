@@ -906,5 +906,37 @@ Replace also your existing `tsconfig.json` file with the following content:
 
 Make sure there aren't any errors!
 
+#### 9.5 WebBMI
+
+Add an endpoint for the BMI calculator that can be used by doing an HTTP GET request to the endpoint `bmi` and specifying the input with [query string parameters](https://en.wikipedia.org/wiki/Query_string). For example, to get the BMI of a person with a height of 180 and a weight of 72, the URL is http://localhost:3003/bmi?height=180&weight=72.
+
+The response is a JSON of the form:
+
+```json
+{
+  weight: 72,
+  height: 180,
+  bmi: "Normal range"
+}
+```
+
+See the [Express documentation](https://expressjs.com/en/5x/api.html#req.query) for info on how to access the query parameters.
+
+If the query parameters of the request are of the wrong type or missing, a response with proper status code and an error message is given:
+
+```json
+{
+  error: "malformatted parameters"
+}
+```
+
+Do not copy the calculator code to file `index.ts`; instead, make it a [TypeScript module](https://www.typescriptlang.org/docs/handbook/modules.html) that can be imported into `index.ts`.
+
+For `calculateBmi` to work correctly from both the command line and the endpoint, consider adding a check `require.main === module` to the file _bmiCalculator.ts_. It tests whether the module is main, i.e. it is run directly from the command line (in our case, `npm run calculateBmi`), or it is used by other modules that import functions from it (e.g. _index.ts_). Parsing command-line arguments makes sense only if the module is main. Without this condition, you might see argument validation errors when starting the application via `npm start` or `npm run dev`.
+
+See the Node [documentation](https://nodejs.org/api/modules.html#accessing-the-main-module) for more.
+
+
+
 
 <hr style="border: 2px solid #D4FCB5">
