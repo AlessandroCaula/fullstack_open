@@ -707,6 +707,170 @@ Another note: somehow surprisingly TypeScript does not allow to define the same 
 
 This is actually not quite true. This rule applies only to files that are treated as "scripts". A file is a script if it does not contain any export or import statements. If a file has those, then the file is treated as a [module](https://www.typescriptlang.org/docs/handbook/modules.html), and the variables do not get defined in the block scope.
 
-
-
 <hr style="border: 2px solid #D4FCB5">
+
+### More about tsconfig
+
+We have so far used only one tsconfig rule [noImplicitAny](https://www.typescriptlang.org/tsconfig#noImplicitAny). It's a good place to start, but now it's time to look into the config file a little deeper.
+
+As mentioned, the [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) file contains all your core configurations on how you want TypeScript to work in your project.
+
+Let's specify the following configuration in our `tsconfig.json` file:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
+```
+
+Do not worry too much about the `compilerOptions`, they will be under closer inspection later on.
+
+You can find explanations for each of the configurations from the TypeScript documentation or from the really handy [tsconfig page](https://www.typescriptlang.org/tsconfig), or from the [tsconfig schema](http://json.schemastore.org/tsconfig) definition, which unfortunately is formatted a little worse than the first two options.
+
+### Adding Express to the mix
+
+Right now, we are in a pretty good place. Our project is set up and we have two executable calculators in it. However, since we aim to learn FullStack development, it is time to start working with some HTTP requests.
+
+Let us start by installing Express:
+
+```bash
+npm install express
+```
+
+and then add the `start` script to package.json:
+
+```json
+{
+  // ..
+  "scripts": {
+    "ts-node": "ts-node",
+    "multiply": "ts-node multiplier.ts",
+    "calculate": "ts-node calculator.ts",
+    "start": "ts-node index.ts"
+  },
+  // ..
+}
+```
+
+Now we can create the file `index.ts`, and write the HTTP GET `ping` endpoint to it:
+
+```ts
+const express = require('express');
+const app = express();
+
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
+
+const PORT = 3003;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+Everything else seems to be ok but, as you'd expect, the `req` and `res` parameters of `app.get` need typing. If you look carefully, VSCode is also complaining about the importing of Express. You can see a short yellow line of dots under `require`. Let's hover over the problem:
+
+![alt text](assets/image7.png)
+
+The complaint is that the `'require' call may be converted to an import`. Let us follow the advice and write the import as follows:
+
+```ts
+import express from 'express';
+```
+
+__NB__: VSCode offers you the possibility to fix the issues automatically by clicking the `Quick Fix...` button. Keep your eyes open for these helpers/quick fixes; listening to your editor usually makes your code better and easier to read. The automatic fixes for issues can be a major time saver as well.
+
+Now we run into another problem, the compiler complains about the import statement. Once again, the editor is our best friend when trying to find out what the issue is:
+
+![alt text](assets/image8.png)
+
+We haven't installed types for `express`. Let's do what the suggestion says and run:
+
+```bash
+npm install --save-dev @types/express
+```
+
+There should not be any errors remaining. Note that you may need to reopen the file in the editor to get VS Code in sync.
+
+Let's take a look at what changed.
+
+When we hover over the `require` statement, we can see that the compiler interprets everything express-related to be of type `any`.
+
+![alt text](assets/image9.png)
+
+Whereas when we use `import`, the editor knows the actual types:
+
+![alt text](assets/image10.png)
+
+Which import statement to use depends on the export method used in the imported package.
+
+A good rule of thumb is to try importing a module using the `import` statement first. We have already used this method in the frontend. If `import` does not work, try a combined method: `import ... = require('...')`.
+
+We strongly suggest you read more about TypeScript modules [here](https://www.typescriptlang.org/docs/handbook/modules.html).
+
+There is one more problem with the code:
+
+![alt text](assets/image11.png)
+
+This is because we banned unused parameters in our tsconfig.json:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true, // <-
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
+```
+
+This configuration might create problems if you have library-wide predefined functions that require declaring a variable even if it's not used at all, as is the case here. Fortunately, this issue has already been solved on the configuration level. Once again hovering over the issue gives us a solution. This time we can just click the quick fix button:
+
+![alt text](assets/image12.png)
+
+If it is absolutely impossible to get rid of an unused variable, you can prefix it with an underscore to inform the compiler you have thought about it and there is nothing you can do.
+
+Let's rename the `req` variable to `_req`. Finally, we are ready to start the application. It seems to work fine:
+
+![alt text](assets/image13.png)
+
+To simplify the development, we should enable `auto-reloading` to improve our workflow. In this course, you have already used `nodemon`, but ts-node has an alternative called `ts-node-dev`. It is meant to be used only with a development environment that takes care of recompilation on every change, so restarting the application won't be necessary.
+
+Let's install `ts-node-dev` to our development dependencies:
+
+```bash
+npm install --save-dev ts-node-dev
+```
+
+Add a script to `package.json`:
+
+```json
+{
+  // ...
+  "scripts": {
+      // ...
+      "dev": "ts-node-dev index.ts",
+  },
+  // ...
+}
+```
+
+And now, by running `npm run dev`, we have a working, auto-reloading development environment for our project!
+
