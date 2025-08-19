@@ -5,7 +5,7 @@ interface bmiValues {
 }
 
 // Method for parsing the argument parameters given in the console
-const parseArgument = (args: string[]): bmiValues => {
+export const parseArgument = (args: string[]): bmiValues => {
   // Check if there are not enough parameters given as arguments
   if (args.length < 4) {
     throw new Error("Not enough arguments");
