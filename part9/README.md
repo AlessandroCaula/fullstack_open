@@ -874,3 +874,37 @@ Add a script to `package.json`:
 
 And now, by running `npm run dev`, we have a working, auto-reloading development environment for our project!
 
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercise 9.4 - 9.5
+
+#### 9.4 Express
+
+Add Express to your dependencies and create an HTTP GET endpoint `hello` that answers 'Hello Full Stack!'
+
+The web app should be started with the commands `npm start` in production mode and `npm run dev` in development mode. The latter should also use `ts-node-dev` to run the app.
+
+Replace also your existing `tsconfig.json` file with the following content:
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "declaration": true,
+  }
+}
+```
+
+Make sure there aren't any errors!
+
+
+<hr style="border: 2px solid #D4FCB5">
