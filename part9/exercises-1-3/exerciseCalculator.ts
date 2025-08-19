@@ -23,7 +23,7 @@ export const parseArgument = (args: string[]): InputParameters => {
   // Loop through all the days and store their value in the days collection. Also check if they are all numbers.
   const days: number[] = [];
   // let target: number;
-  let target: number | undefined; // Initialize the variable before using it.
+  let target: number = -1; // Initialize the variable before using it.
   for (let i: number = 2; i < args.length; i++) {
     // If the value is not a number throw an exception.
     if (isNaN(Number(args[i]))) {
