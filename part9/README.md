@@ -936,7 +936,194 @@ For `calculateBmi` to work correctly from both the command line and the endpoint
 
 See the Node [documentation](https://nodejs.org/api/modules.html#accessing-the-main-module) for more.
 
-
-
-
 <hr style="border: 2px solid #D4FCB5">
+
+### The horrors of any 
+
+Now that we have our first endpoints completed, you might notice that we have used barely any TypeScript in these small examples. When examining the code a bit closer, we can see a few dangers lurking there.
+
+Let's add the HTTP POST endpoint `calculate` to our app:
+
+```ts
+import { calculator } from './calculator';
+
+app.use(express.json());
+
+// ...
+
+app.post('/calculate', (req, res) => {
+  const { value1, value2, op } = req.body;
+
+  const result = calculator(value1, value2, op);
+  res.send({ result });
+});
+```
+
+To get this working, we must add an `export` to the function `calculator`:
+
+```ts
+export const calculator = (a: number, b: number, op: Operation) : number => {
+```
+
+When you hover over the `calculate` function, you can see the typing of the `calculator` even though the code itself does not contain any typing:
+
+![alt text](assets/image14.png)
+
+But if you hover over the values parsed from the request, an issue arises:
+
+![alt text](assets/image15.png)
+
+All of the variables have the type `any`. It is not all that surprising, as no one has given them a type yet. There are a couple of ways to fix this, but first, we have to consider why this is accepted and where the type `any` came from.
+
+In TypeScript, every untyped variable whose type cannot be inferred implicitly becomes of type [any](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#any). Any is a kind of "wild card" type, which stands for `whatever` type. Things become implicitly any type quite often when one forgets to type functions.
+
+We can also explicitly type things any. The only difference between the implicit and explicit any type is how the code looks; the compiler does not care about the difference.
+
+Programmers however see the code differently when `any` is explicitly enforced than when it is implicitly inferred. Implicit any typings are usually considered problematic since it is quite often due to the coder forgetting to assign types (or being too lazy to do it), and it also means that the full power of TypeScript is not properly exploited.
+
+This is why the configuration rule [noImplicitAny](https://www.typescriptlang.org/tsconfig#noImplicitAny) exists on the compiler level, and it is highly recommended to keep it on at all times. In the rare occasions when you truly cannot know what the type of a variable is, you should explicitly state that in the code:
+
+```js
+const a : any = /* no clue what the type will be! */.
+```
+
+We already have `noImplicitAny: true` configured in our example, so why does the compiler not complain about the implicit `any` types? The reason is that the `body` field of an Express [Request](https://expressjs.com/en/5x/api.html#req) object is explicitly typed `any`. The same is true for the `request.query` field that Express uses for the query parameters.
+
+What if we would like to restrict developers from using the `any` type? Fortunately, we have methods other than `tsconfig.json` to enforce a coding style. What we can do is use `ESlint` to manage our code. Let's install ESlint and its TypeScript extensions:
+
+```bash
+npm install --save-dev eslint @eslint/js @types/eslint__js typescript typescript-eslint
+```
+
+We will configure ESlint to [disallow explicit any](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-explicit-any.mdx). Write the following rules to `eslint.config.mjs`:
+
+```js
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config({
+  files: ['**/*.ts'],
+  extends: [
+    eslint.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+  ],
+  languageOptions: {
+    parserOptions: {
+      project: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'error',
+  },
+});
+```
+
+Let us also set up a `lint` npm script to inspect the files by modifying the `package.json` file:
+
+```json
+{
+  // ...
+  "scripts": {
+      "start": "ts-node index.ts",
+      "dev": "ts-node-dev index.ts",
+
+      "lint": "eslint ."
+      //  ...
+  },
+  // ...
+}
+```
+
+Now lint will complain if we try to define a variable of type `any`:
+
+![alt text](assets/image16.png)
+
+[@typescript-eslint](https://github.com/typescript-eslint/typescript-eslint) has a lot of TypeScript-specific ESlint rules, but you can also use all basic ESlint rules in TypeScript projects. For now, we should probably go with the recommended settings, and we will modify the rules as we go along whenever we find something we want to change the behavior of.
+
+On top of the recommended settings, we should try to get familiar with the coding style required in this part and _set the semicolon at the end of each line of code to be required_. For that, we should install and configure [@stylistic/eslint-plugin](https://eslint.style/packages/default):
+
+```bash
+npm install --save-dev @stylistic/eslint-plugin
+```
+
+Our final `eslint.config.mjs` looks as follows:
+
+```js
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import stylistic from "@stylistic/eslint-plugin";
+
+export default tseslint.config({
+  files: ['**/*.ts'],
+  extends: [
+    eslint.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+  ],
+  languageOptions: {
+    parserOptions: {
+      project: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+  plugins: {
+    "@stylistic": stylistic,
+  },
+  rules: {
+    '@stylistic/semi': 'error',
+    '@typescript-eslint/no-unsafe-assignment': 'error',
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/restrict-template-expressions': 'off',
+    '@typescript-eslint/restrict-plus-operands': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { 'argsIgnorePattern': '^_' }
+    ],
+  },
+});
+```
+
+Quite a few semicolons are missing, but those are easy to add. We also have to solve the ESlint issues concerning the `any` type:
+
+![alt text](assets/image17.png)
+
+We could and probably should disable some ESlint rules to get the data from the request body.
+
+Disabling `@typescript-eslint/no-unsafe-assignment` for the destructuring assignment and calling the [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/Number) constructor to values is nearly enough:
+
+```ts
+app.post('/calculate', (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value1, value2, op } = req.body;
+
+  const result = calculator(Number(value1), Number(value2), op);
+  res.send({ result });
+});
+```
+
+However this still leaves one problem to deal with, the last parameter in the function call is not safe:
+
+![alt text](assets/image18.png)
+
+We now have ESlint silenced but we are totally at the mercy of the user. We most definitively should do some validation to the post data and give a proper error message if the data is invalid:
+
+```ts
+app.post('/calculate', (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value1, value2, op } = req.body;
+
+  if ( !value1 || isNaN(Number(value1)) ) {
+    return res.status(400).send({ error: '...'});
+  }
+
+  // more validations here...
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const result = calculator(Number(value1), Number(value2), op);
+  return res.send({ result });
+});
+```
+
+We shall see later in this part some techniques on how the `any` typed data (eg. the input an app receives from the user) can be `narrowed` to a more specific type (such as number). With a proper narrowing of types, there is no more need to silence the ESlint rules.
