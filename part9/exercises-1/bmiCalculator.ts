@@ -30,7 +30,7 @@ export const parseArgument = (args: string[]): bmiValues => {
 };
 
 // Method for calculating the BMI
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
   // Check if the input weight or height parameter is 0.
   if (height === 0 || weight === 0) {
     throw new Error(
@@ -63,13 +63,16 @@ const calculateBmi = (height: number, weight: number): string => {
   }
 };
 
-try {
-  const { height, weight } = parseArgument(process.argv);
-  console.log(calculateBmi(height, weight));
-} catch (error: unknown) {
-  let errorMessage = "Something went wrong: ";
-  if (error instanceof Error) {
-    errorMessage += error.message;
+// Make sure that this works only when launched from command line
+if (require.main === module) {
+  try {
+    const { height, weight } = parseArgument(process.argv);
+    console.log(calculateBmi(height, weight));
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong: ";
+    if (error instanceof Error) {
+      errorMessage += error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
 }
