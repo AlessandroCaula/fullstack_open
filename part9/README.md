@@ -1182,5 +1182,11 @@ In the next chapter, we shall have a look at [type narrowing](https://www.typesc
 
 ### Exercises 9.6 - 9.7
 
+#### 9.6 Eslint
+
+Configure your project to use the above ESlint settings and fix all the warnings.
+
+
+
 
 <hr style="border: 2px solid #D4FCB5">
