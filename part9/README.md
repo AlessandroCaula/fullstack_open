@@ -1127,3 +1127,60 @@ app.post('/calculate', (req, res) => {
 ```
 
 We shall see later in this part some techniques on how the `any` typed data (eg. the input an app receives from the user) can be `narrowed` to a more specific type (such as number). With a proper narrowing of types, there is no more need to silence the ESlint rules.
+
+### Type assertion
+
+Using a [type assertion](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) is another "dirty trick" that can be done to keep TypeScript compiler and Eslint quiet. Let us export the type Operation in `calculator.ts`:
+
+```ts
+export type Operation = 'multiply' | 'add' | 'divide';
+```
+
+Now we can import the type and use the type assertion `as` to tell the TypeScript compiler what type a variable has:
+
+```ts
+import { calculator, Operation } from './calculator';
+
+app.post('/calculate', (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value1, value2, op } = req.body;
+
+  // validate the data here
+
+  // assert the type
+  const operation = op as Operation;
+
+  const result = calculator(Number(value1), Number(value2), operation);
+
+  return res.send({ result });
+});
+```
+
+The defined constant `operation` has now the type `Operation` and the compiler is perfectly happy, no quieting of the Eslint rule is needed on the following function call. The new variable is actually not needed, the type assertion can be done when an argument is passed to the function:
+
+```ts
+app.post('/calculate', (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value1, value2, op } = req.body;
+
+  // validate the data here
+
+  const result = calculator(
+
+    Number(value1), Number(value2), op as Operation
+  );
+
+  return res.send({ result });
+});
+```
+
+Using a type assertion (or quieting an Eslint rule) is always a bit risky. It leaves the TypeScript compiler off the hook, the compiler just trusts that we as developers know what we are doing. If the asserted type _does not_ have the right kind of value, the result will be a runtime error, so one must be pretty careful when validating the data if a type assertion is used.
+
+In the next chapter, we shall have a look at [type narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) which will provide a much more safe way of giving a stricter type for data that is coming from an external source.
+
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.6 - 9.7
+
+
+<hr style="border: 2px solid #D4FCB5">
