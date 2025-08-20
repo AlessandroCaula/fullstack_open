@@ -1182,11 +1182,61 @@ In the next chapter, we shall have a look at [type narrowing](https://www.typesc
 
 ### Exercises 9.6 - 9.7
 
-#### 9.6 Eslint
+#### 9.6: Eslint
 
 Configure your project to use the above ESlint settings and fix all the warnings.
 
+#### 9.7: WebExercises
 
+Add an endpoint to your app for the exercise calculator. It should be used by doing a HTTP POST request to the endpoint http://localhost:3003/exercises with the following input in the request body:
 
+```json
+{
+  "daily_exercises": [1, 0, 2, 0, 3, 0, 2.5],
+  "target": 2.5
+}
+```
+
+The response is a JSON of the following form:
+
+```json
+{
+    "periodLength": 7,
+    "trainingDays": 4,
+    "success": false,
+    "rating": 1,
+    "ratingDescription": "bad",
+    "target": 2.5,
+    "average": 1.2142857142857142
+}
+```
+
+If the body of the request is in the right form, a response with the proper status code and an error message are given. The error message is either
+
+```json
+{
+  error: "parameters missing"
+}
+```
+
+or 
+
+```json
+{
+  error: "malformatted parameters"
+}
+```
+
+depending on the error. the latter happens if the input values do not have the right type, i.e. they are not numbers or convertible to numbers. 
+
+In this exercise, you might find it beneficial to use the `explicit any` type when handling the data in the request body. Our ESlint configuration is preventing this but you may unset this rule for a particular line by inserting the following comment as the previous line:
+
+```js
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+```
+
+You might also get in trouble with rules `no-unsafe-member-access` and `no-unsafe-assignment`. These rules may be ignored in this exercise.
+
+Note that you need to have a correct setup to get the request body; see [part 3](../part3/README.md#receiving-data).
 
 <hr style="border: 2px solid #D4FCB5">
