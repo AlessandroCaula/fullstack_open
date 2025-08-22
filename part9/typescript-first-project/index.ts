@@ -14,11 +14,10 @@ app.post("/calculate", (req, res) => {
 
   // Data validation
   if (!value1 || isNaN(Number(value1))) {
-    return res.status(400).send({ error: '...' });
+    return res.status(400).send({ error: 'Malformatted parameters' });
   }
 
   // assert the type
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const result = calculator(Number(value1), Number(value2), op as Operation);
 
   return res.send({ result });

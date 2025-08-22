@@ -3,7 +3,7 @@ interface InputParameters {
   target: number;
 }
 
-interface ExerciseRecap {
+export interface ExerciseRecap {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -45,7 +45,7 @@ export const parseArgument = (args: string[]): InputParameters => {
 };
 
 // Compute the metrics on the exercise days
-const calculateExercises = (days: number[], target: number): ExerciseRecap => {
+export const calculateExercises = (days: number[], target: number): ExerciseRecap => {
   const periodLength = days.length;
   const trainingDays = days.filter((d) => d != 0).length;
   // Calculate the average time
