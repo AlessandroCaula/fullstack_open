@@ -1431,3 +1431,107 @@ We finally define a few more npm scripts, and voilà, we are ready to begin:
 ```
 
 As you can see, there is a lot of stuff to go through before beginning the actual coding. When you are working on a real project, careful preparations support your development process. Take the time needed to create a good setup for yourself and your team, so that everything runs smoothly in the long run.
+
+### Let there be code
+
+Now we can finally start coding! As always, we start by creating a ping endpoint, just to make sure everything is working. 
+
+The content of the `index.ts` file:
+
+```js
+import express from 'express';
+const app = express();
+app.use(express.json());
+
+const PORT = 3000;
+
+app.get('/ping', (_req, res) => {
+  console.log('someone pinged here');
+  res.send('pong');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+Now, if we run the app with `npm run dev`, we can verify that a request to http://localhost:3000/ping gives the response `pong`, so our configuration is set!
+
+When starting the app with `npm run dev`, it runs in development mode. The development mode is not suitable at all when we later operate the app in production.
+
+Let's try to create a `production build` by running the TypeScript compiler. Since we have defined the `outdir` in our tsconfig.json, nothing's left but to run the script `npm run tsc`.
+
+Just like magic, a native runnable JavaScript production build of the Express backend is created in file `index.js` inside the directory `build`. The compiled code looks like this
+
+```js
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
+const PORT = 3000;
+app.get('/ping', (_req, res) => {
+    console.log('someone pinged here');
+    res.send('pong');
+});
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+```
+
+Currently, if we run ESlint it will also interpret the files in the `build` directory. We don't want that, since the code there is compiler-generated. We can [prevent](https://eslint.org/docs/latest/use/configure/configuration-files#excluding-files-with-ignores) this in the file `eslint.config.mjs` as follows:
+
+```js
+// ...
+export default tseslint.config({
+  files: ['**/*.ts'],
+  extends: [
+    eslint.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+  ],
+  languageOptions: {
+    parserOptions: {
+      project: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+  plugins: {
+    "@stylistic": stylistic,
+  },
+  ignores: ["build/*"],
+  rules: {
+    // ...
+  },
+});
+```
+
+Let's add an npm script for running the application in production mode:
+
+```json
+{
+  // ...
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "ts-node-dev index.ts",
+    "lint": "eslint .",
+    "start": "node build/index.js"
+  },
+  // ...
+}
+```
+
+When we run the app with `npm start`, we can verify that the production build also works:
+
+![alt text](assets/image19.png)
+
+Now we have a minimal working pipeline for developing our project. With the help of our compiler and ESlint, we ensure that good code quality is maintained. With this base, we can start creating an app that we could, later on, deploy into a production environment.
+
+<hr style="border: 2px solid #D4FCB5">
+
+
+
+
+<hr style="border: 2px solid #D4FCB5">

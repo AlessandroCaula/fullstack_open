@@ -1,12 +1,13 @@
 {
   "name": "flight-diaries",
   "version": "1.0.0",
-  "description": "Ilari's flight diaries",
+  "description": "Flight diaries",
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
     "dev": "ts-node-dev index.ts",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "start": "node build/index.js"
   },
   "author": "Alessandro Caula",
   "license": "ISC",
