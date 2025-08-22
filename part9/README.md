@@ -1531,6 +1531,14 @@ Now we have a minimal working pipeline for developing our project. With the help
 
 <hr style="border: 2px solid #D4FCB5">
 
+### Exercise 9.8 - 9.9
+
+#### Before you start the exercises
+
+For this set of exercises, you will be developing a backend for an existing project called __Patientor__, which is a simple medical record application for doctors who handle diagnoses and basic health information of their patients.
+
+The [frontend](https://github.com/fullstack-hy2020/patientor) has already been built by outsider experts and your task is to create a backend to support the existing code.
+
 
 
 
