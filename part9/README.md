@@ -1568,7 +1568,278 @@ Ensure that the backend answers the ping request that the `frontend` has made on
 
 You might also want to have a look at the `console` tab. If something fails, [part 3](../part3/README.md) of the course shows how the problem can be solved.
 
-
-
-
 <hr style="border: 2px solid #D4FCB5">
+
+### Implementing the functionality
+
+Finally, we are ready to start writing some code.
+
+Let's start from the basics. Ilari wants to be able to keep track of his experiences on his flight journeys.
+
+He wants to be able to save _diary entries_, which contain:
+
+- The date of the entry
+
+- Weather conditions (sunny, windy, cloudy, rainy or stormy)
+
+- Visibility (great, good, ok or poor)
+
+- Free text detailing the experience
+
+We have obtained some sample data, which we will use as a base to build on. The data is saved in JSON format and can be found [here](https://github.com/fullstack-hy2020/misc/blob/master/diaryentries.json).
+
+The data looks like the following:
+
+```json
+[
+  {
+    "id": 1,
+    "date": "2017-01-01",
+    "weather": "rainy",
+    "visibility": "poor",
+    "comment": "Pretty scary flight, I'm glad I'm alive"
+  },
+  {
+    "id": 2,
+    "date": "2017-04-01",
+    "weather": "sunny",
+    "visibility": "good",
+    "comment": "Everything went better than expected, I'm learning much"
+  },
+  // ...
+]
+```
+
+Let's start by creating an endpoint that returns all flight diary entries.
+
+First, we need to make some decisions on how to structure our source code. It is better to place all source code under `src` directory, so source code is not mixed with configuration files. We will move `index.ts` there and make the necessary changes to the npm scripts.
+
+We will place all [routers](https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing) and modules which are responsible for handling a set of specific resources such as `diaries`, under the directory `src/routes`. This is a bit different than what we did in [part 4](../part4/README.md), where we used the directory `src/controllers`.
+
+The router taking care of all diary endpoints is in `src/routes/diaries.ts` and looks like this:
+
+```ts
+import express from 'express';
+
+const router = express.Router();
+
+router.get('/', (_req, res) => {
+  res.send('Fetching all diaries!');
+});
+
+router.post('/', (_req, res) => {
+  res.send('Saving a diary!');
+});
+
+export default router;
+```
+
+We'll route all requests to prefix `/api/diaries` to that specific router in `index.ts`
+
+```ts
+import express from 'express';
+import diaryRouter from './routes/diaries';
+const app = express();
+app.use(express.json());
+
+const PORT = 3000;
+
+app.get('/ping', (_req, res) => {
+  console.log('someone pinged here');
+  res.send('pong');
+});
+
+app.use('/api/diaries', diaryRouter);
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+```
+
+And now, if we make an HTTP GET request to http://localhost:3000/api/diaries, we should see the message: _Fetching all diaries!_
+
+Next, we need to start serving the seed data (found [here](https://github.com/fullstack-hy2020/misc/blob/master/diaryentries.json)) from the app. We will fetch the data and save it to `data/entries.json`.
+
+We won't be writing the code for the actual data manipulations in the router. We will create a _service_ that takes care of the data manipulation instead. It is quite a common practice to separate the "business logic" from the router code into modules, which are quite often called _services_. The name service originates from [Domain-driven design](https://en.wikipedia.org/wiki/Domain-driven_design) and was made popular by the [Spring](https://spring.io/) framework.
+
+Let's create a `src/services` directory and place the `diaryService.ts` file in it. The file contains two functions for fetching and saving diary entries:
+
+```ts
+import diaryData from '../../data/entries.json';
+
+const getEntries = () => {
+  return diaryData;
+};
+
+const addDiary = () => {
+  return null;
+};
+
+export default {
+  getEntries,
+  addDiary
+};
+```
+
+But something is not right:
+
+![alt text](assets/image21.png)
+
+The hint says we might want to use `resolveJsonModule`. Let's add it to our tsconfig:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "outDir": "./build/",
+    "module": "commonjs",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  }
+}
+```
+
+And our problem is solved.
+
+>__NB__: For some reason, VSCode sometimes complains that it cannot find the file `../../data/entries.json` from the service despite the file existing. That is a bug in the editor, and goes away when the editor is restarted.
+
+Earlier, we saw how the compiler can decide the type of a variable by the value it is assigned. Similarly, the compiler can interpret large data sets consisting of objects and arrays. Due to this, the compiler warns us if we try to do something suspicious with the JSON data we are handling. For example, if we are handling an array containing objects of a specific type, and we try to add an object which does not have all the fields the other objects have, or has type conflicts (for example, a number where there should be a string), the compiler can give us a warning.
+
+Even though the compiler is pretty good at making sure we don't do anything unwanted, it is safer to define the types for the data ourselves.
+
+Currently, we have a basic working TypeScript Express app, but there are barely any actual _typings_ in the code. Since we know what type of data should be accepted for the `weather` and `visibility` fields, there is no reason for us not to include their types in the code.
+
+Let's create a file for our types, `types.ts`, where we'll define all our types for this project.
+
+First, let's type the `Weather` and `Visibility` values using a [union type](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) of the allowed strings:
+
+```ts
+export type Weather = 'sunny' | 'rainy' | 'cloudy' | 'windy' | 'stormy';
+
+export type Visibility = 'great' | 'good' | 'ok' | 'poor';
+```
+
+And, from there, we can continue by creating a DiaryEntry type, which will be an [interface](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces):
+
+```ts
+export interface DiaryEntry {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment: string;
+}
+```
+
+We can now try to type our imported JSON:
+
+```ts
+import diaryData from '../../data/entries.json';
+
+import { DiaryEntry } from '../types';
+
+const diaries: DiaryEntry[] = diaryData;
+
+const getEntries = (): DiaryEntry[] => {
+  return diaries;
+};
+
+const addDiary = () => {
+  return null;
+};
+
+export default {
+  getEntries,
+  addDiary
+};
+```
+
+But since the JSON already has its values declared, assigning a type for the data set results in an error:
+
+![alt text](assets/image22.png)
+
+The end of the error message reveals the problem: the `weather` fields are incompatible. In `DiaryEntry`, we specified that its type is `Weather`, but the TypeScript compiler had inferred its type to be `string`.
+
+We can fix the problem by doing a [type assertion](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions). As we already [mentioned](#type-assertion) type assertions should be done only if we are certain we know what we are doing!
+
+If we assert the type of the variable `diaryData` to be `DiaryEntry` with the keyword `as`, everything should work:
+
+```ts
+import diaryData from '../../data/entries.json'
+
+import { Weather, Visibility, DiaryEntry } from '../types'
+
+const diaries: DiaryEntry[] = diaryData as DiaryEntry[];
+
+const getEntries = (): DiaryEntry[] => {
+  return diaries;
+}
+
+const addDiary = () => {
+  return null;
+}
+
+export default {
+  getEntries,
+  addDiary
+};
+```
+
+We should never use type assertion unless there is no other way to proceed, as there is always the danger we assert an unfit type to an object and cause a nasty runtime error. While the compiler trusts you to know what you are doing when using `as`, by doing this, we are not using the full power of TypeScript but relying on the coder to secure the code.
+
+In our case, we could change how we export our data so we can type it within the data file. Since we cannot use typings in a JSON file, we should convert the JSON file to a ts file `entries.ts` which exports the typed data like so:
+
+```ts
+import { DiaryEntry } from "../src/types";
+
+const diaryEntries: DiaryEntry[] = [
+  {
+      "id": 1,
+      "date": "2017-01-01",
+      "weather": "rainy",
+      "visibility": "poor",
+      "comment": "Pretty scary flight, I'm glad I'm alive"
+  },
+  // ...
+];
+
+export default diaryEntries;
+```
+
+Now, when we import the array, the compiler interprets it correctly:
+
+```ts
+import diaries from '../../data/entries';
+
+import { DiaryEntry } from '../types';
+
+const getEntries = (): DiaryEntry[] => {
+  return diaries;
+}
+
+const addDiary = () => {
+  return null;
+}
+
+export default {
+  getEntries,
+  addDiary
+};
+```
+
+Note that, if we want to be able to save entries without a certain field, e.g. `comment`, we could set the type of the field as [optional](https://www.typescriptlang.org/docs/handbook/2/objects.html#optional-properties) by adding `?` to the type declaration:
+
+```ts
+export interface DiaryEntry {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment?: string;
+}
+```
