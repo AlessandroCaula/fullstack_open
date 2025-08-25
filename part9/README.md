@@ -1843,3 +1843,53 @@ export interface DiaryEntry {
   comment?: string;
 }
 ```
+
+### Node and JSON modules
+
+It is important to take note of a problem that may arise when using the tsconfig [resolveJsonModule](https://www.typescriptlang.org/tsconfig/#resolveJsonModule) option:
+
+```ts
+{
+  "compilerOptions": {
+    // ...
+    "resolveJsonModule": true
+  }
+}
+```
+
+According to the node documentation for [file modules](https://nodejs.org/api/modules.html#modules_file_modules), node will try to resolve modules in order of extensions:
+
+```json
+["js", "json", "node"]
+```
+
+In addition to that, by default, `ts-node` and `ts-node-dev` extend the list of possible node module extensions to:
+
+```json
+["js", "json", "node", "ts", "tsx"]
+```
+
+>__NB__: The validity of `.js`, `.json` and `.node` files as modules in TypeScript depend on environment configuration, including `tsconfig` options such as `allowJs` and `resolveJsonModule`.
+
+Consider a flat folder structure containing file:
+
+```
+  ├── myModule.json
+  └── myModule.ts
+```
+
+In TypeScript, with the `resolveJsonModule` option set to true, the file `myModule.json` becomes a valid node module. Now, imagine a scenario where we wish to take the file `myModule.ts` into use:
+
+```ts
+import myModule from './myModule';
+```
+
+Looking closely at the order of node module extensions:
+
+```json
+["js", "json", "node", "ts", "tsx"]
+```
+
+We notice that the `.json` file extension takes precedence over `.ts` and so `myModule.json` will be imported and not `myModule.ts`.
+
+To avoid time-eating bugs, it is recommended that within a flat directory, each file with a valid node module extension has a unique filename.
