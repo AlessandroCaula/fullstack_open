@@ -1893,3 +1893,68 @@ Looking closely at the order of node module extensions:
 We notice that the `.json` file extension takes precedence over `.ts` and so `myModule.json` will be imported and not `myModule.ts`.
 
 To avoid time-eating bugs, it is recommended that within a flat directory, each file with a valid node module extension has a unique filename.
+
+### Utility Types 
+
+Sometimes, we might want to use a specific modification of a type. For example, consider a page for listing some data, some of which is sensitive and some of which is non-sensitive. We might want to be sure that no sensitive data is used or displayed. We could `pick` the fields of a type we allow to be used to enforce this. We can do that by using the utility type [Pick](https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys).
+
+In our project, we should consider that Ilari might want to create a listing of all his diary entries `excluding` the comment field since, during a very scary flight, he might end up writing something he wouldn't necessarily want to show to anyone else.
+
+The [Pick](https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys) utility type allows us to choose which fields of an existing type we want to use. Pick can be used to either construct a completely new type or to inform a function of what it should return on runtime. Utility types are a special kind of type, but they can be used just like regular types.
+
+In our case, to create a "censored" version of the `DiaryEntry` for public displays, we can use `Pick` in the function declaration:
+
+```ts
+const getNonSensitiveEntries =
+  (): Pick<DiaryEntry, 'id' | 'date' | 'weather' | 'visibility'>[] => {
+    // ...
+  }
+```
+
+and the compiler would expect the function to return an array of values of the modified `DiaryEntry` type, which includes only the four selected fields.
+
+In this case, we want to exclude only one field, so it would be even better to use the [Omit](https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys) utility type, which we can use to declare which fields to exclude:
+
+```ts
+const getNonSensitiveEntries = (): Omit<DiaryEntry, 'comment'>[] => {
+  // ...
+}
+```
+
+To improve the readability, we should most definitively define a type alias `NonSensitiveDiaryEntry` in the file `types.ts`:
+
+```ts
+export type NonSensitiveDiaryEntry = Omit<DiaryEntry, 'comment'>;
+```
+
+The code becomes now much more clear and more descriptive:
+
+```ts
+import diaries from '../../data/entries';
+import { NonSensitiveDiaryEntry, DiaryEntry } from '../types';
+
+const getEntries = (): DiaryEntry[] => {
+  return diaries;
+};
+
+const getNonSensitiveEntries = (): NonSensitiveDiaryEntry[] => {
+  return diaries;
+};
+
+const addDiary = () => {
+  return null;
+};
+
+export default {
+  getEntries,
+  addDiary,
+  getNonSensitiveEntries
+};
+```
+
+One thing in our application is a cause for concern. In `getNonSensitiveEntries`, we are returning the complete diary entries, and _no error is given_ despite typing!
+
+This happens because [TypeScript only checks](http://www.typescriptlang.org/docs/handbook/type-compatibility.html) whether we have all of the required fields or not, but excess fields are not prohibited. In our case, this means that it is `not prohibited` to return an object of type `DiaryEntry[]`, but if we were to try to access the `comment` field, it would not be possible because we would be accessing a field that TypeScript is unaware of even though it exists.
+
+Unfortunately, this can lead to unwanted behavior if you are not aware of what you are doing; the situation is valid as far as TypeScript is concerned, but you are most likely allowing a use that is not wanted. If we were now to return all of the diary entries from the `getNonSensitiveEntries` function to the frontend, we would be _leaking the unwanted fields to the requesting browser_ - even though our types seem to imply otherwise!
+
