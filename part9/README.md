@@ -2070,3 +2070,25 @@ If we now try to respond with wrong type of data, the code does not compile
 
 Similarly the request parameter has the type `Request` that is also a generic type. We shall have a closer look on it later on.
 
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.10 - 9.11
+
+Similarly to Ilari's flight service, we do not use a real database in our app but instead use hardcoded data that is in the files [diagnoses.ts](https://github.com/fullstack-hy2020/misc/blob/master/diagnoses.ts) and [patients.ts](https://github.com/fullstack-hy2020/misc/blob/master/patients.ts). Get the files and store those in a directory called `data` in your project. All data modification can be done in runtime memory, so during this part, it is `not necessary to write to a file`.
+
+#### Patientor backend, step 4
+
+Create data type `Patient` and set up the GET endpoint `/api/patients` which returns all the patients to the frontend, excluding the field `ssn`. Use a [utility type](https://www.typescriptlang.org/docs/handbook/utility-types.html) so make sure you are selecting and returning only the wanted fields. 
+
+In this exercise, you may assume that field `gender` has type `string`.
+
+Try the endpoint with your browser and ensure that `ssn` is not included in the response:
+
+![alt text](assets/image26.png)
+
+After creating the endpoint, ensure that the `frontend` shows the list of patients:
+
+![alt text](assets/image27.png)
+
+
+<hr style="border: 2px solid #D4FCB5">
