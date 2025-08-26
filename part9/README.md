@@ -2027,3 +2027,46 @@ export default router;
 The response is what we expect it to be:
 
 ![alt text](assets/image24.png)
+
+### Typing the request and response
+
+So far we have not discussed anything about the types of the route handler parameters.
+
+If we hover eg. the parameter `res`, we notice it has the following type:
+
+```js
+Response<any, Record<string, any>, number>
+```
+
+It looks a bit weird. The type `Response` is a [generic type](https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-types) that has three _type parameters_. If we open the type definition (by right clicking and selecting _Go to Type Definition_ in the VS code) we see the following:
+
+```js
+export interface Response<
+    ResBody = any,
+    LocalsObj extends Record<string, any> = Record<string, any>,
+    StatusCode extends number = number,
+> extends http.ServerResponse, Express.Response {
+```
+
+The first type parameter is the most interesting for us, it corresponds _the response body_ and has a default value `any`. So that is why TypeScript compiler accepts any type of response and we get no help to get the response right.
+
+We could and probably should give a proper type as the type variable. In our case it is an array of diary entries:
+
+```ts
+import { Response } from 'express'
+import { NonSensitiveDiaryEntry } from "../types";
+// ...
+
+router.get('/', (_req, res: Response<NonSensitiveDiaryEntry[]>) => {
+  res.send(diaryService.getNonSensitiveEntries());
+});
+
+// ...
+```
+
+If we now try to respond with wrong type of data, the code does not compile
+
+![alt text](assets/image25.png)
+
+Similarly the request parameter has the type `Request` that is also a generic type. We shall have a closer look on it later on.
+
