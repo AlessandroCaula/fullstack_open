@@ -1958,3 +1958,72 @@ This happens because [TypeScript only checks](http://www.typescriptlang.org/docs
 
 Unfortunately, this can lead to unwanted behavior if you are not aware of what you are doing; the situation is valid as far as TypeScript is concerned, but you are most likely allowing a use that is not wanted. If we were now to return all of the diary entries from the `getNonSensitiveEntries` function to the frontend, we would be _leaking the unwanted fields to the requesting browser_ - even though our types seem to imply otherwise!
 
+Because TypeScript doesn't modify the actual data but only its type, we need to exclude the fields ourselves:
+
+```ts
+import diaries from '../../data/entries.ts'
+
+import { NonSensitiveDiaryEntry, DiaryEntry } from '../types'
+
+const getEntries = () : DiaryEntry[] => {
+  return diaries
+}
+
+const getNonSensitiveEntries = (): NonSensitiveDiaryEntry[] => {
+  return diaries.map(({ id, date, weather, visibility }) => ({
+    id,
+    date,
+    weather,
+    visibility,
+  }));
+};
+
+const addDiary = () => {
+  return null;
+}
+
+export default {
+  getEntries,
+  getNonSensitiveEntries,
+  addDiary
+}
+```
+
+If we now try to return this data with the basic `DiaryEntry` type, i.e. if we type the function as follows:
+
+```ts
+const getNonSensitiveEntries = (): DiaryEntry[] => {
+```
+
+we would get the following error:
+
+![alt text](assets/image23.png)
+
+Again, the last line of the error message is the most helpful one. Let's undo this undesired modification.
+
+Note that if you make the comment field optional (using the `?` operator), everything will work fine.
+
+Utility types include many handy tools, and it is undoubtedly worth it to take some time to study [the documentation](https://www.typescriptlang.org/docs/handbook/utility-types.html).
+
+Finally, we can complete the route which returns all diary entries:
+
+```ts
+import express from 'express';
+import diaryService from '../services/diaryService';
+
+const router = express.Router();
+
+router.get('/', (_req, res) => {
+  res.send(diaryService.getNonSensitiveEntries());
+});
+
+router.post('/', (_req, res) => {
+  res.send('Saving a diary!');
+});
+
+export default router;
+```
+
+The response is what we expect it to be:
+
+![alt text](assets/image24.png)
