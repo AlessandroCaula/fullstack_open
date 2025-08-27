@@ -2090,5 +2090,62 @@ After creating the endpoint, ensure that the `frontend` shows the list of patien
 
 ![alt text](assets/image27.png)
 
-
 <hr style="border: 2px solid #D4FCB5">
+
+### Preventing an accidental undefined result
+
+Let's extend the backend to support fetching one specific entry with an HTTP GET request to route `api/diaries/:id`.
+
+The DiaryService needs to be extended with a `findById` function:
+
+```ts
+// ...
+
+const findById = (id: number): DiaryEntry => {
+  const entry = diaries.find(d => d.id === id);
+  return entry;
+};
+
+export default {
+  getEntries,
+  getNonSensitiveEntries,
+  addDiary,
+  findById
+}
+```
+
+But once again, a new problem emerges:
+
+![alt text](assets/image28.png)
+
+The issue is that there is no guarantee that an entry with the specified id can be found. It is good that we are made aware of this potential problem already at compile phase. Without TypeScript, we would not be warned about this problem, and in the worst-case scenario, we could have ended up returning an `undefined` object instead of informing the user about the specified entry not being found.
+
+First of all, in cases like this, we need to decide what the `return value` should be if an object is not found, and how the case should be handled. The `find` method of an array returns `undefined` if the object is not found, and this is fine. We can solve our problem by typing the return value as follows:
+
+```ts
+const findById = (id: number): DiaryEntry | undefined => {
+  const entry = diaries.find(d => d.id === id);
+  return entry;
+}
+```
+
+The route handler is the following:
+
+```ts
+import express from 'express';
+import diaryService from '../services/diaryService'
+
+router.get('/:id', (req, res) => {
+  const diary = diaryService.findById(Number(req.params.id));
+
+  if (diary) {
+    res.send(diary);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+// ...
+
+export default router;
+```

@@ -1,6 +1,6 @@
 // import diaryData from '../../data/entriesJson.json';
-import diaries from '../../data/entries';
-import { DiaryEntry, NonSensitiveDiaryEntry } from '../types';
+import diaries from "../../data/entries";
+import { DiaryEntry, NonSensitiveDiaryEntry } from "../types";
 
 // const diaries: DiaryEntry[] = diaryData as DiaryEntry[];
 
@@ -10,11 +10,17 @@ const getEntries = (): DiaryEntry[] => {
 
 const getNonSensitiveEntries = (): NonSensitiveDiaryEntry[] => {
   return diaries.map(({ id, date, weather, visibility }) => ({
-    id, 
+    id,
     date,
     weather,
-    visibility
+    visibility,
   }));
+};
+
+// Supporting the fetching of one specific entry
+const findById = (id: number): DiaryEntry | undefined => {
+  const entry = diaries.find((d) => d.id === id);
+  return entry;
 };
 
 const addDiary = () => {
@@ -24,6 +30,6 @@ const addDiary = () => {
 export default {
   getEntries,
   addDiary,
-  getNonSensitiveEntries
+  getNonSensitiveEntries,
+  findById,
 };
-
