@@ -2149,3 +2149,126 @@ router.get('/:id', (req, res) => {
 
 export default router;
 ```
+
+### Adding a new diary
+
+Let's start building the HTTP POST endpoint for adding new flight diary entries. The new entries should have the same type as the existing data.
+
+The code handling of the response looks as follows:
+
+```ts
+router.post('/', (req, res) => {
+  const { date, weather, visibility, comment } = req.body;
+  const addedEntry = diaryService.addDiary(
+    date,
+    weather,
+    visibility,
+    comment,
+  );
+  res.json(addedEntry);
+});
+```
+
+The corresponding method in diaryService looks like this:
+
+```ts
+import {
+  NonSensitiveDiaryEntry,
+  DiaryEntry,
+  Visibility,
+  Weather
+} from '../types';
+
+
+const addDiary = (
+    date: string, weather: Weather, visibility: Visibility, comment: string
+  ): DiaryEntry => {
+
+  const newDiaryEntry = {
+    id: Math.max(...diaries.map(d => d.id)) + 1,
+    date,
+    weather,
+    visibility,
+    comment,
+  };
+
+  diaries.push(newDiaryEntry);
+  return newDiaryEntry;
+};
+```
+
+As you can see, the `addDiary` function is becoming quite hard to read now that we have all the fields as separate parameters. It might be better to just send the data as an object to the function:
+
+```ts
+router.post('/', (req, res) => {
+  const { date, weather, visibility, comment } = req.body;
+
+  const addedEntry = diaryService.addDiary({
+    date,
+    weather,
+    visibility,
+    comment,
+  });
+
+  res.json(addedEntry);
+})
+```
+
+But wait, what is the type of this object? It is not exactly a `DiaryEntry`, since it is still missing the `id` field. It could be useful to create a new type, `NewDiaryEntry`, for an entry that hasn't been saved yet. Let's create that in `types.ts` using the existing `DiaryEntry` type and the [Omit](https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys) utility type:
+
+```ts
+export type NewDiaryEntry = Omit<DiaryEntry, 'id'>;
+```
+
+Now we can use the new type in our DiaryService, and destructure the new entry object when creating an entry to be saved:
+
+```ts
+import { NewDiaryEntry, NonSensitiveDiaryEntry, DiaryEntry } from '../types';
+
+// ...
+
+const addDiary = ( entry: NewDiaryEntry ): DiaryEntry => {
+  const newDiaryEntry = {
+    id: Math.max(...diaries.map(d => d.id)) + 1,
+    ...entry
+  };
+
+  diaries.push(newDiaryEntry);
+  return newDiaryEntry;
+};
+```
+
+Now the code looks much cleaner!
+
+There is still a complaint from our code:
+
+![alt text](assets/image29.png)
+
+The cause is the ESlint rule [@typescript-eslint/no-unsafe-assignment](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unsafe-assignment.md) that prevents us from assigning the fields of a request body to variables.
+
+For the time being, let us just ignore the ESlint rule from the whole file by adding the following as the first line of the file:
+
+```ts
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+```
+
+To parse the incoming data we must have the `json` middleware configured:
+
+```ts
+import express from 'express';
+import diaryRouter from './routes/diaries';
+const app = express();
+
+app.use(express.json());
+
+const PORT = 3000;
+
+app.use('/api/diaries', diaryRouter);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+Now the application is ready to receive HTTP POST requests for new diary entries of the correct type!
+

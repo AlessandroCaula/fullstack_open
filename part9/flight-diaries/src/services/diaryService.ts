@@ -1,13 +1,12 @@
 // import diaryData from '../../data/entriesJson.json';
 import diaries from "../../data/entries";
-import { DiaryEntry, NonSensitiveDiaryEntry } from "../types";
-
-// const diaries: DiaryEntry[] = diaryData as DiaryEntry[];
+import { DiaryEntry, NewDiaryEntry, NonSensitiveDiaryEntry } from "../types";
 
 const getEntries = (): DiaryEntry[] => {
   return diaries;
 };
 
+// Retrieving all the flights in the diary without the information of the comments field
 const getNonSensitiveEntries = (): NonSensitiveDiaryEntry[] => {
   return diaries.map(({ id, date, weather, visibility }) => ({
     id,
@@ -23,8 +22,15 @@ const findById = (id: number): DiaryEntry | undefined => {
   return entry;
 };
 
-const addDiary = () => {
-  return null;
+// Adding a new flight to the diary
+const addDiary = (entry: NewDiaryEntry) => {
+  const newDiaryEntry = {
+    id: Math.max(...diaries.map(d => d.id)) + 1,
+    ...entry
+  };
+
+  diaries.push(newDiaryEntry);
+  return newDiaryEntry;
 };
 
 export default {
