@@ -2378,3 +2378,102 @@ const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
 ```
 
 >_So before the real data and types are ready to use, I am just returning here something that has for sure the right type. The code stays in an operational state all the time and my blood pressure remains at normal levels._
+
+### Type guards
+
+Let us start creating the parsers for each of the fields of the parameter `object: unknown`.
+
+To validate the `comment` field, we need to check that it exists and to ensure that it is of the type `string`.
+
+The function should look something like this:
+
+```ts
+const parseComment = (comment: unknown): string => {
+  if (!comment || !isString(comment)) {
+    throw new Error('Incorrect or missing comment');
+  }
+
+  return comment;
+};
+```
+
+The function gets a parameter of type `unknown` and returns it as the type `string` if it exists and is of the right type.
+
+The string validation function looks like this:
+
+```ts
+const isString = (text: unknown): text is string => {
+  return typeof text === 'string' || text instanceof String;
+};
+```
+
+The function is a so-called [type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates). That means it is a function that returns a boolean `and` has a _type predicate_ as the return type. In our case, the type predicate is:
+
+```
+text is string
+```
+
+The general form of a type predicate is `parameterName is Type` where the `parameterName` is the name of the function parameter and `Type` is the targeted type.
+
+If the type guard function returns true, the TypeScript compiler knows that the tested variable has the type that was defined in the type predicate.
+
+Before the type guard is called, the actual type of the variable `comment` is not known:
+
+![alt text](assets/image31.png)
+
+But after the call, if the code proceeds past the exception (that is, the type guard returned true), then the compiler knows that `comment` is of type `string`:
+
+![alt text](assets/image32.png)
+
+The use of a type guard that returns a type predicate is one way to do [type narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html), that is, to give a variable a more strict or accurate type. As we will soon see there are also other kind of [type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) available.
+
+>__Side note: testing if something is a string__
+>
+>_Why do we have two conditions in the string type guard?_
+
+```ts
+const isString = (text: unknown): text is string => {
+ return typeof text === 'string' || text instanceof String;
+}
+```
+
+>_Would it not be enough to write the guard like this?_
+
+```ts
+const isString = (text: unknown): text is string => {
+ return typeof text === 'string';
+}
+```
+
+>_Most likely, the simpler form is good enough for all practical purposes. However, if we want to be sure, both conditions are needed. There are two different ways to create string in JavaScript, one as a primitive and the other as an object, which both work a bit differently when compared to the typeof and instanceof operators:_
+
+```ts
+const a = "I'm a string primitive";
+const b = new String("I'm a String Object");
+typeof a; --> returns 'string'
+typeof b; --> returns 'object'
+a instanceof String; --> returns false
+b instanceof String; --> returns true
+```
+
+>_However, it is unlikely that anyone would create a string with a constructor function. Most likely the simpler version of the type guard would be just fine._
+
+Next, let's consider the `date` field. Parsing and validating the date object is pretty similar to what we did with comments. Since TypeScript doesn't know a type for a date, we need to treat it as a `string`. We should however still use JavaScript-level validation to check whether the date format is acceptable.
+
+We will add the following functions:
+
+```ts
+const isDate = (date: string): boolean => {
+  return Boolean(Date.parse(date));
+};
+
+const parseDate = (date: unknown): string => {
+  if (!date || !isString(date) || !isDate(date)) {
+      throw new Error('Incorrect or missing date: ' + date);
+  }
+  return date;
+};
+```
+
+The code is nothing special. The only thing is that we can't use a type predicate based type guard here since a date in this case is only considered to be a `string`. Note that even though the `parseDate` function accepts the `date` variable as `unknown` after we check the type with `isString`, then its type is set as `string`, which is why we can give the variable to the `isDate` function requiring a string without any problems.
+
