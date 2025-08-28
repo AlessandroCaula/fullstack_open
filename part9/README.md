@@ -2272,3 +2272,109 @@ app.listen(PORT, () => {
 
 Now the application is ready to receive HTTP POST requests for new diary entries of the correct type!
 
+### Validating requests
+
+There are plenty of things that can go wrong when we accept data from outside sources. Applications rarely work completely on their own, and we are forced to live with the fact that data from sources outside of our system cannot be fully trusted. When we receive data from an outside source, there is no way it can already be typed when we receive it. We need to make decisions on how to handle the uncertainty that comes with this.
+
+The disabled ESlint rule was hinting to us that the following assignment is risky:
+
+```ts
+const newDiaryEntry = diaryService.addDiary({
+  date,
+  weather,
+  visibility,
+  comment,
+});
+```
+
+We would like to have the assurance that the object in a POST request has the correct type. Let us now define a function `toNewDiaryEntry` that receives the request body as a parameter and returns a properly-typed `NewDiaryEntry` object. The function shall be defined in the file `utils.ts`.
+
+The route definition uses the function as follows:
+
+```ts
+import toNewDiaryEntry from '../utils';
+
+// ...
+
+router.post('/', (req, res) => {
+  try {
+    const newDiaryEntry = toNewDiaryEntry(req.body);
+
+    const addedEntry = diaryService.addDiary(newDiaryEntry);
+    res.json(addedEntry);
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
+})
+```
+
+We can now also remove the first line that ignores the ESlint rule `no-unsafe-assignment`.
+
+Since we are now writing secure code and trying to ensure that we are getting exactly the data we want from the requests, we should get started with parsing and validating each field we are expecting to receive.
+
+The skeleton of the function `toNewDiaryEntry` looks like the following:
+
+```ts
+import { NewDiaryEntry } from './types';
+
+const toNewDiaryEntry = (object): NewDiaryEntry => {
+  const newEntry: NewDiaryEntry = {
+    // ...
+  };
+
+  return newEntry;
+};
+
+export default toNewDiaryEntry;
+```
+
+The function should parse each field and make sure that the return value is exactly of type `NewDiaryEntry`. This means we should check each field separately.
+
+Once again, we have a type issue: what is the type of the parameter `object`? Since the `object` is the body of a request, Express has typed it as `any`. Since the idea of this function is to map fields of unknown type to fields of the correct type and check whether they are defined as expected, this might be the rare case in which _we want to allow the any type_.
+
+However, if we type the object as `any`, ESlint complains about that:
+
+![alt text](assets/image30.png)
+
+We could ignore the ESlint rule but a better idea is to follow one of the advices the editor gives in the `Quick Fix` and set the parameter type to `unknown`:
+
+```ts
+import { NewDiaryEntry } from './types';
+
+const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  const newEntry: NewDiaryEntry = {
+    // ...
+  }
+
+  return newEntry;
+}
+
+export default toNewDiaryEntry;
+```
+
+[unknown](https://www.typescriptlang.org/docs/handbook/2/functions.html#unknown) is the ideal type for our kind of situation of input validation, since we don't yet need to define the type to match `any` type, but can first verify the type and then confirm that is the expected type. With the use of `unknown`, we also don't need to worry about the `@typescript-eslint/no-explicit-any` ESlint rule, since we are not using `any`. However, we might still need to use `any` in some cases in which we are not yet sure about the type and need to access the properties of an object of type `any` to validate or type-check the property values themselves.
+
+>__A sidenote from the editor__
+>
+>_If you are like me and hate having a code in broken state for a long time due to incomplete typing, you could start by "faking" the function:_
+
+```ts
+const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+
+ console.log(object); // now object is no longer unused
+ const newEntry: NewDiaryEntry = {
+   weather: 'cloudy', // fake the return value
+   visibility: 'great',
+   date: '2022-1-1',
+   comment: 'fake news'
+ };
+
+ return newEntry;
+};
+```
+
+>_So before the real data and types are ready to use, I am just returning here something that has for sure the right type. The code stays in an operational state all the time and my blood pressure remains at normal levels._
