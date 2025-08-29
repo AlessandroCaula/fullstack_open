@@ -2477,3 +2477,44 @@ const parseDate = (date: unknown): string => {
 
 The code is nothing special. The only thing is that we can't use a type predicate based type guard here since a date in this case is only considered to be a `string`. Note that even though the `parseDate` function accepts the `date` variable as `unknown` after we check the type with `isString`, then its type is set as `string`, which is why we can give the variable to the `isDate` function requiring a string without any problems.
 
+Finally, we are ready to move on to the last two types, `Weather` and `Visibility`.
+
+We would like the validation and parsing to work as follows:
+
+```ts
+const parseWeather = (weather: unknown): Weather => {
+  if (!weather || !isString(weather) || !isWeather(weather)) {
+      throw new Error('Incorrect or missing weather: ' + weather);
+  }
+  return weather;
+};
+```
+
+The question is: how can we validate that the string is of a specific form? One possible way to write the type guard would be this:
+
+```ts
+const isWeather = (str: string): str is Weather => {
+  return ['sunny', 'rainy', 'cloudy', 'stormy'].includes(str);
+};
+```
+
+This would work just fine, but the problem is that the list of possible values for Weather does not necessarily stay in sync with the type definitions if the type is altered. This is most certainly not good, since we would like to have just one source for all possible weather types.
+
+### Enum
+
+In our case, a better solution would be to improve the actual `Weather` type. Instead of a type alias, we should use the TypeScript [enum](https://www.typescriptlang.org/docs/handbook/enums.html), which allows us to use the actual values in our code at runtime, not only in the compilation phase.
+
+Let use define the type `Weather` as follows:
+
+```ts
+export enum Weather {
+  Sunny = 'sunny',
+  Rainy = 'rainy',
+  Cloudy = 'cloudy',
+  Stormy = 'stormy',
+  Windy = 'windy',
+}
+```
+
+Now we can check that a string is one of the accepted values, and the type guard can be written like this:
+
