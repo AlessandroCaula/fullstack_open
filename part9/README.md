@@ -2518,3 +2518,134 @@ export enum Weather {
 
 Now we can check that a string is one of the accepted values, and the type guard can be written like this:
 
+```ts
+const isWeather = (param: string): param is Weather => {
+  return Object.values(Weather).map(v => v.toString()).includes(param);
+};
+```
+
+Note that we need to take the string representation of the enum values for the comparison, that is why we do the mapping.
+
+One issue arises after these changes. Our data in file `data/entries.ts` does not conform to our types anymore:
+
+![alt text](assets/image33.png)
+
+This is because we cannot just assume a string is an enum.
+
+We can fix this by mapping the initial data elements to the `DiaryEntry` type with the `toNewDiaryEntry` function:
+
+```ts
+import { DiaryEntry } from "../src/types";
+import toNewDiaryEntry from "../src/utils";
+
+const data = [
+  {
+      "id": 1,
+      "date": "2017-01-01",
+      "weather": "rainy",
+      "visibility": "poor",
+      "comment": "Pretty scary flight, I'm glad I'm alive"
+  },
+  // ...
+]
+
+const diaryEntries: DiaryEntry [] = data.map(obj => {
+  const object = toNewDiaryEntry(obj) as DiaryEntry;
+  object.id = obj.id;
+  return object;
+});
+
+export default diaryEntries;
+```
+
+Note that since `toNewDiaryEntry` returns an object of type `NewDiaryEntry`, we need to assert it to be `DiaryEntry` with the [as](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) operator.
+
+Enums are typically used when there is a set of predetermined values that are not expected to change in the future. Usually, they are used for much tighter unchanging values (for example, weekdays, months, cardinal directions), but since they offer us a great way to validate our incoming values, we might as well use them in our case.
+
+We still need to give the same treatment to `Visibility`. The enum looks as follows:
+
+```ts
+export enum Visibility {
+  Great = 'great',
+  Good = 'good',
+  Ok = 'ok',
+  Poor = 'poor',
+}
+```
+
+The type guard and the parser are below:
+
+```ts
+const isVisibility = (param: string): param is Visibility => {
+  return Object.values(Visibility).map(v => v.toString()).includes(param);
+};
+
+const parseVisibility = (visibility: unknown): Visibility => {
+  if (!visibility || !isString(visibility) || !isVisibility(visibility)) {
+      throw new Error('Incorrect or missing visibility: ' + visibility);
+  }
+  return visibility;
+};
+```
+
+And finally, we can finalize the `toNewDiaryEntry` function that takes care of validating and parsing the fields of the POST body. There is however one more thing to take care of. If we try to access the fields of the parameter `object` as follows:
+
+```ts
+const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  const newEntry: NewDiaryEntry = {
+    comment: parseComment(object.comment),
+    date: parseDate(object.date),
+    weather: parseWeather(object.weather),
+    visibility: parseVisibility(object.visibility)
+  };
+
+  return newEntry;
+};
+```
+
+we notice that the code does not compile. This is because the [unknown](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#new-unknown-top-type) type does not allow any operations, so accessing the fields is not possible.
+
+We can again fix the problem by type narrowing. We have now two type guards, the first checks that the parameter object exists and it has the type `object`. After this, the second type guard uses the [in](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing) operator to ensure that the object has all the desired fields:
+
+```ts
+const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  if ( !object || typeof object !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  if ('comment' in object && 'date' in object && 'weather' in object && 'visibility' in object)  {
+    const newEntry: NewDiaryEntry = {
+      weather: parseWeather(object.weather),
+      visibility: parseVisibility(object.visibility),
+      date: parseDate(object.date),
+      comment: parseComment(object.comment)
+    };
+
+    return newEntry;
+  }
+
+  throw new Error('Incorrect data: some fields are missing');
+};
+```
+
+If the guard does not evaluate to true, an exception is thrown.
+
+The use of the operator `in` actually now guarantees that the fields indeed exist in the object. Because of that, the existence checks in the parsers are no longer needed:
+
+```ts
+const parseVisibility = (visibility: unknown): Visibility => {
+  // check !visibility removed:
+  if (!isString(visibility) || !isVisibility(visibility)) {
+      throw new Error('Incorrect visibility: ' + visibility);
+  }
+  return visibility;
+};
+```
+
+If a field, e.g. `comment` would be optional, the type narrowing should take that into account, and the operator [in](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing) could not be used quite as we did here, since the `in` test requires the field to be present.
+
+If we now try to create a new diary entry with invalid or missing fields, we are getting an appropriate error message:
+
+![alt text](assets/image34.png)
+
+The source code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/flight-diary/tree/part1).
