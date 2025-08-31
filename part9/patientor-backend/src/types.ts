@@ -4,7 +4,7 @@ export interface PatientEntry {
   name: string;
   dateOfBirth: string;
   ssn: string;
-  gender: string;
+  gender: Gender;
   occupation: string;
 }
 
@@ -12,4 +12,11 @@ export interface PatientEntry {
 export type NonSensitivePatientEntry = Omit<PatientEntry, "ssn">;
 
 // Type for the new patient entry
-export type NewPatientEntry = Omit<PatientEntry, 'id'>;
+export type NewPatientEntry = Omit<PatientEntry, "id">;
+
+// Gender enumerator
+export enum Gender {
+  male = "male",
+  female = "female",
+  other = "other",
+}
