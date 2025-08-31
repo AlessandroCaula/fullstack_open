@@ -2649,3 +2649,18 @@ If we now try to create a new diary entry with invalid or missing fields, we are
 ![alt text](assets/image34.png)
 
 The source code of the application can be found on [GitHub](https://github.com/fullstack-hy2020/flight-diary/tree/part1).
+
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.12 - 9.13
+
+#### 9.12: Patientor backend, step 5
+
+Create a POST endpoint `/api/patients` for adding patients. Ensure that you can add patients also from the frontend. You can create unique ids of type `string` using the [uuid](https://github.com/uuidjs/uuid) library:
+
+```ts
+import { v1 as uuid } from 'uuid'
+const id = uuid()
+```
+
+<hr style="border: 2px solid #D4FCB5">

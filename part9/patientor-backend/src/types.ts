@@ -10,3 +10,6 @@ export interface PatientEntry {
 
 // Utility type to exclude field 'ssn' from the patients
 export type NonSensitivePatientEntry = Omit<PatientEntry, "ssn">;
+
+// Type for the new patient entry
+export type NewPatientEntry = Omit<PatientEntry, 'id'>;
