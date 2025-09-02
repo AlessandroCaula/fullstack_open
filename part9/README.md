@@ -2670,3 +2670,121 @@ Set up safe parsing, validation and type predicate to the POST `/api/patients` r
 Refactor the `gender` field to use an [enum type](http://www.typescriptlang.org/docs/handbook/enums.html).
 
 <hr style="border: 2px solid #D4FCB5">
+
+### Using schema validation libraries
+
+Writing a validator to the request body can be a huge burden. Thankfully there exists several _schema validator libraries_ that can help. Let us now have a look at [Zod](https://zod.dev/) that works pretty well with TypeScript.
+
+Let us get started:
+
+```bash
+npm install zod
+```
+
+Parsers of the primitive valued fields such as
+
+```ts
+const isString = (text: unknown): text is string => {
+  return typeof text === 'string' || text instanceof String;
+};
+
+const parseComment = (comment: unknown): string => {
+  if (!isString(comment)) {
+    throw new Error('Incorrect comment');
+  }
+
+  return comment;
+};
+```
+
+are easy to replace as follows:
+
+```ts
+const parseComment = (comment: unknown): string => {
+  return z.string().parse(comment);
+};
+```
+
+First the [string](https://zod.dev/?id=strings) method of Zod is used to define the required type (or _schema_ in Zod terms). After that the value (which is of the type `unknown`) is parsed with the method [parse](https://zod.dev/?id=parse), which returns the value in the required type or throws an exception.
+
+We do not actually need the helper function `parseComment` anymore and can use the Zod parser directly:
+
+```ts
+export const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  if ( !object || typeof object !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  if ('comment' in object && 'date' in object && 'weather' in object && 'visibility' in object)  {
+    const newEntry: NewDiaryEntry = {
+      weather: parseWeather(object.weather),
+      visibility: parseVisibility(object.visibility),
+      date: parseDate(object.date),
+      comment: z.string().parse(object.comment)
+    };
+
+    return newEntry;
+  }
+
+  throw new Error('Incorrect data: some fields are missing');
+};
+```
+
+Zod has a bunch of string specific validations, eg. one that validates if a string is a valid [date](https://zod.dev/?id=dates), so we get also rid of the date field parser:
+
+```ts
+export const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  if ( !object || typeof object !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  if ('comment' in object && 'date' in object && 'weather' in object && 'visibility' in object)  {
+    const newEntry: NewDiaryEntry = {
+      weather: parseWeather(object.weather),
+      visibility: parseVisibility(object.visibility), 
+      date: z.string().date().parse(object.date),
+      comment: z.string().optional().parse(object.comment)
+    };
+
+    return newEntry;
+  }
+
+  throw new Error('Incorrect data: some fields are missing');
+};
+```
+
+We have also made the field comment [optional](https://zod.dev/?id=optional) since it is defined optional in the TypeScript definition.
+
+Zod has also support for [enums](https://zod.dev/?id=native-enums) and thanks to that our code simplifies further:
+
+```ts
+export const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  if ( !object || typeof object !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  if ('comment' in object && 'date' in object && 'weather' in object && 'visibility' in object)  {
+    const newEntry: NewDiaryEntry = {
+      weather: z.nativeEnum(Weather).parse(object.weather),
+      visibility: z.nativeEnum(Visibility).parse(object.visibility),
+      date: z.string().date().parse(object.date),
+      comment: z.string().optional().parse(object.comment)
+    };
+
+    return newEntry;
+  }
+
+  throw new Error('Incorrect data: some fields are missing');
+};
+```
+
+We have so far just used Zod to parse the type or schema of individual fields, but we can go one step further and define the whole _new diary entry_ as a Zod [object](https://zod.dev/?id=objects) schema:
+
+```ts
+const newEntrySchema = z.object({
+  weather: z.nativeEnum(Weather),
+  visibility: z.nativeEnum(Visibility),
+  date: z.string().date(),
+  comment: z.string().optional()
+});
+```
