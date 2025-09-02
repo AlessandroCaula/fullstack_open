@@ -2788,3 +2788,82 @@ const newEntrySchema = z.object({
   comment: z.string().optional()
 });
 ```
+
+Now it is just enough to call `parse` of the defined schema:
+
+```ts
+export const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  return newEntrySchema.parse(object);
+};
+```
+
+With the help from [documentation](https://zod.dev/ERROR_HANDLING) we could also improve the error handling:
+
+```ts
+router.post('/', (req, res) => {
+  try {
+    const newDiaryEntry = toNewDiaryEntry(req.body);
+    const addedEntry = diaryService.addDiary(newDiaryEntry);
+    res.json(addedEntry);
+
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(400).send({ error: 'unknown error' });
+    }
+  }
+});
+```
+
+The response in case of error looks pretty good:
+
+![alt text](assets/image35.png)
+
+We could develop our solution still some steps further. Our type definitions currently look like this:
+
+```ts
+export interface DiaryEntry {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment?: string;
+}
+
+export type NewDiaryEntry = Omit<DiaryEntry, 'id'>;
+```
+
+So besides the type `NewDiaryEntry` we have also the Zod schema `NewEntrySchema` that defines the shape of a new entry. We can use the schema to [infer](https://zod.dev/?id=type-inference) the type:
+
+```ts
+import { z } from 'zod';
+import { newEntrySchema } from './utils'
+
+export interface DiaryEntry {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment?: string;
+}
+
+// infer the type from schema
+export type NewDiaryEntry = z.infer<typeof newEntrySchema>; 
+```
+
+We could take this even a bit further and define the DiaryEntry based on NewDiaryEntry:
+
+```ts
+export type NewDiaryEntry = z.infer<typeof newEntrySchema>;
+
+export interface DiaryEntry extends NewDiaryEntry {
+  id: number;
+}
+```
+
+This would remove all the duplication in the type and schema definitions but feels a bit backward so we decide to define the type `DiaryEntry` explicitly with TypeScript.
+
+Unfortunately the opposite is not possible: we can not define the Zod schema based on TypeScript type definitions, and due to this, the duplication in the type and schema definitions is hard to avoid.
+
+The current state of the source code can be found in the part2 branch of [this](https://github.com/fullstack-hy2020/flight-diary/tree/part2) GitHub repository.
