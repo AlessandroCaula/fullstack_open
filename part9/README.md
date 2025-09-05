@@ -3096,3 +3096,76 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 The reason for this is that the statement might return value null but the `ReactDOM.createRoot` does not accept null as parameter. With the [! operator](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-), it is possible to assert to the TypeScript compiler that the value is not null.
 
 Earlier in this part we [warned](#type-assertion) about the dangers of type assertions, but in our case the assertion is ok since we are sure that the file `index.html` indeed has this particular id and the function is always returning a HTMLElement.
+
+### React components with TypeScript
+
+Let us consider the following JavaScript React example:
+
+```ts
+import ReactDOM from 'react-dom/client'
+import PropTypes from "prop-types";
+
+const Welcome = props => {
+  return <h1>Hello, {props.name}</h1>;
+};
+
+Welcome.propTypes = {
+  name: PropTypes.string
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <Welcome name="Sarah" />
+)
+```
+
+In this example, we have a component called `Welcome` to which we pass a `name` as a prop. It then renders the name to the screen. We know that the `name` should be a string, and we use the [prop-types](https://www.npmjs.com/package/prop-types) package introduced in [part 5](../part5/README.md#part-5b---propschildren-and-proptypes) to receive hints about the desired types of a component's props and warnings about invalid prop types.
+
+With TypeScript, we don't need the `prop-types` package anymore. We can define the types with the help of TypeScript, just like we define types for a regular function as React components are nothing but mere functions. We will use an interface for the parameter types (i.e. props) and `JSX.Element` as the return type for any React component:
+
+```ts
+import ReactDOM from 'react-dom/client'
+
+interface WelcomeProps {
+  name: string;
+}
+
+const Welcome = (props: WelcomeProps): JSX.Element => {
+  return <h1>Hello, {props.name}</h1>;
+};
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <Welcome name="Sarah" />
+)
+```
+
+We defined a new type, `WelcomeProps`, and passed it to the function's parameter types.
+
+```ts
+const Welcome = (props: WelcomeProps): JSX.Element => {
+```
+
+You could write the same thing using a more verbose syntax:
+
+```ts
+const Welcome = ({ name }: { name: string }): JSX.Element => (
+  <h1>Hello, {name}</h1>
+);
+```
+
+Now our editor knows that the `name` prop is a string. 
+
+there is actually no need to define the return type of a React component since the TypeScript compiler infers the type automatically, so we can just write:
+
+```ts
+interface WelcomeProps {
+  name: string;
+}
+
+const Welcome = (props: WelcomeProps) => {
+  return <h1>Hello, {props.name}</h1>;
+};
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <Welcome name="Sarah" />
+)
+```
