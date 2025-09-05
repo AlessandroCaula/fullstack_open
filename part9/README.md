@@ -2867,3 +2867,88 @@ This would remove all the duplication in the type and schema definitions but fee
 Unfortunately the opposite is not possible: we can not define the Zod schema based on TypeScript type definitions, and due to this, the duplication in the type and schema definitions is hard to avoid.
 
 The current state of the source code can be found in the part2 branch of [this](https://github.com/fullstack-hy2020/flight-diary/tree/part2) GitHub repository.
+
+### Parsing request body in middleware
+
+We can now get rid of this method altogether
+
+```ts
+export const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  return newEntrySchema.parse(object);
+};
+```
+
+and just call the Zod-parser directly in the route handler:
+
+```ts
+import express, { Request, Response } from 'express';
+import diaryService from '../services/diaryService';
+import { NewEntrySchema } from '../utils';
+
+router.post('/', (req, res) => {
+  try {
+
+    const newDiaryEntry = NewEntrySchema.parse(req.body);
+    const addedEntry = diaryService.addDiary(newDiaryEntry);
+    res.json(addedEntry);
+
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(400).send({ error: 'unknown error' });
+    }
+  }
+});
+```
+
+Instead of calling the request body parsing method explicitly in the route handler, the validation of the input could also be done in a middleware function.
+
+We have also added the type definitions to the route handler parameters, and shall also use types in the middleware function `newDiaryParser`:
+
+```ts
+const newDiaryParser = (req: Request, _res: Response, next: NextFunction) => { 
+  try {
+    NewEntrySchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+```
+
+The middleware just calls the schema parser to the request body. If the parsing throws an exception, that is passed to the error handling middleware.
+
+So after the request passes this middleware, it _is known that the request body is a proper new diary entry_. We can tell this fact to TypeScript compiler by giving a type parameter to the `Request` type:
+
+```ts
+router.post('/', newDiaryParser, (req: Request<unknown, unknown, NewDiaryEntry>, res: Response<DiaryEntry>) => {
+  const addedEntry = diaryService.addDiary(req.body);
+  res.json(addedEntry);
+});
+```
+
+Thanks to the middleware, the request body is now known to be of right type and it can be directly given as parameter to the function `diaryService.addDiary`.
+
+The syntax of the `Request<unknown, unknown, NewDiaryEntry>` looks a bit odd. The `Request` is a [generic type](https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-types) with several type parameters. The third type parameter represents the request body, and in order to give it the value `NewDiaryEntry` we have to give some value to the two first parameters. We decide to define those `unknown` since we do not need those for now.
+
+Since the possible errors in validation are now handled in the error handling middleware, we need to define one that handles the Zod errors properly:
+
+```ts
+const errorMiddleware = (error: unknown, _req: Request, res: Response, next: NextFunction) => { 
+  if (error instanceof z.ZodError) {
+    res.status(400).send({ error: error.issues });
+  } else {
+    next(error);
+  }
+};
+
+router.post('/', newDiaryParser, (req: Request<unknown, unknown, NewDiaryEntry>, res: Response<DiaryEntry>) => {
+  // ...
+});
+
+router.use(errorMiddleware);
+```
+
+The final version of the source code can be found in the part3 branch of [this](https://github.com/fullstack-hy2020/flight-diary/tree/part3) GitHub repository.
+
