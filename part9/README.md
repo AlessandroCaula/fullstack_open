@@ -3017,3 +3017,82 @@ The final version of the source code can be found in the part3 branch of [this](
 Use Zod to validate the requests to the POST endpoint `/api/patients`.
 
 <hr style="border: 2px solid #D4FCB5">
+
+## Part 9d - React with types
+
+Before we start delving into how you can use TypeScript with REact, we should first have a look at what we want to achieve. When everything works as it should, TypeScript will help us catch the following errors:
+
+- Trying to pass an extra/unwanted prop to a component
+
+- Forgetting to pass a required prop to a component
+
+- Passing a prop with the wrong type to a component
+
+If we make any of these errors, TypeScript can help us catch them in our editor right away. If we didn't use TypeScript, we would have to catch these errors later during testing. We might be forced to do some tedious debugging to find the cause of the errors.
+
+That's enough reasoning for now. Let's start getting our hands dirty!
+
+### Vite with TypeScript
+
+We can use [Vite](https://vitejs.dev/) to create a TypeScript app specifying a template `react-ts` in the initialization script. So to create a TypeScript app, run the following command:
+
+```bash
+npm create vite@latest my-app-name -- --template react-ts
+```
+
+After running the command, you should have a complete basic React app that uses TypeScript. You can start the app by running `npm run dev` in the application's root.
+
+If you take a look at the files and folders, you'll notice that the app is not that different from one using pure JavaScript. The only differences are that the `.jsx` files are now `.tsx` files, they contain some type annotations, and the root directory contains a `tsconfig.json` file.
+
+Now, let's take a look at the `tsconfig.json` file that has been created for us.
+
+```ts
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+```
+
+Notice `compilerOptions` now has the key [lib](https://www.typescriptlang.org/tsconfig#lib) that includes "type definitions for things found in browser environments (like `document`)". Everything else should be more or less fine.
+
+In our previous project, we used ESlint to help us enforce a coding style, and we'll do the same with this app. We do not need to install any dependencies, since Vite has taken care of that already.
+
+When we look at the `main.tsx` file that Vite has generated, it looks familiar but there is a small but remarkable difference, there is a exclamation mark after the statement `document.getElementById('root')`:
+
+```ts
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+```
+
+The reason for this is that the statement might return value null but the `ReactDOM.createRoot` does not accept null as parameter. With the [! operator](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-), it is possible to assert to the TypeScript compiler that the value is not null.
+
+Earlier in this part we [warned](#type-assertion) about the dangers of type assertions, but in our case the assertion is ok since we are sure that the file `index.html` indeed has this particular id and the function is always returning a HTMLElement.
