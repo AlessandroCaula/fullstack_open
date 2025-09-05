@@ -2952,3 +2952,12 @@ router.use(errorMiddleware);
 
 The final version of the source code can be found in the part3 branch of [this](https://github.com/fullstack-hy2020/flight-diary/tree/part3) GitHub repository.
 
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercise 9.14
+
+#### 9.14: Patientor backend, step 7
+
+Use Zod to validate the requests to the POST endpoint `/api/patients`.
+
+<hr style="border: 2px solid #D4FCB5">
