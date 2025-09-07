@@ -3256,3 +3256,159 @@ const App = () => {
 ```
 
 <hr style="border: 2px solid #D4FCB5">
+
+### Deeper type usage
+
+In the previous exercise, we had three parts of a course, and all parts had the same attributes `name` and `exerciseCount`. But what if we need additional attributes for a specific part? How would this look, codewise? Let's consider the following example:
+
+```ts
+const courseParts = [
+  {
+    name: "Fundamentals",
+    exerciseCount: 10,
+    description: "This is an awesome course part"
+  },
+  {
+    name: "Using props to pass data",
+    exerciseCount: 7,
+    groupProjectCount: 3
+  },
+  {
+    name: "Basics of type Narrowing",
+    exerciseCount: 7,
+    description: "How to go from unknown to string"
+  },
+  {
+    name: "Deeper type usage",
+    exerciseCount: 14,
+    description: "Confusing description",
+    backgroundMaterial: "https://type-level-typescript.com/template-literal-types"
+  },
+];
+```
+
+In the above example, we have added some additional attributes to each course part. Each part has the `name` and `exerciseCount` attributes, but the first, the third and fourth also have an attribute called `description`. The second and fourth parts also have some distinct additional attributes.
+
+Let's imagine that our application just keeps on growing, and we need to pass the different course parts around in our code. On top of that, there are also additional attributes and course parts added to the mix. How can we know that our code is capable of handling all the different types of data correctly, and we are not for example forgetting to render a new course part on some page? This is where TypeScript comes in handy!
+
+Let's start by defining types for our different course parts. We notice that the first and third have the same set of attributes. The second and fourth are a bit different so we have three different kinds of course part elements.
+
+So let us define a type for each of the different kind of course parts:
+
+```ts
+interface CoursePartBasic {
+  name: string;
+  exerciseCount: number;
+  description: string;
+  kind: "basic"
+}
+
+interface CoursePartGroup {
+  name: string;
+  exerciseCount: number;
+  groupProjectCount: number;
+  kind: "group"
+}
+
+interface CoursePartBackground {
+  name: string;
+  exerciseCount: number;
+  description: string;
+  backgroundMaterial: string;
+  kind: "background"
+}
+```
+
+Besides the attributes that are found in the various course parts, we have now introduced an additional attribute called `kind` that has a [literal](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types) type, it is a "hard coded" string, distinct for each course part. We shall soon see where the attribute kind is used!
+
+Next, we will create a type [union](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) of all these types. We can then use it to define a type for our array, which should accept any of these course part types:
+
+```ts
+type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+```
+
+Now we can set the type for our `courseParts` variable:
+
+```ts
+const App = () => {
+  const courseName = "Half Stack application development";
+  const courseParts: CoursePart[] = [
+    {
+      name: "Fundamentals",
+      exerciseCount: 10,
+      description: "This is an awesome course part",
+
+      kind: "basic"
+    },
+    {
+      name: "Using props to pass data",
+      exerciseCount: 7,
+      groupProjectCount: 3,
+
+      kind: "group"
+    },
+    {
+      name: "Basics of type Narrowing",
+      exerciseCount: 7,
+      description: "How to go from unknown to string",
+
+      kind: "basic"
+    },
+    {
+      name: "Deeper type usage",
+      exerciseCount: 14,
+      description: "Confusing description",
+      backgroundMaterial: "https://type-level-typescript.com/template-literal-types",
+
+      kind: "background"
+    },
+  ]
+
+  // ...
+}
+```
+
+Note that we have now added the attribute `kind` with a proper value to each element of the array.
+
+Our editor will automatically warn us if we use the wrong type for an attribute, use an extra attribute, or forget to set an expected attribute. If we e.g. try to add the following to the array
+
+```ts
+{
+  name: "TypeScript in frontend",
+  exerciseCount: 10,
+  kind: "basic",
+},
+```
+
+We will immediately see an error in the editor:
+
+![alt text](assets/image36.png)
+
+Since our new entry has the attribute `kind` with value `"basic"`, TypeScript knows that the entry does not only have the type `CoursePart` but it is actually meant to be a `CoursePartBasic`. So here the attribute `kind` "narrows" the type of the entry from a more general to a more specific type that has a certain set of attributes. We shall soon see this style of type narrowing in action in the code!
+
+But we're not satisfied yet! There is still a lot of duplication in our types, and we want to avoid that. We start by identifying the attributes all course parts have in common, and defining a base type that contains them. Then we will [extend](https://www.typescriptlang.org/docs/handbook/2/objects.html#extending-types) that base type to create our kind-specific types:
+
+```ts
+interface CoursePartBase {
+  name: string;
+  exerciseCount: number;
+}
+
+interface CoursePartBasic extends CoursePartBase {
+  description: string;
+  kind: "basic"
+}
+
+interface CoursePartGroup extends CoursePartBase {
+  groupProjectCount: number;
+  kind: "group"
+}
+The
+interface CoursePartBackground extends CoursePartBase {
+  description: string;
+  backgroundMaterial: string;
+  kind: "background"
+}
+
+type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+```
