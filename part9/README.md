@@ -3412,3 +3412,78 @@ interface CoursePartBackground extends CoursePartBase {
 
 type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
 ```
+
+### More type narrowing
+
+How should we now use these types in our components?
+
+If we try to access the objects in the array `courseParts: CoursePart[]` we notice that it is possible to only access the attributes that are common to all the types in the union:
+
+![alt text](assets/image37.png)
+
+And indeed, the TypeScript [documentation](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types) says this:
+
+> _TypeScript will only allow an operation (or attribute access) if it is valid for every member of the union._
+
+The documentation also mentions the following:
+
+> _The solution is to narrow the union with code... Narrowing occurs when TypeScript can deduce a more specific type for a value based on the structure of the code._
+
+So once again the [type narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) is the rescue!
+
+One handy way to narrow these kinds of types in TypeScript is to use `switch case` expressions. Once TypeScript has inferred that a variable is of union type and that each type in the union contains a certain literal attribute (in our case `kind`), we can use that as a type identifier. We can then build a switch case around that attribute and TypeScript will know which attributes are available within each case block:
+
+![alt text](assets/image38.png)
+
+In the above example, TypeScript knows that a `part` has the type `CoursePart` and it can then infer that `part` is of either type `CoursePartBasic`, `CoursePartGroup` or `CoursePartBackground` based on the value of the attribute `kind`.
+
+The specific technique of type narrowing where a union type is narrowed based on literal attribute value is called [discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
+
+Note that the narrowing can naturally be also done with `if` clause. We could eg. do the following:
+
+```ts
+  courseParts.forEach(part => {
+    if (part.kind === 'background') {
+      console.log('see the following:', part.backgroundMaterial)
+    }
+
+    // can not refer to part.backgroundMaterial here!
+  });
+```
+
+What about adding new types? If we were to add a new course part, wouldn't it be nice to know if we had already implemented handling that type in our code? In the example above, a new type would go to the `default` block and nothing would get printed for a new type. Sometimes this is wholly acceptable. For instance, if you wanted to handle only specific (but not all) cases of a type union, having a default is fine. Nonetheless, it is recommended to handle all variations separately in most cases.
+
+With TypeScript, we can use a method called [exhaustive type checking](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#exhaustiveness-checking). Its basic principle is that if we encounter an unexpected value, we call a function that accepts a value with the type [never](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-never-type) and also has the return type `never`.
+
+A straightforward version of the function could look like this:
+
+```ts
+/**
+ * Helper function for exhaustive type checking
+ */
+const assertNever = (value: never): never => {
+  throw new Error(
+    `Unhandled discriminated union member: ${JSON.stringify(value)}`
+  );
+};
+```
+
+If we now were to replace the contents of our `default` block to:
+
+```ts
+default:
+  return assertNever(part);
+```
+
+and remove the case that handles the type `CoursePartBackground`, we would see the following error:
+
+![alt text](assets/image39.png)
+
+The error message says that
+
+```
+'CoursePartBackground' is not assignable to parameter of type 'never'.
+```
+
+which tells us that we are using a variable somewhere where it should never be used. This tells us that something needs to be fixed.
+
