@@ -1,4 +1,5 @@
 import type { CoursePart } from "../types";
+import Part from "./Part";
 
 // // Define a type for a single course part. I could use both type and interface.
 // type CoursePart = {
@@ -13,27 +14,13 @@ interface ContentProps {
 
 // Content component. Using props.
 const Content = ({ courseParts }: ContentProps) => {
-
-  courseParts.forEach((part) => {
-    switch (part.kind) {
-      case "basic":
-        console.log(part.name, part.description, part.exerciseCount);
-        break;
-      case "group":
-        console.log(part.name, part.exerciseCount, part.groupProjectCount);
-        break;
-      case "background":
-        console.log(part.name, part.description, part.exerciseCount, part.backgroundMaterial);
-        break;
-    }
-  });
-
   return (
     <div>
       {courseParts.map((course) => (
-        <p key={course.name}>
-          {course.name} {course.exerciseCount}
-        </p>
+        <div key={course.name}>
+          <Part course={course} />
+          <br />
+        </div>
       ))}
     </div>
   );

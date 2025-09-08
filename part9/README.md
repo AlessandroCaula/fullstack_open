@@ -3487,3 +3487,95 @@ The error message says that
 
 which tells us that we are using a variable somewhere where it should never be used. This tells us that something needs to be fixed.
 
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercise 9.16
+
+#### 9.16
+
+Let us now continue extending the app created in the exercise 9.15. First, add the type information and replace the variable `courseParts` with one from the example below.
+
+```ts
+interface CoursePartBase {
+  name: string;
+  exerciseCount: number;
+}
+
+interface CoursePartBasic extends CoursePartBase {
+  description: string;
+  kind: "basic"
+}
+
+interface CoursePartGroup extends CoursePartBase {
+  groupProjectCount: number;
+  kind: "group"
+}
+
+interface CoursePartBackground extends CoursePartBase {
+  description: string;
+  backgroundMaterial: string;
+  kind: "background"
+}
+
+type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+
+const courseParts: CoursePart[] = [
+  {
+    name: "Fundamentals",
+    exerciseCount: 10,
+    description: "This is an awesome course part",
+    kind: "basic"
+  },
+  {
+    name: "Using props to pass data",
+    exerciseCount: 7,
+    groupProjectCount: 3,
+    kind: "group"
+  },
+  {
+    name: "Basics of type Narrowing",
+    exerciseCount: 7,
+    description: "How to go from unknown to string",
+    kind: "basic"
+  },
+  {
+    name: "Deeper type usage",
+    exerciseCount: 14,
+    description: "Confusing description",
+    backgroundMaterial: "https://type-level-typescript.com/template-literal-types",
+    kind: "background"
+  },
+  {
+    name: "TypeScript in frontend",
+    exerciseCount: 10,
+    description: "a hard part",
+    kind: "basic",
+  },
+];
+```
+
+Now we know that both interfaces `CoursePartBasic` and `CoursePartBackground` share not only the base attributes but also an attribute called `description`, which is a string in both interfaces.
+
+Your first task is to declare a new interface that includes the `description` attribute and extends the `CoursePartBase` interface. Then modify the code so that you can remove the `description` attribute from both `CoursePartBasic` and `CoursePartBackground` without getting any errors.
+
+Then create a component `Part` that renders all attributes of each type of course part. Use a switch case-based exhaustive type checking! Use the new component in component Content.
+
+Lastly, add another course part interface with the following attributes: `name`, `exerciseCount`, `description` and `requirements`, the latter being a string array. The objects of this type look like the following:
+
+```ts
+{
+  name: "Backend development",
+  exerciseCount: 21,
+  description: "Typing the backend",
+  requirements: ["nodejs", "jest"],
+  kind: "special"
+}
+```
+
+Then add that interface to the type union `CoursePart` and add the corresponding data to the `courseParts` variable. Now, if you have not modified your `Content` component correctly, you should get an error, because you have not yet added support for the fourth course part type. Do the necessary changes to `Content`, so that all attributes for the new course part also get rendered and that the compiler doesn't produce any errors.
+
+The result might look like the following:
+
+![alt text](assets/image40.png)
+
+<hr style="border: 2px solid #D4FCB5">
