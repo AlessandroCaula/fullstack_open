@@ -3795,3 +3795,22 @@ const App = () => {
 
 And that's it, our app is ready and perfectly typed!
 
+### Communicating with the server
+
+Let us modify the app so that the notes are saved in a JSON server backend in url http://localhost:3001/notes
+
+As usual, we shall use Axios and the useEffect hook to fetch the initial state from the server.
+
+Let us try the following:
+
+```ts
+const App = () => {
+  // ...
+  useEffect(() => {
+    axios.get('http://localhost:3001/notes').then(response => {
+      console.log(response.data);
+    })
+  }, [])
+  // ...
+}
+```
