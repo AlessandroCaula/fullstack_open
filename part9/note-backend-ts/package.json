@@ -1,0 +1,14 @@
+{
+  "name": "note-backend-ts",
+  "version": "1.0.0",
+  "description": "Notes app backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alessandro Caula",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
