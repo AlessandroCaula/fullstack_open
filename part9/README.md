@@ -3577,5 +3577,179 @@ Then add that interface to the type union `CoursePart` and add the corresponding
 The result might look like the following:
 
 ![alt text](assets/image40.png)
-
+    
 <hr style="border: 2px solid #D4FCB5">
+
+### React app with state
+
+So far, we have only looked at an application that keeps all the data in a typed variable but does not have any state. Let us once more go back to the note app, and build a typed version of it.
+
+We start with the following code:
+
+```ts
+import { useState } from 'react';
+
+const App = () => {
+  const [newNote, setNewNote] = useState('');
+  const [notes, setNotes] = useState([]);
+
+  return null
+}
+```
+
+When we hover over the `useState` calls in the editor, we notice a couple of interesting things.
+
+The type of the first call `useState('')` looks like the following:
+
+```ts
+useState<string>(initialState: string | (() => string)):
+  [string, React.Dispatch<React.SetStateAction<string>>]
+```
+
+The type is somewhat challenging to decipher. It has the following "form":
+
+```ts
+functionName(parameters): return_value
+```
+
+So we notice that TypeScript compiler has inferred that the initial state is either a string or a function that returns a string:
+
+```ts
+initialState: string | (() => string))
+```
+
+The type of the returned array is the following:
+
+```ts
+[string, React.Dispatch<React.SetStateAction<string>>]
+```
+
+So the first element, assigned to `newNote` is a string and the second element that we assigned `setNewNote` has a slightly more complex type. We notice that there is a string mentioned there, so we know that it must be the type of a function that sets a valued data. See [here](https://codewithstyle.info/Using-React-useState-hook-with-TypeScript/) if you want to learn more about the types of useState function.
+
+From all this we see that TypeScript has indeed [inferred](https://www.typescriptlang.org/docs/handbook/type-inference.html#handbook-content) the type of the first useState correctly, a state with type string is created.
+
+When we look at the second useState that has the initial value `[]` , the type looks quite different
+
+```ts
+useState<never[]>(initialState: never[] | (() => never[])): 
+  [never[], React.Dispatch<React.SetStateAction<never[]>>] 
+```
+
+TypeScript can just infer that the state has type `never[]`, it is an array but it has no clue what the elements stored to the array are, so we clearly need to help the compiler and provide the type explicitly.
+
+One of the best sources for information about typing React is the [React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/). The Cheatsheet chapter about [useState](https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#usestate) hook instructs us to use a `type parameter` in situations where the compiler can not infer the type.
+
+Let us now define a type for notes:
+
+```ts
+interface Note {
+  id: string,
+  content: string
+}
+```
+
+The solution is now simple:
+
+```ts
+const [notes, setNotes] = useState<Note[]>([]);
+```
+
+And indeed, the type is set correctly:
+
+```ts
+useState<Note[]>(initialState: Note[] | (() => Note[])):
+  [Note[], React.Dispatch<React.SetStateAction<Note[]>>]
+```
+
+So in technical terms useState is [a generic function](https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables), where the type has to be specified as a `type parameter` in those cases when the compiler can not infer the type.
+
+Rendering the notes is now easy. Let us just add some data to the state so that we can see that the code works:
+
+```ts
+interface Note {
+  id: string,
+  content: string
+}
+
+import { useState } from "react";
+
+const App = () => {
+  const [notes, setNotes] = useState<Note[]>([
+    { id: '1', content: 'testing' }
+  ]);
+  const [newNote, setNewNote] = useState('');
+
+  return (
+    <div>
+      <ul>
+        {notes.map(note =>
+          <li key={note.id}>{note.content}</li>
+        )}
+      </ul>
+    </div>
+  )
+}
+```
+
+The next task is to add a form that makes it possible to create new notes:
+
+```ts
+const App = () => {
+  const [notes, setNotes] = useState<Note[]>([
+    { id: 1, content: 'testing' }
+  ]);
+  const [newNote, setNewNote] = useState('');
+
+  return (
+    <div>
+      <form>
+        <input
+          value={newNote}
+          onChange={(event) => setNewNote(event.target.value)} 
+        />
+        <button type='submit'>add</button>
+      </form>
+      <ul>
+        {notes.map(note =>
+          <li key={note.id}>{note.content}</li>
+        )}
+      </ul>
+    </div>
+  )
+}
+```
+
+It just works, there are no complaints about types! When we hover over the `event.target.value`, we see that it is indeed a string, just what is expected for the parameter of `setNewNote`:
+
+![alt text](assets/image41.png)
+
+So we still need the event handler for adding the new note. Let us try the following:
+
+```ts
+const App = () => {
+  // ...
+
+
+  const noteCreation = (event) => {
+    event.preventDefault()
+    // ...
+  };
+
+  return (
+    <div>
+
+      <form onSubmit={noteCreation}>
+        <input
+          value={newNote}
+          onChange={(event) => setNewNote(event.target.value)} 
+        />
+        <button type='submit'>add</button>
+      </form>
+      // ...
+    </div>
+  )
+}
+```
+
+It does not quite work, there is an Eslint error complaining about implicit any:
+
