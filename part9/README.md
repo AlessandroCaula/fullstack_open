@@ -3753,3 +3753,45 @@ const App = () => {
 
 It does not quite work, there is an Eslint error complaining about implicit any:
 
+![alt text](assets/image42.png)
+
+TypeScript compiler now has no clue what the type of the parameter is, this is why the type is the infamous implicit [any](#the-horrors-of-any) that we want to avoid at all costs. The React TypeScript cheatsheet comes to the rescue again, the chapter about [forms and events](https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events) reveals that the right type of event handler is `React.SyntheticEvent`.
+
+```ts
+interface Note {
+  id: string,
+  content: string
+}
+
+const App = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [newNote, setNewNote] = useState('');
+
+  const noteCreation = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    const noteToAdd = {
+      content: newNote,
+      id: String(notes.length + 1)
+    }
+    setNotes(notes.concat(noteToAdd));
+    setNewNote('')
+  };
+
+  return (
+    <div>
+      <form onSubmit={noteCreation}>
+        <input value={newNote} onChange={(event) => setNewNote(event.target.value)} />
+        <button type='submit'>add</button>
+      </form>
+      <ul>
+        {notes.map(note =>
+          <li key={note.id}>{note.content}</li>
+        )}
+      </ul>
+    </div>
+  )
+}
+```
+
+And that's it, our app is ready and perfectly typed!
+

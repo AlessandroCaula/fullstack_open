@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 // Let's define a type for the notes
 interface Note {
@@ -12,9 +12,15 @@ const App = () => {
     { id: '1', content: 'testing' }
   ]);
 
-  const noteCreation = (event) => {
+  const noteCreation = (event: React.SyntheticEvent) => {
     event.preventDefault();
-  }
+    const noteToAdd = {
+      content: newNote,
+      id: String(notes.length + 1)
+    }
+    setNotes(notes.concat(noteToAdd));
+    setNewNote('')
+  };
 
   return (
     <div>
