@@ -3814,3 +3814,54 @@ const App = () => {
   // ...
 }
 ```
+
+When we hover over the `response.data` we see that it has the type `any`
+
+![alt text](assets/image43.png)
+
+To set the data to the state with function `setNotes` we must type it properly.
+
+With a little [help from the internet](https://upmostly.com/typescript/how-to-use-axios-in-your-typescript-apps), we find a clever trick:
+
+```ts
+  useEffect(() => {
+
+    axios.get<Note[]>('http://localhost:3001/notes').then(response => {
+      console.log(response.data);
+    })
+  }, [])
+```
+
+When we hover over the response.data we see that it has the correct type:
+
+![alt text](assets/image44.png)
+
+We can now set the data in the state notes to get the code working:
+
+```ts
+  useEffect(() => {
+    axios.get<Note[]>('http://localhost:3001/notes').then(response => {
+      setNotes(response.data)
+    })
+  }, [])
+```
+
+So just like with `useState`, we gave a type parameter to `axios.get` to instruct it on how the typing should be done. Just like `useState`, `axios.get` is also a [generic function](https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables). Unlike some generic functions, the type parameter of `axios.get` has a default value of `any` so, if the function is used without defining the type parameter, the type of the response data will be any.
+
+The code works, compiler and Eslint are happy and remain quiet. However, giving a type parameter to `axios.get` is a potentially dangerous thing to do. The _response body can contain data in an arbitrary form_, and when giving a type parameter we are essentially just telling the TypeScript compiler to trust us that the data has type `Note[]`.
+
+So our code is essentially as safe as it would be if a [type assertion](#type-assertion) would be used (not good):
+
+```ts
+  useEffect(() => {
+    axios.get('http://localhost:3001/notes').then(response => {
+      // response.body is of type any
+      setNotes(response.data as Note[])
+    })
+  }, [])
+```
+
+Since the TypeScript types do not even exist in runtime, our code does not give us any safety against situations where the request body contains data in the wrong form.
+
+Giving a type parameter to `axios.get` might be ok if we are absolutely sure that the backend behaves correctly and always returns the data in the correct form. If we want to build a robust system we should prepare for surprises and parse the response data (similar to what we did in the [previous section](#part-9c---typing-an-express-app) for the requests to the backend).
+
