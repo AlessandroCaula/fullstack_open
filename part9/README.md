@@ -3951,3 +3951,41 @@ The app is now nicely typed and ready for further development!
 
 The code of the typed notes can be found [here](https://github.com/fullstack-hy2020/typed-notes).
 
+### A note about defining object types
+
+We have used [interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces) to define object types, e.g. diary entries, in the previous section
+
+```ts
+interface DiaryEntry {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment?: string;
+} 
+```
+
+and in the course part of this section
+
+```ts
+interface CoursePartBase {
+  name: string;
+  exerciseCount: number;
+}
+```
+
+We actually could have achieved the same effect by using a [type alias](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases)
+
+```ts
+type DiaryEntry = {
+  id: number;
+  date: string;
+  weather: Weather;
+  visibility: Visibility;
+  comment?: string;
+} 
+```
+
+In most cases, you can use either `type` or `interface`, whichever syntax you prefer. However, there are a few things to keep in mind. For example, if you define multiple interfaces with the same name, they will result in a merged interface, whereas if you try to define multiple types with the same name, it will result in an error stating that a type with the same name is already declared.
+
+TypeScript documentation [recommends using interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces) in most cases.
