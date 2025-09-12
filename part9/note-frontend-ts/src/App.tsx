@@ -30,15 +30,6 @@ const App = () => {
   const noteCreation = (event: React.SyntheticEvent) => {
     event.preventDefault();
 
-    console.log("ere");
-
-    // const noteToAdd = {
-    //   content: newNote,
-    //   // id: String(notes.length + 1),
-    //   id: notes.length + 1,
-    // };
-    // setNotes(notes.concat(noteToAdd));
-
     // Adding the new note to the backend
     axios
       .post<Note>("http://localhost:3001/notes", {
@@ -47,9 +38,7 @@ const App = () => {
       .then((response) => {
         setNotes(notes.concat(response.data));
       });
-
-    console.log('arrivato')
-    
+          
     setNewNote("");
   };
 

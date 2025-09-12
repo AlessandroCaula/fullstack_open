@@ -3865,3 +3865,89 @@ Since the TypeScript types do not even exist in runtime, our code does not give 
 
 Giving a type parameter to `axios.get` might be ok if we are absolutely sure that the backend behaves correctly and always returns the data in the correct form. If we want to build a robust system we should prepare for surprises and parse the response data (similar to what we did in the [previous section](#part-9c---typing-an-express-app) for the requests to the backend).
 
+Let us now wrap up our app by implementing the new note addition:
+
+```ts
+  const noteCreation = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    axios.post<Note>('http://localhost:3001/notes', { content: newNote })
+      .then(response => {
+        setNotes(notes.concat(response.data))
+      })
+
+    setNewNote('')
+  };
+```
+
+We are again giving `axios.post` a type parameter. We know that the server response is the added note, so the proper type parameter is `Note`.
+
+Let us clean up the code a bit. For the type definitions, we create a file `types.ts` with the following content:
+
+```ts
+export interface Note {
+  id: string,
+  content: string
+}
+
+export type NewNote = Omit<Note, 'id'>
+```
+
+We have added a new type for a `new note`, one that does not yet have the `id` field assigned.
+
+The code that communicates with the backend is also extracted to a module in the file `noteService.ts`
+
+```ts
+import axios from 'axios';
+import { Note, NewNote } from "./types";
+
+const baseUrl = 'http://localhost:3001/notes'
+
+export const getAllNotes = () => {
+  return axios
+    .get<Note[]>(baseUrl)
+    .then(response => response.data)
+}
+
+export const createNote = (object: NewNote) => {
+  return axios
+    .post<Note>(baseUrl, object)
+    .then(response => response.data)
+}
+```
+
+The component `App` is now much cleaner:
+
+```ts
+import { useState, useEffect } from "react";
+import { Note } from "./types";
+import { getAllNotes, createNote } from './noteService';
+
+const App = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [newNote, setNewNote] = useState('');
+
+  useEffect(() => {
+    getAllNotes().then(data => {
+      setNotes(data)
+    })
+  }, [])
+
+  const noteCreation = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    createNote({ content: newNote }).then(data => {
+      setNotes(notes.concat(data))
+    })
+
+    setNewNote('')
+  };
+
+  return (
+    // ...
+  )
+}
+```
+
+The app is now nicely typed and ready for further development!
+
+The code of the typed notes can be found [here](https://github.com/fullstack-hy2020/typed-notes).
+
