@@ -3989,3 +3989,21 @@ type DiaryEntry = {
 In most cases, you can use either `type` or `interface`, whichever syntax you prefer. However, there are a few things to keep in mind. For example, if you define multiple interfaces with the same name, they will result in a merged interface, whereas if you try to define multiple types with the same name, it will result in an error stating that a type with the same name is already declared.
 
 TypeScript documentation [recommends using interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces) in most cases.
+
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.17 - 9.20
+
+Let us now build a frontend for the Ilari's flight diaries that was developed in the [previous section](#part-9c---typing-an-express-app). The source code of the backend can be found in [this GitHub repository](https://github.com/fullstack-hy2020/flight-diary).
+
+#### Exercise 9.17 
+
+Create a typeScript React app with similar configurations as the apps of this section. Fetch the diaries from the backend and render those to screen. Do all the required typing and ensure that there are no Eslint errors.
+
+Remember to keep the network tab open. It might give you a valuable hint...
+
+You can decide how the diary entries are rendered. If you wish, you may take inspiration from the figure below. Note that the backend API does not return the diary comments, you may modify it to return also those on a GET request.
+
+![alt text](assets/image45.png)
+
+<hr style="border: 2px solid #D4FCB5">
