@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 // Let's define a type for the notes
 interface Note {
-  id: number;
+  id: string;
   content: string;
 }
 
@@ -14,9 +14,9 @@ const App = () => {
   // Fetching the notes from the backend
   useEffect(() => {
     axios.get<Note[]>("http://localhost:3001/notes").then((response) => {
-      console.log(response.data);
-      
-      // // Converting the id from number to string
+      // console.log(response.data);
+
+      // // Converting the id from number to string -> No more needed, since the id is now directly given as number.
       // const noteData: Note[] = response.data.map((n) => ({
       //   ...n,
       //   id: String(n.id),
@@ -29,12 +29,27 @@ const App = () => {
 
   const noteCreation = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    const noteToAdd = {
-      content: newNote,
-      // id: String(notes.length + 1),
-      id: notes.length + 1,
-    };
-    setNotes(notes.concat(noteToAdd));
+
+    console.log("ere");
+
+    // const noteToAdd = {
+    //   content: newNote,
+    //   // id: String(notes.length + 1),
+    //   id: notes.length + 1,
+    // };
+    // setNotes(notes.concat(noteToAdd));
+
+    // Adding the new note to the backend
+    axios
+      .post<Note>("http://localhost:3001/notes", {
+        content: newNote,
+      })
+      .then((response) => {
+        setNotes(notes.concat(response.data));
+      });
+
+    console.log('arrivato')
+    
     setNewNote("");
   };
 
