@@ -6,8 +6,13 @@ import z from "zod";
 
 const router = express.Router();
 
-// Retrieve all the diary entries
-router.get("/", (_req, res: Response<NonSensitiveDiaryEntry[]>) => {
+// Retrieve all the "Non Sensitive" diary entries
+router.get("/", (_req, res: Response<DiaryEntry[]>) => {
+  res.send(diaryService.getEntries());
+});
+
+// Retrieve all the "Non Sensitive" diary entries
+router.get("/nonsensitive", (_req, res: Response<NonSensitiveDiaryEntry[]>) => {
   res.send(diaryService.getNonSensitiveEntries());
 });
 

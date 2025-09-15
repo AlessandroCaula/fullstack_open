@@ -1,4 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+interface DiaryEntry {
+  id: number;
+  date: string;
+  visibility: string;
+  weather: string;
+  comment?: string;
+}
 
 const App = () => {
   const [date, setDate] = useState("");
@@ -6,10 +15,20 @@ const App = () => {
   const [weather, setWeather] = useState("");
   const [comment, setComment] = useState("");
 
-  console.log(date);
-  console.log(visibility);
-  console.log(weather);
-  console.log(comment);
+  const [diaryEntry, setDiaryEntry] = useState<DiaryEntry[]>([]);
+
+  // console.log(date);
+  // console.log(visibility);
+  // console.log(weather);
+  // console.log(comment);
+
+  // Fetching the Diary Entries from the backend
+  useEffect(() => {
+    axios.get<DiaryEntry[]>("http://localhost:3000/api/diaries").then((response) => {
+      // console.log(response.data);
+      setDiaryEntry(response.data);
+    });
+  }, []);
 
   return (
     <div>
@@ -68,6 +87,21 @@ const App = () => {
           onChange={(event) => setComment(event.target.value)}
         />
       </form>
+
+      {/* Diary entries */}
+      <div>
+        {diaryEntry.map((entry) => (
+          <div key={entry.id}>
+            <h2>{entry.date}</h2>
+            <p>Visibility: {entry.visibility}</p>
+            <p>Weather: {entry.weather}</p>
+            {entry.comment 
+              ? <p>Comment: {entry.comment}</p>
+              : <></>
+            }
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
