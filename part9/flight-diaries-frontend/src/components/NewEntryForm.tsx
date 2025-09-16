@@ -1,20 +1,44 @@
-import { useState } from "react";
+import axios from "axios";
+import React, { useState } from "react";
+import type { DiaryEntry } from "../types";
 
-const NewEntryForm = () => {
+interface NewEntryFormProps {
+  setDiaryEntries: React.Dispatch<React.SetStateAction<DiaryEntry[]>>;
+  diaryEntries: DiaryEntry[];
+}
+
+const NewEntryForm = ({ setDiaryEntries, diaryEntries }: NewEntryFormProps) => {
   const [date, setDate] = useState("");
-  const [visibility, setVisibility] = useState("");
-  const [weather, setWeather] = useState("");
+  const [visibility, setVisibility] = useState("Great");
+  const [weather, setWeather] = useState("Sunny");
   const [comment, setComment] = useState("");
 
-  // console.log(date);
-  // console.log(visibility);
-  // console.log(weather);
-  // console.log(comment);
+  const addNewFlightEntry = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+
+    // Adding the new flight entry to the backend
+    axios
+      .post("http://localhost:3000/api/diaries", {
+        date: date,
+        visibility: visibility,
+        weather: weather,
+        comment: comment,
+      })
+      .then((response) => {
+        setDiaryEntries(diaryEntries.concat(response.data));
+      });
+
+    // Resetting the input in the forms
+    setDate("");
+    setVisibility("great");
+    setWeather("sunny");
+    setComment("");
+  };
 
   return (
     <div>
       <h1>Add new entry</h1>
-      <form>
+      <form onSubmit={addNewFlightEntry}>
         {/* Date */}
         <div>
           <label>Date: </label>
@@ -35,10 +59,10 @@ const NewEntryForm = () => {
             value={visibility}
             onChange={(event) => setVisibility(event.target.value)}
           >
-            <option value="Great">Great</option>
-            <option value="Good">Good</option>
-            <option value="OK">OK</option>
-            <option value="Poor">Poor</option>
+            <option value="great">Great</option>
+            <option value="good">Good</option>
+            <option value="ok">OK</option>
+            <option value="poor">Poor</option>
           </select>
         </div>
 
@@ -60,13 +84,16 @@ const NewEntryForm = () => {
         </div>
 
         {/* Comment */}
-        <label>Comment: </label>
-        <input
-          required
-          placeholder="Comment on the flight"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-        />
+        <div>
+          <label>Comment: </label>
+          <input
+            required
+            placeholder="Comment on the flight"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+        </div>
+        <button type="submit">Add</button>
       </form>
     </div>
   );

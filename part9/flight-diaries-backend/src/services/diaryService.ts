@@ -25,8 +25,8 @@ const findById = (id: number): DiaryEntry | undefined => {
 // Adding a new flight to the diary
 const addDiary = (entry: NewDiaryEntry) => {
   const newDiaryEntry = {
-    id: Math.max(...diaries.map(d => d.id)) + 1,
-    ...entry
+    id: Math.max(...diaries.map((d) => d.id)) + 1,
+    ...entry,
   };
 
   diaries.push(newDiaryEntry);

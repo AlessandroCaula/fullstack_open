@@ -4006,4 +4006,8 @@ You can decide how the diary entries are rendered. If you wish, you may take ins
 
 ![alt text](assets/image45.png)
 
+#### Exercise 9.18
+
+Make it possible to add new diary entries from the frontend. In this exercise you may skip all validation and assume that the user just enters the data in a correct form.
+
 <hr style="border: 2px solid #D4FCB5">

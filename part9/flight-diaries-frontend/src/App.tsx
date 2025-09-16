@@ -17,7 +17,7 @@ const App = () => {
 
   return (
     <div>
-      <NewEntryForm />
+      <NewEntryForm diaryEntries={diaryEntries} setDiaryEntries={setDiaryEntries}/>
       <DiaryEntries diaryEntries={diaryEntries}/>
     </div>
   );
