@@ -4010,4 +4010,14 @@ You can decide how the diary entries are rendered. If you wish, you may take ins
 
 Make it possible to add new diary entries from the frontend. In this exercise you may skip all validation and assume that the user just enters the data in a correct form.
 
+#### Exercise 9.19
+
+Notify the user if the creation of a diary entry fails in the backend, show also the reason for the failure.
+
+See e.g. [this](https://dev.to/mdmostafizurrahaman/handle-axios-error-in-typescript-4mf9) to see how you can narrow the Axios error so that you can get hold of the error message.
+
+Your solution may look like this:
+
+![alt text](assets/image45.png)
+
 <hr style="border: 2px solid #D4FCB5">
