@@ -8,7 +8,14 @@ interface NewEntryFormProps {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const NewEntryForm = ({ setDiaryEntries, diaryEntries, setErrorMessage }: NewEntryFormProps) => {
+const NewEntryForm = ({
+  setDiaryEntries,
+  diaryEntries,
+  setErrorMessage,
+}: NewEntryFormProps) => {
+  const visibilityVal: string[] = ["great", "good", "ok", "poor"];
+  const weatherVal: string[] = ["sunny", "rainy", "cloudy", "stormy", "windy"];
+
   const [date, setDate] = useState("");
   const [visibility, setVisibility] = useState("great");
   const [weather, setWeather] = useState("sunny");
@@ -30,10 +37,15 @@ const NewEntryForm = ({ setDiaryEntries, diaryEntries, setErrorMessage }: NewEnt
       })
       .catch((error: unknown) => {
         if (axios.isAxiosError(error)) {
-          const errorMsPath = error.response?.data.error[0].path[0] === "visibility" ? visibility : weather;
-          setErrorMessage(`Error: Incorrect ${error.response?.data.error[0].path[0]}: ${errorMsPath}`);
+          const errorMsPath =
+            error.response?.data.error[0].path[0] === "visibility"
+              ? visibility
+              : weather;
+          setErrorMessage(
+            `Error: Incorrect ${error.response?.data.error[0].path[0]}: ${errorMsPath}`
+          );
         } else {
-          setErrorMessage('Something went wrong')
+          setErrorMessage("Something went wrong");
           console.log("Unknown error");
         }
       });
@@ -54,8 +66,8 @@ const NewEntryForm = ({ setDiaryEntries, diaryEntries, setErrorMessage }: NewEnt
         <div>
           <label>Date: </label>
           <input
+            type="date"
             required
-            placeholder="YYYY-MM-DD"
             value={date}
             onChange={(event) => setDate(event.target.value)}
           />
@@ -64,38 +76,55 @@ const NewEntryForm = ({ setDiaryEntries, diaryEntries, setErrorMessage }: NewEnt
         {/* Visibility */}
         <div>
           <label>Visibility: </label>
-          <select
-            required
-            id="visibility"
-            value={visibility}
-            onChange={(event) => setVisibility(event.target.value)}
-          >
-            {/* <option value="best ever">Best Ever</option> */}
-            <option value="great">Great</option>
-            <option value="good">Good</option>
-            <option value="ok">OK</option>
-            <option value="poor">Poor</option>
-          </select>
+          {visibilityVal.map((val) => {
+            const visibilityId =
+              "visibility" + val.charAt(0).toUpperCase() + val.slice(1);
+            const visibilityLabel = val.charAt(0).toUpperCase() + val.slice(1);
+            return (
+              <div
+                key={val}
+                style={{ display: "inline-block", marginRight: "10px" }}
+              >
+                <input
+                  type="radio"
+                  id={visibilityId}
+                  name="visibility"
+                  value={val}
+                  checked={visibility === val} // It is check when the visibility is the same of the current val
+                  onChange={(event) => setVisibility(event.target.value)}
+                />
+                <label>{visibilityLabel}</label>
+              </div>
+            );
+          })}
         </div>
 
         {/* Weather */}
         <div>
           <label>Weather: </label>
-          <select
-            required
-            id="weather"
-            value={weather}
-            onChange={(event) => setWeather(event.target.value)}
-          >
-            {/* <option value="sunny a lot">Sunny A Lot</option> */}
-            <option value="sunny">Sunny</option>
-            <option value="rainy">Rainy</option>
-            <option value="cloudy">Cloudy</option>
-            <option value="stormy">Stormy</option>
-            <option value="windy">Windy</option>
-          </select>
+          {weatherVal.map((val) => {
+            const weatherId =
+              "weather" + val.charAt(0).toUpperCase() + val.slice(1);
+            const weatherLabel = val.charAt(0).toUpperCase() + val.slice(1);
+            return (
+              <div
+                key={val}
+                style={{ display: "inline-block", marginRight: "10px" }}
+              >
+                <input
+                  type="radio"
+                  id={weatherId}
+                  name="weather"
+                  value={val}
+                  checked={val === weather}
+                  onChange={(event) => setWeather(event.target.value)}
+                />
+                <label>{weatherLabel}</label>
+              </div>
+            );
+          })}
         </div>
-
+        
         {/* Comment */}
         <div>
           <label>Comment: </label>
