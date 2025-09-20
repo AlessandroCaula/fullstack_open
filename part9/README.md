@@ -4214,5 +4214,22 @@ The response should look as follows:
 
 ![alt text](assets/image49.png)
 
+#### 9.22: Patientor, step2
+
+Create a page for showing a patient's full information in the frontend.
+
+The user should be able to access a patient's information by clicking the patient's name. 
+
+Fetch the data from the endpoint created in the previous exercise. 
+
+You may use [MaterialUI](https://material-ui.com/) for the new components but that is up to you since our main focus now is TypeScript.
+
+You might want to have a look at [part 7](../part7/README.md#part-7a---react-router) if you don't yet have a grasp on how the React Router works.
+
+The result could look like this:
+
+![alt text](assets/image50.png)
+
+The example uses [Material UI Icons](https://mui.com/components/material-icons/) to represent genders.
 
 <hr style="border: 2px solid #D4FCB5">
