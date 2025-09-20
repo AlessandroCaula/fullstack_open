@@ -8,6 +8,13 @@ const getPatients = (): PatientEntry[] => {
   return patientData;
 };
 
+// Service for retrieving the patient given the id
+const findById = (id: string): PatientEntry | undefined => {
+  const patient = patientData.find(pat => pat.id === id);
+  console.log(patient);
+  return patient;
+};
+
 // Service for getting all the patients without the ssn entry
 const getNonSensitiveEntries = (): NonSensitivePatientEntry[] => {
   return patientsData.map(({ id, name, dateOfBirth, gender, occupation }) => ({
@@ -34,6 +41,7 @@ const addPatient = (patient: NewPatientEntry): PatientEntry => {
 
 export default {
   getPatients,
+  findById,
   getNonSensitiveEntries,
   addPatient,
 };

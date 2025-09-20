@@ -4179,3 +4179,40 @@ The type of `onSubmit` is a bit more interesting, it has one parameter that has 
 
 The return value of a `async` function is a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function#return_value) with the value that the function returns. Our function does not return anything so the proper return type is just `Promise<void>`.
 
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.21 - 9.22
+
+We will soon add a new type for our app, `Entry`, which represents a lightweight patient journal entry. It consists of a journal text, i.e. a `description`, a creation date, information regarding the specialist who created it and possible diagnosis codes. Diagnosis codes map to the ICD-10 codes returned from the `/api/diagnoses` endpoint. Our naive implementation will be that a patient has an array of entries.
+
+Before going into this, we need some preparatory work.
+
+#### 9.21: Patientor, step 1
+
+Create and endpoint `/api/patients/:id` to the backend that returns all of the patient information for one patient, including the array of patient entries that is still empty for all the patients. For the time being, expand the backend types as follows:
+
+```ts
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Entry {
+}
+
+export interface Patient {
+  id: string;
+  name: string;
+  ssn: string;
+  occupation: string;
+  gender: Gender;
+  dateOfBirth: string;
+
+  entries: Entry[]
+}
+
+export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;
+```
+
+The response should look as follows:
+
+![alt text](assets/image49.png)
+
+
+<hr style="border: 2px solid #D4FCB5">

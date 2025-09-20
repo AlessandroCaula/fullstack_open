@@ -1,17 +1,34 @@
 // Route that will take care of all patients endpoints
 import express from "express";
 import patientService from "../services/patientService";
-import { Response } from "express";
-import { NonSensitivePatientEntry } from "../types";
+import { Response, Request } from "express";
+import { NonSensitivePatientEntry, PatientEntry } from "../types";
 import toNewPatientEntry from "../utils";
 import z from "zod";
 
 const router = express.Router();
 
+// Retrieve all non sensitive data from the patients - no "ssn" and "entries" fields
 router.get("/", (_req, res: Response<NonSensitivePatientEntry[]>) => {
   res.send(patientService.getNonSensitiveEntries());
 });
 
+// Retrieve a specific patient data
+router.get("/:id", (req: Request, res: Response<PatientEntry>) => {
+  // Get the patient id 
+  const id: string = req.params.id;
+  // Retrieve the patient with the requested id
+  const patient = patientService.findById(id);
+  
+  // Check if the patient exist or is undefined
+  if (patient) {
+    res.send(patient);
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+// Adding a new patient to the backend
 router.post("/", (req, res) => {
   try {
     const newPatientEntry = toNewPatientEntry(req.body);
