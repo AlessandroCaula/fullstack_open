@@ -1,5 +1,5 @@
 import z from "zod";
-import { Gender, NewPatientEntry } from "./types";
+import { DiagnosisEntry, Gender, NewPatientEntry } from "./types";
 
 // // Ssn parser
 // const parseSsn = (ssn: unknown): string => {
@@ -42,6 +42,7 @@ import { Gender, NewPatientEntry } from "./types";
 //   return gender;
 // };
 
+// Validating the patient dat
 const newPatientSchema = z.object({
   name: z.string(),
   dateOfBirth: z.iso.date(),
@@ -51,8 +52,19 @@ const newPatientSchema = z.object({
   entries: z.array(z.string()).optional(),
 }); 
 
-export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
+const toNewPatientEntry = (object: unknown): NewPatientEntry => {
   return newPatientSchema.parse(object);
 };
 
-export default toNewPatientEntry;
+// Validating the diagnoses data
+const newDiagnosisSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  latin: z.string().optional(),
+});
+
+const toNewDiagnosisEntry = (object: unknown): DiagnosisEntry => {
+  return newDiagnosisSchema.parse(object);
+};
+
+export { toNewPatientEntry, toNewDiagnosisEntry };

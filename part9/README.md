@@ -1612,7 +1612,7 @@ Initialize a new backend project that will work with the frontend. Configure ESl
 
 The project should be runnable with npm scripts, both in development mode and, as compiled code, in production mode.
 
-#### 9.8: Patientor backend, step 2
+#### 9.9: Patientor backend, step 2
 
 Fork and clone the project [patientor](https://github.com/fullstack-hy2020/patientor). Start the project with the help of the README file.
 
@@ -2132,7 +2132,15 @@ Similarly the request parameter has the type `Request` that is also a generic ty
 
 Similarly to Ilari's flight service, we do not use a real database in our app but instead use hardcoded data that is in the files [diagnoses.ts](https://github.com/fullstack-hy2020/misc/blob/master/diagnoses.ts) and [patients.ts](https://github.com/fullstack-hy2020/misc/blob/master/patients.ts). Get the files and store those in a directory called `data` in your project. All data modification can be done in runtime memory, so during this part, it is `not necessary to write to a file`.
 
-#### Patientor backend, step 4
+#### 9.10: Patientor backend, step 3
+
+Create a type `Diagnosis` and use it to create endpoint `/api/diagnoses` for fetching all diagnoses with HTTP GET.
+
+Structure your code properly by using meaningfully-named directories and files.
+
+Note that `diagnoses` may or may not contain the field `latin`. You might want to use [optional properties](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#optional-properties) in the type definition.
+
+#### 9.11: Patientor backend, step 4
 
 Create data type `Patient` and set up the GET endpoint `/api/patients` which returns all the patients to the frontend, excluding the field `ssn`. Use a [utility type](https://www.typescriptlang.org/docs/handbook/utility-types.html) so make sure you are selecting and returning only the wanted fields. 
 
@@ -4233,3 +4241,7 @@ The result could look like this:
 The example uses [Material UI Icons](https://mui.com/components/material-icons/) to represent genders.
 
 <hr style="border: 2px solid #D4FCB5">
+
+### Full entries 
+
+In [exercise 9.10](#exercises-910---911)

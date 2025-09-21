@@ -1,3 +1,6 @@
+import { DiagnosisEntry } from "../src/types";
+import { toNewDiagnosisEntry } from "../src/utils";
+
 const data = [
   {
     "code": "M24.2",
@@ -78,4 +81,9 @@ const data = [
   }
 ];
 
-export default data;
+const diagnosesData: DiagnosisEntry[] = data.map(obj => {
+  const object = toNewDiagnosisEntry(obj);
+  return object;
+});
+
+export default diagnosesData;

@@ -25,3 +25,10 @@ export enum Gender {
   female = "female",
   other = "other",
 }
+
+// Diagnosis Type
+export interface DiagnosisEntry {
+  code: string;
+  name: string;
+  latin?: string;
+}

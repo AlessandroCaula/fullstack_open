@@ -1,4 +1,4 @@
-import patientsData from "../../data/patientsData";
+// import patientsData from "../../data/patientsData";
 import patientData from "../../data/patientsData";
 import { NonSensitivePatientEntry, PatientEntry, NewPatientEntry } from "../types";
 import { v1 as uuid } from "uuid";
@@ -17,7 +17,7 @@ const findById = (id: string): PatientEntry | undefined => {
 
 // Service for getting all the patients without the ssn entry
 const getNonSensitiveEntries = (): NonSensitivePatientEntry[] => {
-  return patientsData.map(({ id, name, dateOfBirth, gender, occupation }) => ({
+  return patientData.map(({ id, name, dateOfBirth, gender, occupation }) => ({
     id,
     name,
     dateOfBirth,

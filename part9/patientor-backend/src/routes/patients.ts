@@ -3,7 +3,7 @@ import express from "express";
 import patientService from "../services/patientService";
 import { Response, Request } from "express";
 import { NonSensitivePatientEntry, PatientEntry } from "../types";
-import toNewPatientEntry from "../utils";
+import { toNewPatientEntry } from "../utils";
 import z from "zod";
 
 const router = express.Router();
