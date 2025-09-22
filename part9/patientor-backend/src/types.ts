@@ -32,3 +32,39 @@ export interface DiagnosisEntry {
   name: string;
   latin?: string;
 }
+
+// ----------------------------------
+//
+// Base Entry type
+interface BaseEntry {
+  id: string,
+  description: string, 
+  date: string,
+  specialist: string;
+  diagnosisCode?: Array<DiagnosisEntry['code']>;
+}
+
+// Enum for Health Checking Rate
+export enum HealthCheckRating {
+  "Healthy" = 0,
+  "LowRisk" = 1,
+  "HighRisk" = 2,
+  "CriticalRisk" = 3
+}
+
+// Expanding the BaseEntry interface for the HealthCheckEntry type
+interface HealthCheckEntry extends BaseEntry {
+  type: "HealthCheck";
+  healthCheckRating: HealthCheckRating;
+}
+
+// // Expanding the BaseEntry interface for the OccupationalHealthcareEntry type
+// interface OccupationalHealthcareEntry extends BaseEntry {
+//   type: "OccupationalHealthcare";
+
+// }
+
+export type Entry =
+  | HospitalEntry
+  | OccupationalHealthcareEntry
+  | HealthCheckEntry;

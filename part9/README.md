@@ -4244,4 +4244,116 @@ The example uses [Material UI Icons](https://mui.com/components/material-icons/)
 
 ### Full entries 
 
-In [exercise 9.10](#exercises-910---911)
+In [exercise 9.10](#exercises-910---911) we implemented an endpoint for fetching about various diagnoses, but we are still not using that endpoint at all. Since we now have a page for viewing a patient's information, it would be nice to expand our data a bit. Let's add en `Entry` field to our patient data so that a patient's data contains their medical entries, including possible diagnoses. 
+
+Let's ditch our old patient seed data from the backend and start using [this expanded format](https://github.com/fullstack-hy2020/misc/blob/master/patients-full.ts).
+
+Let us now create a proper `Entry` type based on the data we have. 
+
+```ts
+{
+  id: 'd811e46d-70b3-4d90-b090-4535c7cf8fb1',
+  date: '2015-01-02',
+  type: 'Hospital',
+  specialist: 'MD House',
+  diagnosisCodes: ['S62.5'],
+  description:
+    "Healing time appr. 2 weeks. patient doesn't remember how he got the injury.",
+  discharge: {
+    date: '2015-01-16',
+    criteria: 'Thumb has healed.',
+  }
+}
+...
+{
+  id: 'fcd59fa6-c4b4-4fec-ac4d-df4fe1f85f62',
+  date: '2019-08-05',
+  type: 'OccupationalHealthcare',
+  specialist: 'MD House',
+  employerName: 'HyPD',
+  diagnosisCodes: ['Z57.1', 'Z74.3', 'M51.2'],
+  description:
+    'Patient mistakenly found himself in a nuclear plant waste site without protection gear. Very minor radiation poisoning. ',
+  sickLeave: {
+    startDate: '2019-08-05',
+    endDate: '2019-08-28'
+  }
+}
+```
+
+Immediately, we can see that while the first few fields are the same, the first entry has a `discharge` field and the second entry has `employerName` and `sickLeave` fields. All the entries seem to have some fields in common, but some fields are entry-specific.
+
+When looking at the `type`, we can see that there are three kinds of entries:
+
+- `OccupationalHealthcare`
+
+- `Hospital`
+
+- `HealthCheck`
+
+This indicates we need three separate types. Since they all have some fields in common, we might just want to create a base entry interface that we can extend with the different fields in each type.
+
+When looking at the data, it seems that the fields `id`, `description`, `date` and `specialist` are something that can be found in each entry. On top of that, it seems that `diagnosisCodes` is only found in one `OccupationalHealthcare` and one `Hospital` type entry. Since it is not always used, even in those types of entries, it is safe to assume that the field is optional. We could consider adding it to the `HealthCheck` type as well since it might just not be used in these specific entries.
+
+So our `BaseEntry` from which each type could be extended would be the following:
+
+```ts
+interface BaseEntry {
+  id: string;
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes?: string[];
+}
+```
+
+If we want to finetune it a bit further, since we already have a `Diagnosis` type defined in the backend, we might just want to refer to the `code` field of the `Diagnosis` type directly in case its type ever changes. We can do that like so:
+
+```ts
+interface BaseEntry {
+  id: string;
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes?: Diagnosis['code'][];
+}
+```
+
+As was mentioned [earlier in this part](#the-alternative-array-syntax), we could define an array with the syntax `Array<Type>` instead of defining it `Type[]`. In this particular case writing `Diagnosis['code'][]` starts to look a bit strange so we will decide to use the alternative syntax (that is also recommended by the ESlint rule [array-simple](https://typescript-eslint.io/rules/array-type/#array-simple)):
+
+```ts
+interface BaseEntry {
+  id: string;
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes?: Array<Diagnosis['code']>;
+}
+```
+
+Now that we have the `BaseEntry` defined, we can start creating the extended entry types we will actually be using. Let's start by creating the `HealthCheckEntry` type.
+
+Entries of type `HealthCheck` contain the field `HealthCheckRating`, which is an integer from 0 to 3, zero meaning `Healthy` and three meaning `CriticalRisk`. This is a perfect case for an enum definition. With these specifications, we could write a `HealthCheckEntry` type definition like so:
+
+```ts
+export enum HealthCheckRating {
+  "Healthy" = 0,
+  "LowRisk" = 1,
+  "HighRisk" = 2,
+  "CriticalRisk" = 3
+}
+
+interface HealthCheckEntry extends BaseEntry {
+  type: "HealthCheck";
+  healthCheckRating: HealthCheckRating;
+}
+```
+
+Now we only need to create the `OccupationalHealthcareEntry` and `HospitalEntry` types so we can combine them in a union and export them as an Entry type like this:
+
+```ts
+export type Entry =
+  | HospitalEntry
+  | OccupationalHealthcareEntry
+  | HealthCheckEntry;
+```
