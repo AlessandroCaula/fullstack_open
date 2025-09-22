@@ -4374,3 +4374,20 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit
 // Define Entry without the 'id' property
 type EntryWithoutId = UnionOmit<Entry, 'id'>;
 ```
+
+<hr style="border: 2px solid #D4FCB5">
+
+### Exercises 9.23 - 9.30
+
+Now we are ready to put the finishing touches to the app!
+
+#### 9.23: Patientor, step 3
+
+Define the types `OccupationalHealthcareEntry` and `HospitalEntry` so that those conform with the new example data. Ensure that your backend returns the entries properly when you go to an individual patient's route:
+
+![alt text](assets/image51.png)
+
+Use types properly in the backend! For now, there is no need to do a proper validation for all the fields of the entries in the backend, it is enough e.g. to check that the field `type` has a correct value.
+
+
+<hr style="border: 2px solid #D4FCB5">
