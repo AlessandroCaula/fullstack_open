@@ -4389,5 +4389,16 @@ Define the types `OccupationalHealthcareEntry` and `HospitalEntry` so that those
 
 Use types properly in the backend! For now, there is no need to do a proper validation for all the fields of the entries in the backend, it is enough e.g. to check that the field `type` has a correct value.
 
+#### 9.24: Patientor, step 4
+
+Extend a patient's page in the frontend to list the `date`, `description` and `diagnoseCodes` of the patient's entries.
+
+You can use the same type definition for an `Entry` in the frontend. For these exercises, it is enough to just copy/paste the definitions from the backend to the frontend.
+
+Your solution could look like this:
+
+![alt text](assets/image52.png)
+
+
 
 <hr style="border: 2px solid #D4FCB5">
