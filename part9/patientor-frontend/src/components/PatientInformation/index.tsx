@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom";
-import { Diagnosis, Patient } from "../types";
+import { Diagnosis, Patient } from "../../types";
 import { useEffect, useState } from "react";
-import patientService from "../services/patients";
+import patientService from "../../services/patients";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
+import EntryDetails from "./EntryDetails";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -47,32 +48,8 @@ const PatientInformation = ({ diagnoses }: Props) => {
       </div>
       <p>ssn: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
-      {/* If the patient has some defined entries then render them */}
       {patient.entries !== undefined && patient.entries?.length > 0 ? (
-        <div>
-          <h3>Entries</h3>
-          {/* Render the entries of the patients */}
-          {patient.entries?.map((entry) => (
-            <div key={entry.id}>
-              <p>
-                - {entry.date}:{" "}
-                <span style={{ fontStyle: "italic" }}>{entry.description}</span>
-              </p>
-              {/* Render the diagnoses codes */}
-              <ul>
-                {entry.diagnosisCodes?.map((code) => {
-                  // Find the current diagnosis name from the code
-                  const diagnosisCodeName = diagnoses.find(el => el.code === code)?.name;
-                  return (
-                    <li key={code}>
-                      {code}: {diagnosisCodeName !== undefined ? diagnosisCodeName : ""}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <EntryDetails patient={patient} diagnoses={diagnoses} />
       ) : (
         <></>
       )}

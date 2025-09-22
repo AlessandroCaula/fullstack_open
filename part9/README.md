@@ -4405,4 +4405,20 @@ Fetch and add diagnoses to the application state from the `/api/diagnoses` endpo
 
 ![alt text](assets/image53.png)
 
+#### 9.26: Patientor, step 6
+
+Extend the entry listing on the patient's page to include the Entry's details, with a new component that shows the rest of the information of the patient's entries, distinguishing different types from each other.
+
+You could use eg. [Icons](https://mui.com/components/material-icons/) or some other [Material UI](https://mui.com/) component to get appropriate visuals for your listing.
+
+You should use a `switch case`-based rendering and `exhaustive type checking` so that no cases can be forgotten.
+
+Like this:
+
+![alt text](assets/image54.png)
+
+The resulting entries in the listing could look something like this:
+
+![alt text](assets/image55.png)
+
 <hr style="border: 2px solid #D4FCB5">
