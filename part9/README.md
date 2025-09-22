@@ -4357,3 +4357,20 @@ export type Entry =
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 ```
+
+### Omit with unions
+
+An important point concerning unions is that, when you use them with `Omit` to exclude a property, it works in a possibly unexpected way. Suppose that we want to remove the `id` from each `Entry`. We could think of using
+
+```ts
+Omit<Entry, 'id'>
+```
+
+but [it wouldn't work as we might expect](https://github.com/microsoft/TypeScript/issues/42680). In fact, the resulting type would only contain the common properties, but not the ones they don't share. A possible workaround is to define a special Omit-like function to deal with such situations:
+
+```ts
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
+// Define Entry without the 'id' property
+type EntryWithoutId = UnionOmit<Entry, 'id'>;
+```
