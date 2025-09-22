@@ -4399,6 +4399,10 @@ Your solution could look like this:
 
 ![alt text](assets/image52.png)
 
+#### 9.25: Patientor, step 5
 
+Fetch and add diagnoses to the application state from the `/api/diagnoses` endpoint. Use the new diagnosis data to show the descriptions for patient's diagnosis codes:
+
+![alt text](assets/image53.png)
 
 <hr style="border: 2px solid #D4FCB5">

@@ -1,15 +1,15 @@
 import { useParams } from "react-router-dom";
-import { Patient } from "../types";
+import { Diagnosis, Patient } from "../types";
 import { useEffect, useState } from "react";
 import patientService from "../services/patients";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 
-// interface Props {
-//   patients: Patient[];
-// }
+interface Props {
+  diagnoses: Diagnosis[];
+}
 
-const PatientInformation = () => {
+const PatientInformation = ({ diagnoses }: Props) => {
   // Retrieve the id of the selected patient
   const id = useParams().id;
   const [patient, setPatient] = useState<Patient>();
@@ -48,7 +48,7 @@ const PatientInformation = () => {
       <p>ssn: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
       {/* If the patient has some defined entries then render them */}
-      {(patient.entries !== undefined && patient.entries?.length > 0) ? (
+      {patient.entries !== undefined && patient.entries?.length > 0 ? (
         <div>
           <h3>Entries</h3>
           {/* Render the entries of the patients */}
@@ -60,9 +60,15 @@ const PatientInformation = () => {
               </p>
               {/* Render the diagnoses codes */}
               <ul>
-                {entry.diagnosisCodes?.map((code) => (
-                  <li key={code}>{code}</li>
-                ))}
+                {entry.diagnosisCodes?.map((code) => {
+                  // Find the current diagnosis name from the code
+                  const diagnosisCodeName = diagnoses.find(el => el.code === code)?.name;
+                  return (
+                    <li key={code}>
+                      {code}: {diagnosisCodeName !== undefined ? diagnosisCodeName : ""}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
