@@ -43,4 +43,20 @@ router.post("/", (req, res) => {
   }
 });
 
+// // Adding entries for a specific patient
+// router.post("/:id/entries", (req: Request, _res) => {
+//   try {
+//     // Retrieve the patient for which we want to add the new entries
+//     const id: string = req.params.id;
+//     // Retrieve the 
+//     // Retrieve the patient with the requested id
+//     const patient = patientService.findById(id);
+
+//     // Add the entries to the patient 
+
+//   } catch {
+
+//   }
+// });
+
 export default router;

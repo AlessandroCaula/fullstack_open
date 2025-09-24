@@ -4421,4 +4421,27 @@ The resulting entries in the listing could look something like this:
 
 ![alt text](assets/image55.png)
 
+#### 9.27: Patientor, step 7
+
+We have established that patients can have different kinds of entries. We don't yet have any way of adding entries to patients in our app, so, at the moment, it is pretty useless as an electronic medical record.
+
+Your next task is to add endpoint `/api/patients/:id/entries` to your backend, through which you can POST an entry for a patient.
+
+Remember that we have different kinds of entries in our app, so our backend should support all those types and check that at least all required fields are given for each type.
+
+In this exercise, you quite likely need to remember [this trick](#omit-with-unions).
+
+You may assume that the diagnostic codes are sent in the correct form and use eg. the following kind of parser to extract those from the request body:
+
+```ts
+const parseDiagnosisCodes = (object: unknown): Array<Diagnosis['code']> =>  {
+  if (!object || typeof object !== 'object' || !('diagnosisCodes' in object)) {
+    // we will just trust the data to be in correct form
+    return [] as Array<Diagnosis['code']>;
+  }
+
+  return object.diagnosisCodes as Array<Diagnosis['code']>;
+};
+```
+
 <hr style="border: 2px solid #D4FCB5">

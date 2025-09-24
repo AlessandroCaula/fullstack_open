@@ -12,7 +12,7 @@ const getPatients = (): PatientEntry[] => {
 // Service for retrieving the patient given the id
 const findById = (id: string): PatientEntry | undefined => {
   const patient = patientData.find(pat => pat.id === id);
-  console.log(patient);
+  // console.log(patient);
   return patient;
 };
 
@@ -35,7 +35,7 @@ const addPatient = (patient: NewPatientEntry): PatientEntry => {
     id: patientId,
     ...patient
   };
-  console.log(newPatient);
+  // console.log(newPatient);
   patientData.push(newPatient);
   return newPatient;
 };
