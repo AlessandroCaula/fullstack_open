@@ -3,7 +3,7 @@ import express from "express";
 import patientService from "../services/patientService";
 import { Response, Request } from "express";
 import { NonSensitivePatientEntry, PatientEntry } from "../types";
-import { toNewPatientEntry } from "../utils";
+import { toNewEntries, toNewPatientEntry } from "../utils";
 import z from "zod";
 
 const router = express.Router();
@@ -43,20 +43,26 @@ router.post("/", (req, res) => {
   }
 });
 
-// // Adding entries for a specific patient
-// router.post("/:id/entries", (req: Request, _res) => {
-//   try {
-//     // Retrieve the patient for which we want to add the new entries
-//     const id: string = req.params.id;
-//     // Retrieve the 
-//     // Retrieve the patient with the requested id
-//     const patient = patientService.findById(id);
-
-//     // Add the entries to the patient 
-
-//   } catch {
-
-//   }
-// });
+// Adding entries for a specific patient
+router.post("/:id/entries", (req, res) => {
+  try {
+    // Retrieve the entries from the request body and validate them with the use of zod
+    const entries = toNewEntries(req.body);
+    // Retrieve the patient for which we want to add the new entries
+    const id: string = req.params.id;
+    // Add the entries to the patient.
+    const addedEntries = patientService.addPatientEntries(id, entries);
+    if (!addedEntries) {
+      return res.status(404).send({ error: "Patient not found" });
+    }
+    res.json(addedEntries);
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(400).send({ error: 'unknown error' });
+    }
+  }
+});
 
 export default router;

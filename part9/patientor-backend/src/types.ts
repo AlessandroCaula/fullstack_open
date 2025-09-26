@@ -76,6 +76,9 @@ export type NonSensitivePatientEntry = UnionOmit<PatientEntry, "ssn" | "entries"
 // export type NewPatientEntry = Omit<PatientEntry, "id">;
 export type NewPatientEntry = UnionOmit<PatientEntry, "id">;
 
+// Type for the new entries entry
+export type NewEntriesEntry = UnionOmit<Entry, "id">;
+
 // Gender enumerator
 export enum Gender {
   male = "male",

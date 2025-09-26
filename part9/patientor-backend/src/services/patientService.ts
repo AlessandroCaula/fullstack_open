@@ -1,7 +1,7 @@
 // import patientsData from "../../data/patientsData";
 // import patientData from "../../data/patientsData";
 import patientData from "../../data/patientsFullData";
-import { NonSensitivePatientEntry, PatientEntry, NewPatientEntry } from "../types";
+import { NonSensitivePatientEntry, PatientEntry, NewPatientEntry, Entry, NewEntriesEntry } from "../types";
 import { v1 as uuid } from "uuid";
 
 // Service for getting all the patients
@@ -40,9 +40,36 @@ const addPatient = (patient: NewPatientEntry): PatientEntry => {
   return newPatient;
 };
 
+// Service for adding new entries for the patient
+const addPatientEntries = (id: string, entries: NewEntriesEntry): Entry | undefined => {
+  // First find the patient to which we want to add the entries
+  const patient = patientData.find(p => p.id === id);
+  // Return if patient does not exist
+  if (!patient) {
+    return undefined;
+  }
+
+  // Create a new entry with a fresh id
+  const newEntry: Entry = {
+    id: uuid(),
+    ... entries
+  };
+
+  // If the patient has no entries array yet, initialize it
+  if (!patient.entries) {
+    patient.entries = [];
+  }
+
+  // Push the new entries to the entries collection of the patient
+  patient.entries.push(newEntry);
+
+  return newEntry;
+};
+
 export default {
   getPatients,
   findById,
   getNonSensitiveEntries,
   addPatient,
+  addPatientEntries,
 };
