@@ -53,7 +53,7 @@ router.post("/:id/entries", (req, res) => {
     // Add the entries to the patient.
     const addedEntries = patientService.addPatientEntries(id, entries);
     if (!addedEntries) {
-      return res.status(404).send({ error: "Patient not found" });
+      res.status(404).send({ error: "Patient not found" });
     }
     res.json(addedEntries);
   } catch (error: unknown) {

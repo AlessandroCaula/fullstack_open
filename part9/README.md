@@ -4444,4 +4444,20 @@ const parseDiagnosisCodes = (object: unknown): Array<Diagnosis['code']> =>  {
 };
 ```
 
+#### 9.28: Patientor, step 8
+
+Now that our backend supports adding new entries, we want to add the corresponding functionality to the frontend. In this exercise, you should add a form for adding an entry to a patient. An intuitive place for accessing the form would be on a patient's page.
+
+In this exercise, it is enough to __support one entry type__. All the fields in the form can be just plain text inputs, so it is up to the user to enter valid values. 
+
+Upon a successful submission the new entry should be added to the correct patient and the patient's entries on the patient page should be updated to contain in the new entry. 
+
+Your form might look something like this:
+
+![alt text](assets/image56.png)
+
+If a user enters invalid values to the form a backend rejects the addition, show a proper error message to the user
+
+![alt text](assets/image57.png)
+
 <hr style="border: 2px solid #D4FCB5">
