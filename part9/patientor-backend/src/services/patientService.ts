@@ -48,21 +48,17 @@ const addPatientEntries = (id: string, entries: NewEntriesEntry): Entry | undefi
   if (!patient) {
     return undefined;
   }
-
   // Create a new entry with a fresh id
   const newEntry: Entry = {
     id: uuid(),
     ... entries
   };
-
   // If the patient has no entries array yet, initialize it
   if (!patient.entries) {
     patient.entries = [];
   }
-
   // Push the new entries to the entries collection of the patient
   patient.entries.push(newEntry);
-
   return newEntry;
 };
 

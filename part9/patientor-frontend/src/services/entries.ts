@@ -8,7 +8,6 @@ const create = async (id:string, object: EntryFormValues) => {
     `${apiBaseUrl}/patients/${id}/entries`,
     object
   );
-
   return data;
 };
 
