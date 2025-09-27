@@ -42,11 +42,12 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
       setModalOpen(false);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
-          const message = e.response.data.replace(
-            "Something went wrong. Error: ",
-            ""
-          );
+        if (e?.response?.data) {  //  && typeof e?.response?.data === "string"
+          // const message = e.response.data.replace(
+          //   "Something went wrong. Error: ",
+          //   ""
+          // );
+          const message = e?.response?.data?.error[0].message;
           console.error(message);
           setError(message);
         } else {
