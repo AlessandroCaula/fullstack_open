@@ -1,7 +1,7 @@
 import { Alert, Box, Button, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField } from "@mui/material";
 import React, { SyntheticEvent, useState } from "react";
-import entriesService from "../../services/entries";
-import { EntryFormValues, HealthCheckRating, Patient } from "../../types";
+import entriesService from "../../../services/entries";
+import { EntryFormValues, HealthCheckRating, Patient } from "../../../types";
 import axios from "axios";
 
 interface Props {
@@ -30,7 +30,7 @@ const healthRatingOptions = Object.entries(HealthCheckRating)
     value: value as number,   // 0, 1, 2, 3
   }));
 
-const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
+const NewEntriesForm = ({ id, setPatient }: Props) => {
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [specialist, setSpecialist] = useState<string>("");
@@ -66,18 +66,11 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
     event.preventDefault();
     try {
       // Parse the diagnosis codes, so that they are a list of code strings
-      const diagnosisCodes = diagnosisCodesString
+      const diagnosisCodes = diagnosisCodesString.length > 0 ? 
+        diagnosisCodesString
         .split(",")
-        .map((el) => el.trim());
-      
-      // const values: EntryFormValues = {
-      //   description,
-      //   date,
-      //   specialist,
-      //   diagnosisCodes,
-      //   type: "HealthCheck",
-      //   healthCheckRating: 0,
-      // };
+        .map((el) => el.trim())
+        : undefined;
 
       let values: EntryFormValues;
       // Define the values dynamically based on the entriesType
@@ -103,6 +96,7 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
           healthCheckRating: healthRating,
         };
       } else if (entriesType === "OccupationalHealthcare") {
+        // Check that both the start and end date for the sickLeave have or have not a date. 
         values = {
           description,
           date,
@@ -134,6 +128,12 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
       setDate("");
       setSpecialist("");
       setDiagnosisCodesString("");
+      setDischargeDate("");
+      setDischargeCriteria("");
+      setHealthRating(HealthCheckRating.Healthy);
+      setEmployerName("");
+      setSickLeaveStartDate("");
+      setSickLeaveEndDate("");
       setError("");
     } catch (e: unknown) {
       // Dealing with possible errors
@@ -297,7 +297,7 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
                         size="small"
                         placeholder="YYYY-MM-DD"
                         fullWidth
-                        required
+                        // required
                         style={{ marginRight: '20px' }}
                         value={sickLeaveStartDate}
                         onChange={({ target }) => setSickLeaveStartDate(target.value)}
@@ -308,7 +308,7 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
                         size="small"
                         placeholder="YYYY-MM-DD"
                         fullWidth
-                        required
+                        // required
                         style={{ marginLeft: '20px' }}
                         value={sickLeaveEndDate}
                         onChange={({ target }) => setSickLeaveEndDate(target.value)}
@@ -357,4 +357,4 @@ const NewPatientEntriesForm = ({ id, setPatient }: Props) => {
   );
 };
 
-export default NewPatientEntriesForm;
+export default NewEntriesForm;

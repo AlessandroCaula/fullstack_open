@@ -1,4 +1,4 @@
-import { Diagnosis, Entry, Patient } from "../../types";
+import { Diagnosis, Entry, Patient } from "../../../types";
 import { Box } from "@mui/material";
 import Hospital from "./Hospital";
 import OccupationalHealthcare from "./OccupationalHealthcare";

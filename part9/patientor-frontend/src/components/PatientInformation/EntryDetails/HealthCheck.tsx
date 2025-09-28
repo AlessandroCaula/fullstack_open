@@ -1,4 +1,4 @@
-import { Entry } from '../../types';
+import { Entry } from '../../../types';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 interface Props {

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import patientService from "../../services/patients";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
+import NewEntriesForm from "./NewEntriesForm";
 import EntryDetails from "./EntryDetails";
-import NewPatientEntriesForm from "./NewPatientEntriesForm";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -47,7 +47,7 @@ const PatientInformation = ({ diagnoses }: Props) => {
       </div>
       <p>ssn: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
-      <NewPatientEntriesForm id={id} setPatient={setPatient} />
+      <NewEntriesForm id={id} setPatient={setPatient} />
       {patient.entries !== undefined && patient.entries?.length > 0 ? (
         <EntryDetails patient={patient} diagnoses={diagnoses} />
       ) : (
