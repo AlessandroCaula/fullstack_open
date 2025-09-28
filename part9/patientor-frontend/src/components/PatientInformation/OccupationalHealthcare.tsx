@@ -15,6 +15,7 @@ const OccupationalHealthcare = ({ entry }: Props) => {
       <p>Employer name: {entry.employerName}</p>
       {entry.sickLeave ? (
         <div>
+          <p style={{ marginBottom: '5px' }}>Sick Leave</p>
           <p style={{ margin: '0px' }}>- Start date: {entry.sickLeave?.startDate}</p>
           <p style={{ margin: '0px' }}>- End date: {entry.sickLeave?.endDate}</p>
         </div>

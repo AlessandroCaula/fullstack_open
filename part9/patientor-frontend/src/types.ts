@@ -4,6 +4,12 @@ export interface Diagnosis {
   latin?: string;
 }
 
+// export enum EntriesTypes {
+//   HealthCheck = "Health Check",
+//   Hospital = "Hospital",
+//   OccupationalHealthcare = "Occupational Healthcare",
+// }
+
 // Base Entry type
 interface BaseEntry {
   id: string,
@@ -28,7 +34,7 @@ interface SickLeave {
 }
 
 // Interface for Discharge
-interface Discharge {
+export interface Discharge {
   date: string;
   criteria: string;
 }

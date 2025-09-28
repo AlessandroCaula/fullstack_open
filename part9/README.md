@@ -4460,4 +4460,8 @@ If a user enters invalid values to the form a backend rejects the addition, show
 
 ![alt text](assets/image57.png)
 
+#### 9.29 - Patientor, step 9
+
+Extend your solution so that it support `all the entry types`.
+
 <hr style="border: 2px solid #D4FCB5">

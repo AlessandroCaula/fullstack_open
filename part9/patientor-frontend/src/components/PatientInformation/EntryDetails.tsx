@@ -17,6 +17,8 @@ const EntryDetails = ({ patient, diagnoses }: Props) => {
     );
   };
 
+  console.log(patient);
+
   const renderEntryTypes = (entry: Entry) => {
     switch(entry.type) {
       case "Hospital":

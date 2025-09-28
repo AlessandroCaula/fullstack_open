@@ -88,8 +88,8 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
             key={option.label}
             value={option.value}
           >
-            {option.label
-          }</MenuItem>
+            {option.label}
+          </MenuItem>
         )}
         </Select>
 
