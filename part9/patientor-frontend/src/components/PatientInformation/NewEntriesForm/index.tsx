@@ -71,13 +71,6 @@ const NewEntriesForm = ({ id, setPatient, diagnoses }: Props) => {
   const submitNewEntries = async (event: SyntheticEvent) => {
     event.preventDefault();
     try {
-      // // Parse the diagnosis codes, so that they are a list of code strings
-      // const diagnosisCodes =
-      //   diagnosisCodesString.length > 0
-      //     ? diagnosisCodesString.split(",").map((el) => el.trim())
-      //     : undefined;
-      console.log(diagnosisCodes);
-
       let values: EntryFormValues;
       // Define the values dynamically based on the entriesType
       if (entriesType === "Hospital") {
