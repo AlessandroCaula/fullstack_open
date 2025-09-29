@@ -47,7 +47,7 @@ const PatientInformation = ({ diagnoses }: Props) => {
       </div>
       <p>ssn: {patient.ssn}</p>
       <p>Occupation: {patient.occupation}</p>
-      <NewEntriesForm id={id} setPatient={setPatient} />
+      <NewEntriesForm id={id} setPatient={setPatient} diagnoses={diagnoses} />
       {patient.entries !== undefined && patient.entries?.length > 0 ? (
         <EntryDetails patient={patient} diagnoses={diagnoses} />
       ) : (

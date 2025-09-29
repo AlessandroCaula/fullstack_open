@@ -1,7 +1,12 @@
 import { Alert, Box, Button, Stack } from "@mui/material";
 import React, { SyntheticEvent, useState } from "react";
 import entriesService from "../../../services/entries";
-import { EntryFormValues, HealthCheckRating, Patient } from "../../../types";
+import {
+  Diagnosis,
+  EntryFormValues,
+  HealthCheckRating,
+  Patient,
+} from "../../../types";
 import axios from "axios";
 import HospitalForm from "./HospitalForm";
 import HealthCheckForm from "./HealthCheckForm";
@@ -11,16 +16,18 @@ import CommonEntriesForm from "./CommonEntriesForm";
 interface Props {
   id: string | undefined;
   setPatient: React.Dispatch<React.SetStateAction<Patient | null>>;
+  diagnoses: Diagnosis[];
 }
 
 // Defining EntryType so that TypeScript will know that entriesType is exactly one of the allowed values
 type EntryType = "Hospital" | "HealthCheck" | "OccupationalHealthcare";
 
-const NewEntriesForm = ({ id, setPatient }: Props) => {
+const NewEntriesForm = ({ id, setPatient, diagnoses }: Props) => {
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [specialist, setSpecialist] = useState<string>("");
-  const [diagnosisCodesString, setDiagnosisCodesString] = useState<string>("");
+  // const [diagnosisCodesString, setDiagnosisCodesString] = useState<string>("");
+  const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
   const [error, setError] = useState<string>("");
   // Entries Type state
   const [entriesType, setEntriesType] = useState<EntryType>("Hospital");
@@ -46,7 +53,7 @@ const NewEntriesForm = ({ id, setPatient }: Props) => {
     setDescription("");
     setDate("");
     setSpecialist("");
-    setDiagnosisCodesString("");
+    setDiagnosisCodes([]);
     setDischargeDate("");
     setDischargeCriteria("");
     setHealthRating(HealthCheckRating.Healthy);
@@ -64,11 +71,12 @@ const NewEntriesForm = ({ id, setPatient }: Props) => {
   const submitNewEntries = async (event: SyntheticEvent) => {
     event.preventDefault();
     try {
-      // Parse the diagnosis codes, so that they are a list of code strings
-      const diagnosisCodes =
-        diagnosisCodesString.length > 0
-          ? diagnosisCodesString.split(",").map((el) => el.trim())
-          : undefined;
+      // // Parse the diagnosis codes, so that they are a list of code strings
+      // const diagnosisCodes =
+      //   diagnosisCodesString.length > 0
+      //     ? diagnosisCodesString.split(",").map((el) => el.trim())
+      //     : undefined;
+      console.log(diagnosisCodes);
 
       let values: EntryFormValues;
       // Define the values dynamically based on the entriesType
@@ -158,10 +166,11 @@ const NewEntriesForm = ({ id, setPatient }: Props) => {
             setDate={setDate}
             specialist={specialist}
             setSpecialist={setSpecialist}
-            diagnosisCodesString={diagnosisCodesString}
-            setDiagnosisCodesString={setDiagnosisCodesString}
+            diagnosisCodes={diagnosisCodes}
+            setDiagnosisCodes={setDiagnosisCodes}
             entriesType={entriesType}
             setEntriesType={setEntriesType}
+            diagnoses={diagnoses}
           />
 
           <Stack spacing={"5px"}>
