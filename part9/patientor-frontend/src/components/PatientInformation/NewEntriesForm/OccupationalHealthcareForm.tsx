@@ -1,4 +1,11 @@
-import { Box, InputLabel, Stack, TextField } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  Input,
+  InputLabel,
+  Stack,
+  TextField,
+} from "@mui/material";
 
 interface Props {
   employerName: string;
@@ -19,7 +26,7 @@ const OccupationalHealthcareForm = ({
 }: Props) => {
   return (
     <Box component="section">
-      <Stack spacing={"5px"}>
+      <Stack spacing={"5px"} marginTop={"5px"}>
         <TextField
           label="Employer Name"
           variant="standard"
@@ -33,30 +40,39 @@ const OccupationalHealthcareForm = ({
         <Box
           component="section"
           sx={{ display: "flex" }}
-          style={{ margin: "0px" }}
+          style={{ margin: "0px", marginLeft: '10px' }}
         >
-          <TextField
-            label="Start Date"
-            variant="standard"
-            size="small"
-            placeholder="YYYY-MM-DD"
+          <FormControl
             fullWidth
-            // required
-            style={{ marginRight: "20px" }}
-            value={sickLeaveStartDate}
-            onChange={({ target }) => setSickLeaveStartDate(target.value)}
-          />
-          <TextField
-            label="End Date"
             variant="standard"
-            size="small"
-            placeholder="YYYY-MM-DD"
+            style={{ marginTop: "5px", marginRight: "20px" }}
+          >
+            <InputLabel htmlFor="standard-date">Start Date</InputLabel>
+            <Input
+              id="standard-date"
+              startAdornment={<></>}
+              type="date"
+              size="small"
+              value={sickLeaveStartDate}
+              onChange={({ target }) => setSickLeaveStartDate(target.value)}
+            />
+          </FormControl>
+
+          <FormControl
             fullWidth
-            // required
-            style={{ marginLeft: "20px" }}
-            value={sickLeaveEndDate}
-            onChange={({ target }) => setSickLeaveEndDate(target.value)}
-          />
+            variant="standard"
+            style={{ marginTop: "5px", marginLeft: "20px" }}
+          >
+            <InputLabel htmlFor="standard-date">Start Date</InputLabel>
+            <Input
+              id="standard-date"
+              startAdornment={<></>}
+              type="date"
+              size="small"
+              value={sickLeaveEndDate}
+              onChange={({ target }) => setSickLeaveEndDate(target.value)}
+            />
+          </FormControl>
         </Box>
       </Stack>
     </Box>

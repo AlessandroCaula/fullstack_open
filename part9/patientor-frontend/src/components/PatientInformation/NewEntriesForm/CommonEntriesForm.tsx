@@ -1,5 +1,7 @@
 import {
   Box,
+  FormControl,
+  Input,
   InputLabel,
   MenuItem,
   Select,
@@ -49,7 +51,7 @@ const CommonEntriesForm = ({
 }: Props) => {
   return (
     <Box component="section">
-      <Stack spacing={'5px'}>
+      <Stack spacing={"5px"}>
         <TextField
           label="Description"
           variant="standard"
@@ -60,16 +62,22 @@ const CommonEntriesForm = ({
           value={description}
           onChange={({ target }) => setDescription(target.value)}
         />
-        <TextField
-          label="Date"
-          variant="standard"
-          size="small"
-          placeholder="YYYY-MM-DD"
-          required
+        <FormControl
           fullWidth
-          value={date}
-          onChange={({ target }) => setDate(target.value)}
-        />
+          required
+          variant="standard"
+          style={{ marginTop: "10px" }}
+        >
+          <InputLabel htmlFor="standard-date">Date</InputLabel>
+          <Input
+            id="standard-date"
+            startAdornment={<></>}
+            type="date"
+            size="small"
+            value={date}
+            onChange={({ target }) => setDate(target.value)}
+          />
+        </FormControl>
         <TextField
           label="Specialist"
           variant="standard"
@@ -87,24 +95,26 @@ const CommonEntriesForm = ({
           value={diagnosisCodesString}
           onChange={({ target }) => setDiagnosisCodesString(target.value)}
         />
-
-        <InputLabel style={{ marginTop: "20px" }}>Type</InputLabel>
-        <Select
-          label="Type"
-          fullWidth
-          size="small"
-          style={{ marginTop: "0px" }}
-          value={entriesType}
-          onChange={(event: SelectChangeEvent<EntryType>) => {
-            setEntriesType(event.target.value as EntryType);
-          }}
-        >
-          {entriesTypeOptions.map((option) => (
-            <MenuItem key={option.label} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl style={{ marginTop: "20px" }} fullWidth required>
+          <InputLabel id='type-label'>Type</InputLabel>
+          <Select
+            labelId="type-label"
+            label="Type"
+            fullWidth
+            size="small"
+            style={{ marginTop: "0px" }}
+            value={entriesType}
+            onChange={(event: SelectChangeEvent<EntryType>) => {
+              setEntriesType(event.target.value as EntryType);
+            }}
+          >
+            {entriesTypeOptions.map((option) => (
+              <MenuItem key={option.label} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Stack>
     </Box>
   );

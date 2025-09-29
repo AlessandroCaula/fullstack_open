@@ -4460,8 +4460,18 @@ If a user enters invalid values to the form a backend rejects the addition, show
 
 ![alt text](assets/image57.png)
 
-#### 9.29 - Patientor, step 9
+#### 9.29: Patientor, step 9
 
 Extend your solution so that it support `all the entry types`.
+
+#### 9.30: Patientor, step 10
+
+Improve the entry creation form so that it makes it hard to enter incorrect dates, diagnosis codes and health rating.
+
+Your improved form might look something like this:
+
+![alt text](assets/image58.png)
+
+Diagnosis codes are now set with Material UI [multiple select](https://mui.com/material-ui/react-select/#multiple-select) and dates with [Input](https://mui.com/material-ui/api/input/) elements with type [date](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date).
 
 <hr style="border: 2px solid #D4FCB5">

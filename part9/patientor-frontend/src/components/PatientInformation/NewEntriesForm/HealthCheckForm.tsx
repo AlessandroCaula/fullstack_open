@@ -1,5 +1,6 @@
 import {
   Box,
+  FormControl,
   InputLabel,
   MenuItem,
   Select,
@@ -22,23 +23,26 @@ const healthRatingOptions = Object.entries(HealthCheckRating)
 const HealthCheckForm = ({ healthRating, setHealthRating }: Props) => {
   return (
     <Box component="section">
-      <InputLabel style={{ marginTop: "10px" }}>Health Check Rating</InputLabel>
-      <Select
-        label="Health Check Rating"
-        fullWidth
-        size="small"
-        style={{ marginTop: "0px" }}
-        value={healthRating}
-        onChange={(event: SelectChangeEvent<number>) => {
-          setHealthRating(Number(event.target.value) as HealthCheckRating);
-        }}
-      >
-        {healthRatingOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
+      <FormControl required fullWidth size="medium" style={{ marginTop: "20px" }}>
+        <InputLabel id="health-check">Health Check Rating</InputLabel>
+        <Select
+          label="Health Check Rating"
+          labelId="health-check"
+          fullWidth
+          size="small"
+          style={{ marginTop: "0px" }}
+          value={healthRating}
+          onChange={(event: SelectChangeEvent<number>) => {
+            setHealthRating(Number(event.target.value) as HealthCheckRating);
+          }}
+        >
+          {healthRatingOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
   );
 };

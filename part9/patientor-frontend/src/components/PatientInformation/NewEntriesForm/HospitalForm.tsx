@@ -1,4 +1,4 @@
-import { Box, Stack, TextField } from "@mui/material";
+import { Box, FormControl, Input, InputLabel, Stack, TextField } from "@mui/material";
 
 interface Props {
   dischargeDate: string;
@@ -16,16 +16,23 @@ const HospitalForm = ({
   return (
     <Box component="section">
       <Stack spacing={"5px"}>
-        <TextField
-          label="Discharge Date"
-          placeholder="YYYY-MM-DD"
-          variant="standard"
-          size="small"
-          required
+        <FormControl
           fullWidth
-          value={dischargeDate}
-          onChange={({ target }) => setDischargeDate(target.value)}
-        />
+          required
+          variant="standard"
+          style={{ marginTop: "10px" }}
+        >
+          <InputLabel htmlFor="standard-date">Discharge Date</InputLabel>
+          <Input
+            id="standard-date"
+            startAdornment={<></>}
+            type="date"
+            size="small"
+            value={dischargeDate}
+            onChange={({ target }) => setDischargeDate(target.value)}
+          />
+        </FormControl>
+
         <TextField
           label="Discharge Criteria"
           variant="standard"

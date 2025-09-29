@@ -165,29 +165,31 @@ const NewEntriesForm = ({ id, setPatient }: Props) => {
           />
 
           <Stack spacing={"5px"}>
-            {/* Changing the next components to render based on the entries type */}
-            {entriesType === "Hospital" ? (
-              <HospitalForm
-                dischargeDate={dischargeDate}
-                setDischargeDate={setDischargeDate}
-                dischargeCriteria={dischargeCriteria}
-                setDischargeCriteria={setDischargeCriteria}
-              />
-            ) : entriesType === "HealthCheck" ? (
-              <HealthCheckForm
-                healthRating={healthRating}
-                setHealthRating={setHealthRating}
-              />
-            ) : (
-              <OccupationalHealthcareForm
-                employerName={employerName}
-                setEmployerName={setEmployerName}
-                sickLeaveStartDate={sickLeaveStartDate}
-                setSickLeaveStartDate={setSickLeaveStartDate}
-                sickLeaveEndDate={sickLeaveEndDate}
-                setSickLeaveEndDate={setSickLeaveEndDate}
-              />
-            )}
+            <Box component="section" style={{ marginLeft: "10px" }}>
+              {/* Changing the next components to render based on the entries type */}
+              {entriesType === "Hospital" ? (
+                <HospitalForm
+                  dischargeDate={dischargeDate}
+                  setDischargeDate={setDischargeDate}
+                  dischargeCriteria={dischargeCriteria}
+                  setDischargeCriteria={setDischargeCriteria}
+                />
+              ) : entriesType === "HealthCheck" ? (
+                <HealthCheckForm
+                  healthRating={healthRating}
+                  setHealthRating={setHealthRating}
+                />
+              ) : (
+                <OccupationalHealthcareForm
+                  employerName={employerName}
+                  setEmployerName={setEmployerName}
+                  sickLeaveStartDate={sickLeaveStartDate}
+                  setSickLeaveStartDate={setSickLeaveStartDate}
+                  sickLeaveEndDate={sickLeaveEndDate}
+                  setSickLeaveEndDate={setSickLeaveEndDate}
+                />
+              )}
+            </Box>
 
             <Box
               component="section"
