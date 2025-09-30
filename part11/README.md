@@ -271,3 +271,53 @@ In general, to have CI operate on a repository, we need a few things:
 That's the traditional model at least, we'll see in a minute how GitHub Actions short-circuit some of these steps or rather make it such that you don't have to worry about them!
 
 GitHub Actions have a great advantage over self-hosted solutions: the repository is hosted with the CI provider. In other words, GitHub provides both the repository and the CI platform. This means that if we've enabled actions for a repository, GitHub is already aware of the fact that we have workflows defined and what those definitions look like.
+
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercise 11.2
+
+In most exercises of this part, we are building a CI/CD pipeline for a small project found in [this example project repository](https://github.com/fullstack-hy2020/full-stack-open-pokedex).
+
+#### 11.2 The example project
+
+The first thing you'll want to do is to fork the example repository under your name. What it essentially does is it creates a copy of the repository under your GitHub user profile for your use.
+
+To fork the repository, you can click on the Fork button in the top-right area of the repository view next to the Star button:
+
+![alt text](assets/image.png)
+
+Once you've clicked on the Fork button, GitHub will start the creation of a new repository called `{github_username}/full-stack-open-pokedex`.
+
+Once the process has been finished, you should be redirected to your brand-new repository:
+
+![alt text](assets/image1.png)
+
+Clone the project now to your machine. As always, when starting with a new code, the most obvious place to look first is the file `package.json`
+
+_NOTE since the project is already a bit old, you need Node 16 to work with it!_
+
+Try now the following:
+
+- install dependencies (by running `npm install`)
+
+- start the code in development mode
+
+- run tests
+
+- lint the code
+
+You might notice that the project contains some broken tests and linting errors. __Just leave them as they are for now__. We will get around those later in the exercises.
+
+As you might remember from [part 3](../part3/README.md#frontend-product-build), the React code _should not_ be run in development mode once it is deployed in production. Try now the following
+
+- create a production _build_ of the project
+
+- run the production version locally
+
+Also for these two tasks, there are ready-made npm scripts in the project!
+
+Study the structure of the project for a while. As you notice both the frontend and the backend code are now [in the same repository](https://fullstackopen.com/en/part7/class_components_miscellaneous#frontend-and-backend-in-the-same-repository). In earlier parts of the course we had a separate repository for both, but having those in the same repository makes things much simpler when setting up a CI environment.
+
+In contrast to most projects in this course, the frontend code _does not use_ Vite but it has a relatively simple [Webpack](../part7/README.md#part-7d---webpack) configuration that takes care of creating the development environment and creating the production bundle.
+
+<hr style="border: 2px solid #9C7AA6">
