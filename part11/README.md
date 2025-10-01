@@ -358,7 +358,7 @@ A basic workflow contains three elements in a YAML document. These three element
 
 A simple workflow definition looks like this:
 
-```yaml
+```yml
 name: Hello World!
 
 on:
@@ -386,3 +386,35 @@ So you may ask, when does GitHub trigger a workflow to be started? There are ple
 - An _external event_ occurs, for example, a command is performed in an external application such as [Slack](https://slack.com/) or [Discord](https://discord.com/) messaging app
 
 To learn more about which events can be used to trigger workflows, please refer to GitHub Action's [documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows).
+
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercises 11.3 - 11.4
+
+To tie this all together, let us now get GitHub Actions up and running in the example project!
+
+#### 11.3 Hello world!
+
+Create a new Workflow that outputs "Hello World!" to the user. For the setup, you should create the directory `.github/workflows` and a file `hello.yml` to your repository.
+
+To see what your GitHub Action workflow has done, you can navigate to the _Actions_ tab in GitHub where you should see the workflows in your repository and the steps they implement. The output of your Hello World workflow should look something like this with a properly configured workflow.
+
+![alt text](assets/image2.png)
+
+You should see the "Hello World!" message as an output. If that's the case then you have successfully gone through all the necessary steps. You have your first GitHub Actions workflow active!
+
+Note that GitHub Actions also informs you on the exact environment (operating system, and its [setup](https://github.com/actions/virtual-environments/blob/ubuntu18/20201129.1/images/linux/Ubuntu1804-README.md)) where your workflow is run. This is important since if something surprising happens, it makes debugging so much easier if you can reproduce all the steps in your machine!
+
+#### 11.4 Date and directory contents
+
+Extend the workflow with steps that print the date and current directory content in the long format.
+
+Both of these are easy steps, and just running commands [date](https://man7.org/linux/man-pages/man1/date.1.html) and [ls](https://man7.org/linux/man-pages/man1/ls.1.html) will do the trick.
+
+Your workflow should now look like this
+
+![alt text](assets/image3.png)
+
+As the output of the command `ls -l` shows, by default, the virtual environment that runs our _workflow does not_ have any code!
+
+<hr style="border: 2px solid #9C7AA6">
