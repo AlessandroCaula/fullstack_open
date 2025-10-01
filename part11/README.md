@@ -535,3 +535,25 @@ Note that the `name` of a step is optional, if you define a step as follows
 ```
 
 the command that is run is used as the default name.
+
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercise 11.5 - 11.9
+
+Implement or _copy-paste_ the "Lint" workflow and commit it to the repository. Use a new _yml_ file for this workflow, you may call it e.g. _pipeline.yml_.
+
+Push your code and navigate to "Actions" tab and click on your newly created workflow on the left. You should see that the workflow run has failed:
+
+![alt text](assets/image4.png)
+
+#### 11.6 Fix the code
+
+There are some issues with the code that you will need to fix. Open up the workflow logs and investigate what is wrong.
+
+A couple of hints. One of the errors is best to be fixed by specifying proper _env_ for linting, see [here](../part3/README.md#lint) how it can be done. One of the complaints concerning `console.log` statement could be taken care of by simply silencing the rule for that specific line. Ask google how to do it.
+
+Make the necessary changes to the source code so that the lint workflow passes. Once you commit new code the workflow will run again and you will see updated output where all is green again:
+
+![alt text](image.png)
+
+<hr style="border: 2px solid #9C7AA6">
