@@ -316,8 +316,73 @@ As you might remember from [part 3](../part3/README.md#frontend-product-build), 
 
 Also for these two tasks, there are ready-made npm scripts in the project!
 
-Study the structure of the project for a while. As you notice both the frontend and the backend code are now [in the same repository](https://fullstackopen.com/en/part7/class_components_miscellaneous#frontend-and-backend-in-the-same-repository). In earlier parts of the course we had a separate repository for both, but having those in the same repository makes things much simpler when setting up a CI environment.
+Study the structure of the project for a while. As you notice both the frontend and the backend code are now [in the same repository](../part7/README.md#frontend-and-backend-in-the-same-repository). In earlier parts of the course we had a separate repository for both, but having those in the same repository makes things much simpler when setting up a CI environment.
 
 In contrast to most projects in this course, the frontend code _does not use_ Vite but it has a relatively simple [Webpack](../part7/README.md#part-7d---webpack) configuration that takes care of creating the development environment and creating the production bundle.
 
 <hr style="border: 2px solid #9C7AA6">
+
+### Getting started with workflows
+
+The core component of creating CI/CD pipelines with GitHub Actions is something called a [Workflow](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#workflows). Workflows are process flows that you can set up in your repository to run automated tasks such as building, testing, linting, releasing, and deploying to name a few! The hierarchy of a workflow looks as follows:
+
+Workflow:
+
+- Job
+
+    - Step
+
+    - Step
+
+- Job
+
+    - Step
+
+Each workflow must specify at least one [Job](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#jobs), which contains a set of [Steps](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#steps) to perform individual tasks. The jobs will be run in parallel and the steps in each job will be executed sequentially.
+
+Steps can vary from running a custom command to using pre-defined actions, thus the name GitHub Actions. You can create [customized actions](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions) or use any actions published by the community, which are plenty, but let's get back to that later!
+
+For GitHub to recognize your workflows, they must be specified in `.github/workflows` folder in your repository. Each Workflow is its own separate file which needs to be configured using the `YAML` data-serialization language.
+
+YAML is a recursive acronym for "YAML Ain't Markup Language". As the name might hint its goal is to be human-readable and it is commonly used for configuration files. You will notice below that it is indeed very easy to understand!
+
+Notice that indentations are important in YAML. You can learn more about the syntax [here](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html).
+
+A basic workflow contains three elements in a YAML document. These three elements are:
+
+- name: Yep, you guessed it, the name of the workflow
+
+- (on) triggers: The events that trigger the workflow to be executed
+
+- jobs: The separate jobs that the workflow will execute (a basic workflow might contain only one job).
+
+A simple workflow definition looks like this:
+
+```yaml
+name: Hello World!
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say hello
+        run: |
+          echo "Hello World!"
+```
+
+There is one job named *hello_world_job*, it will be run in a virtual environment with Ubuntu 20.04. The job has just one step named "Say hello", which will run the `echo "Hello World!"` command in the shell.
+
+So you may ask, when does GitHub trigger a workflow to be started? There are plenty of [options](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows) to choose from, but generally speaking, you can configure a workflow to start once:
+
+- An _event on GitHub_ occurs such as when someone pushes a commit to a repository or when an issue or pull request is created
+
+- A _scheduled event_, that is specified using the [cron](https://en.wikipedia.org/wiki/Cron)-syntax, happens
+
+- An _external event_ occurs, for example, a command is performed in an external application such as [Slack](https://slack.com/) or [Discord](https://discord.com/) messaging app
+
+To learn more about which events can be used to trigger workflows, please refer to GitHub Action's [documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows).
