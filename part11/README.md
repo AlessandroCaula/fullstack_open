@@ -418,3 +418,120 @@ Your workflow should now look like this
 As the output of the command `ls -l` shows, by default, the virtual environment that runs our _workflow does not_ have any code!
 
 <hr style="border: 2px solid #9C7AA6">
+
+### Setting up lint, test and build steps
+
+After completing the first exercises, you should have a simple but pretty useless workflow set up. Let's make our workflow do something useful.
+
+Let's implement a GitHub Action that will lint the code. If the checks don't pass, GitHub Actions will show a red status.
+
+At the start, the workflow that we will save to file `pipeline.yml` looks like this:
+
+```yml
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+```
+
+Before we can run a command to lint the code, we have to perform a couple of actions to set up the environment of the job.
+
+#### Setting up the environment
+
+Setting up the environment is an important task while configuring a pipeline. We're going to use an `ubuntu-latest` virtual environment because this is the version of Ubuntu we're going to be running in production.
+
+It is important to replicate the same environment in CI as in production as closely as possible, to avoid situations where the same code works differently in CI and production, which would effectively defeat the purpose of using CI.
+
+Next, we list the steps in the "build" job that the CI would need to perform. As we noticed in the last exercise, by default the virtual environment does not have any code in it, so we need to _checkout the code_ from the repository.
+
+This is an easy step:
+
+```yml
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+```
+
+The [uses](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) keyword tells the workflow to run a specific _action_. An action is a reusable piece of code, like a function. Actions can be defined in your repository in a separate file or you can use the ones available in public repositories.
+
+Here we're using a public action [actions/checkout](https://github.com/actions/checkout) and we specify a version (`@v4`) to avoid potential breaking changes if the action gets updated. The `checkout` action does what the name implies: it checkouts the project source code from Git.
+
+>`actions/checkout@v4` is an __official GitHub Action__ that clones your repository’s code into the runner (the VM/container where your workflow runs).
+
+Secondly, as the application is written in JavaScript, Node.js must be set up to be able to utilize the commands that are specified in `package.json`. To set up Node.js, [actions/setup-node](https://github.com/actions/setup-node) action can be used. Version `20` is selected because it is the version the application is using in the production environment.
+
+```yml
+# name and trigger not shown anymore...
+
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+```
+
+As we can see, the [with](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepswith) keyword is used to give a "parameter" to the action. Here the parameter specifies the version of Node.js we want to use.
+
+Lastly, the dependencies of the application must be installed. Just like on your own machine we execute `npm install`. The steps in the job should now look something like
+
+```yml
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+```
+
+Now the environment should be completely ready for the job to run actual important tasks in!
+
+#### Lint
+
+After the environment has been set up we can run all the scripts from `package.json` like we would on our own machine. To lint the code all you have to do is add a step to run the `npm run eslint` command.
+
+```yml
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies 
+        run: npm install  
+
+      - name: Check style
+        run: npm run eslint
+```
+
+Note that the `name` of a step is optional, if you define a step as follows
+
+```yml
+- run: npm run eslint
+```
+
+the command that is run is used as the default name.
