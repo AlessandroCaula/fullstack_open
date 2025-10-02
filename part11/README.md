@@ -554,6 +554,14 @@ A couple of hints. One of the errors is best to be fixed by specifying proper _e
 
 Make the necessary changes to the source code so that the lint workflow passes. Once you commit new code the workflow will run again and you will see updated output where all is green again:
 
-![alt text](image.png)
+![alt text](assets/image5.png)
+
+#### 11.7 Building and testing 
+
+Let's expand on the previous workflow that currently does the linting of the code. Edit the workflow and similarly to the lint command add commands for build and test. After this step outcome should look like this
+
+![alt text](assets/image6.png)
+
+As you might have guessed, there are some problems in code...
 
 <hr style="border: 2px solid #9C7AA6">
