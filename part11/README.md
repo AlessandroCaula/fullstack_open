@@ -564,4 +564,12 @@ Let's expand on the previous workflow that currently does the linting of the cod
 
 As you might have guessed, there are some problems in code...
 
+#### 11.8 Back to green
+
+Investigate which test fails and fix the issue in the code (do not change the tests).
+
+Once you have fixed all the issues and the Pokedex is bug-free, the workflow run will succeed and show green!
+
+![alt text](assets/image7.png)
+
 <hr style="border: 2px solid #9C7AA6">
