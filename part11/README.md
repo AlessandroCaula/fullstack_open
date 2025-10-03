@@ -572,4 +572,51 @@ Once you have fixed all the issues and the Pokedex is bug-free, the workflow run
 
 ![alt text](assets/image7.png)
 
+#### 11.9 Simple end-to-end tests
+
+The current set of tests uses [Jest](https://jestjs.io/) to ensure that the React components work as intended. This is essentially the same thing that is done in the section [Testing React apps](../part5/README.md#part-5c---testing-react-apps) of part 5 with [Vitest](https://vitest.dev/).
+
+Testing components in isolation is quite useful but that still does not ensure that the system as a whole works as we wish. To have more confidence about this, let us write a couple of really simple end-to-end tests similarly we did in section [part 5](../part5/README.md). You could use [Playwright](https://playwright.dev/) or [Cypress](https://www.cypress.io/) for the tests.
+
+No matter which you choose, you should extend Jest-definition in package.json to prevent Jest from trying to run the e2e-tests. Assuming that directory `e2e-tests` is used for e2e-tests, the definition is:
+
+```json
+{
+  // ...
+  "jest": {
+    "testEnvironment": "jsdom",
+
+    "testPathIgnorePatterns": ["e2e-tests"]
+  }
+}
+```
+
+##### Playwright
+
+Set Playwright up (you'll find [here](../part5/README.md#part-5d---end-to-end-testing-playwright) all the info you need) to your repository. Note that in contrast to part 5, you should now install Playwright to the same project with the rest of the code!
+
+Use this test first:
+
+```js
+const { test, describe, expect, beforeEach } = require('@playwright/test')
+
+describe('Pokedex', () => {
+  test('front page can be opened', async ({ page }) => {
+     await page.goto('')
+    await expect(page.getByText('ivysaur')).toBeVisible()
+    await expect(page.getByText('Pokémon and Pokémon character names are trademarks of Nintendo.')).toBeVisible()
+  })
+})
+```
+
+_Note_ is that although the page renders the Pokemon names with an initial capital letter, the names are actually written with lowercase letters in the source, so you should test for `ivysaur` instead of `Ivysaur`!
+
+Define a npm script `test:e2e` for running the e2e tests from the command line.
+
+Remember that the Playwright tests _assume that the application is up and running_ when you run the test! Instead of starting the app manually, you should now configure a _Playwright development server_ to start the app while tests are executed, see [here](https://playwright.dev/docs/next/api/class-testconfig#test-config-web-server) how that can be done.
+
+Ensure that the test passes locally.
+
+Once the end-to-end test works in your machine, include it in the GitHub Action workflow. That should be pretty easy by following [this](https://playwright.dev/docs/ci-intro#on-pushpull_request).
+
 <hr style="border: 2px solid #9C7AA6">
