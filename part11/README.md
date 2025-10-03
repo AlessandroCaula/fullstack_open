@@ -619,4 +619,51 @@ Ensure that the test passes locally.
 
 Once the end-to-end test works in your machine, include it in the GitHub Action workflow. That should be pretty easy by following [this](https://playwright.dev/docs/ci-intro#on-pushpull_request).
 
+##### Cypress
+
+Set Cypress up (you'll find [here](https://fullstackopen.com/en/part5/end_to_end_testing_cypress) all the info you need) and use this test first:
+
+```js
+describe('Pokedex', function() {
+  it('front page can be opened', function() {
+    cy.visit('http://localhost:5000')
+    cy.contains('ivysaur')
+    cy.contains('Pokémon and Pokémon character names are trademarks of Nintendo.')
+  })
+})
+```
+
+Define a npm script `test:e2e` for running the e2e tests from the command line.
+
+_Note_ is that although the page renders the Pokemon names with an initial capital letter, the names are actually written with lowercase letters in the source, so you should test for `ivysaur` instead of `Ivysaur`!
+
+Ensure that the test passes locally. Remember that the Cypress tests _assume that the application is up and running_ when you run the test! If you have forgotten the details, please see part 5 how to get up and running with Cypress.
+
+Once the end-to-end test works in your machine, include it in the GitHub Action workflow. By far the easiest way to do that is to use the ready-made action [cypress-io/github-action](https://github.com/cypress-io/github-action). The step that suits us is the following:
+
+```yml
+- name: e2e tests
+  uses: cypress-io/github-action@v5
+  with:
+    command: npm run test:e2e
+    start: npm run start-prod
+    wait-on: http://localhost:5000
+```
+
+Three options are used: [command](https://github.com/cypress-io/github-action#custom-test-command) specifies how to run Cypress tests, [start](https://github.com/cypress-io/github-action#start-server) gives npm script that starts the server, and [wait-on](https://github.com/cypress-io/github-action#wait-on) says that before the tests are run, the server should have started on url http://localhost:5000.
+
+Note that you need to build the app in GitHub Actions before it can be started in production mode!
+
+##### Once the pipeline works...
+
+Once you are sure that the pipeline works, _write another test_ that ensures that one can navigate from the main page to the page of a particular Pokemon, e.g. _ivysaur_. The test does not need to be a complex one, just check that when you navigate to a link, the page has some proper content, such as the string _chlorophyll_ in the case of _ivysaur_.
+
+Note the Pokemon abilities are written with lowercase letters in the source code (the capitalization is done in CSS), so _do not_ test for _Chlorophyll_ but rather _chlorophyll_.
+
+The end result should be something like this
+
+![alt text](assets/image8.png)
+
+End-to-end tests are nice since they give us confidence that software works from the end user's perspective. The price we have to pay is the slower feedback time. Now executing the whole workflow takes quite much longer.
+
 <hr style="border: 2px solid #9C7AA6">
