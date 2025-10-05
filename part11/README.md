@@ -739,3 +739,46 @@ app.get('/version', (req, res) => {
   res.send('1') // change this string to ensure a new version deployed
 })
 ```
+
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercises 11.10 - 11.12 (Render)
+
+If you rather want to use other hosting options, there is an alternative set of exercises for [Fly.io](https://fullstackopen.com/en/part11/deployment#exercises-11-10-11-12-fly-io).
+
+#### 11.10 Deploying your application to Render
+
+Set up your application in [Render](https://render.com/). The setup is now not quite as straightforward as in [part 3](../part3/README.md#application-to-the-internet). You have to carefully think about what should go to these settings:
+
+![alt text](assets/image9.png)
+
+If you need to run several commands in the build or start command, you may use a simple shell script for that.
+
+Create eg. a file *build_step.sh* with the following content:
+
+```sh
+#!/bin/bash
+
+echo "Build script"
+
+# add the commands here
+```
+
+Give it execution permissions (Google or see e.g. [this](https://www.guru99.com/file-permissions.html) to find out how) and ensure that you can run it from the command line:
+
+```
+$ ./build_step.sh
+Build script
+```
+
+Other option is to use a [Pre deploy command](https://docs.render.com/deploys#deploy-steps), with that you may run one additional command before the deployment starts.
+
+You also need to open the *Advanced settings* and turn the auto-deploy off since we want to control the deployment in the GitHub Actions:
+
+![alt text](assets/image10.png)
+
+Ensure now that you get the app up and running. Use the *Manual deploy*.
+
+Most likely things will fail at the start, so remember to keep the *Logs* open all the time.
+
+<hr style="border: 2px solid #9C7AA6">
