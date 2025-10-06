@@ -781,4 +781,37 @@ Ensure now that you get the app up and running. Use the *Manual deploy*.
 
 Most likely things will fail at the start, so remember to keep the *Logs* open all the time.
 
+#### 11.11 Automatic deployments
+
+Next step is to automate the deployment. There are two options, a ready-made custom action or the use of the Render deploy hook.
+
+**Deployment with custom action**
+
+Go to GitHub Actions [marketplace](https://github.com/marketplace) and search for action for our purposes. You might search with *render deploy*. There are several actions to choose from. You can pick any. Quite often the best choice is the one with the most stars. It is also a good idea to look if the action is actively maintained (time of the last release) and does it have many open issues or pull requests.
+
+**Warning**: for some reason, the most starred option [render-action](https://github.com/Bounceapp/render-action) was very unreliable when the part was updated (16th Jan 2024), so better avoid that. If you end up with too much problems, the deploy hook might be a better option!
+
+Set up the action to your workflow and ensure that every commit that passes all the checks results in a new deployment. Note that you need Render API key and the app service id for the deployment. See [here](https://render.com/docs/api) how the API key is generated. You can get the service id from the URL of the Render dashboard of your app. The end of the URL (starting with `srv-`) is the id:
+
+```
+https://dashboard.render.com/web/srv-randomcharachtershere
+```
+
+**Deployment with deploy hook**
+
+Alternative, and perhaps a more reliable option is to use [Render Deploy Hook](https://render.com/docs/deploy-hooks) which is a private URL to trigger the deployment. You can get it from you app settings:
+
+![alt text](assets/image11.png)
+
+DON'T USE the plain URL in your pipeline. Instead create GitHub secrets for your key and service id:
+
+![alt text](assets/image12.png)
+
+Then you can use them like this:
+
+```yml
+- name: Trigger deployment
+  run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+```
+
 <hr style="border: 2px solid #9C7AA6">
