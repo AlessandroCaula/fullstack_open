@@ -815,3 +815,57 @@ Then you can use them like this:
 ```
 
 <hr style="border: 2px solid #9C7AA6">
+
+## Part 11d - Keeping green
+
+Your main branch of the code should always remain green. Being green means that all the steps of your build pipeline should complete successfully: the project should build successfully, tests should run without errors, and the linter shouldn't have anything to complain about, etc.
+
+Why is this important? You will likely deploy your code to production specifically from your main branch. Any failures in the main branch would mean that new features cannot be deployed to production until the issue is sorted out. Sometimes you will discover a nasty bug in production that was not caught by the CI/CD pipeline. In these cases, you want to be able to roll the production environment back to a previous commit in a safe manner.
+
+How do you keep your main branch green then? Avoid committing any changes directly to the main branch. Instead, commit your code on a branch based on the freshest possible version of the main branch. Once you think the branch is ready to be merged into the main you create a GitHub Pull Request (also referred to as PR).
+
+### Working with Pull Requests
+
+Pull requests are a core part of the collaboration process when working on any software project with at least two contributors. When making changes to a project you checkout a new branch locally, make and commit your changes, push the branch to the remote repository (in our case to GitHub) and create a pull request for someone to review your changes before those can be merged into the main branch.
+
+There are several reasons why using pull requests and getting your code reviewed by at least one other person is always a good idea.
+
+- Even a seasoned developer can often overlook some issues in their code: we all know of the tunnel vision effect.
+
+- A reviewer can have a different perspective and offer a different point of view.
+
+- After reading through your changes, at least one other developer will be familiar with the changes you've made.
+
+- Using PRs allows you to automatically run all tasks in your CI pipeline before the code gets to the main branch. GitHub Actions provides a trigger for pull requests.
+
+You can configure your GitHub repository in such a way that pull requests cannot be merged until they are approved.
+
+![alt text](assets/image13.png)
+
+To open a new pull request, open your branch in GitHub and click on the green "Compare & pull request" button at the top. You will be presented with a form where you can fill in the pull request description.
+
+![alt text](assets/image14.png)
+
+GitHub's pull request interface presents a description and the discussion interface. At the bottom, it displays all the CI checks (in our case each of our Github Actions) that are configured to run for each PR and the statuses of these checks. A green board is what you aim for! You can click on Details of each check to view details and run logs.
+
+All the workflows we looked at so far were triggered by commits to the main branch. To make the workflow run for each pull request we would have to update the trigger part of the workflow. We use the "pull_request" trigger for branch "main" (our main branch) and limit the trigger to events "opened" and "synchronize". Basically, this means, that the workflow will run when a PR into the main branch is opened or updated.
+
+So let us change events that [trigger](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows) of the workflow as follows:
+
+```yml
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+```
+
+We shall soon make it impossible to push the code directly to the main branch, but in the meantime, let us still run the workflow also for all the possible direct pushes to the main branch.
+
+<hr style="border: 2px solid #9C7AA6">
+
+
+
+<hr style="border: 2px solid #9C7AA6">
