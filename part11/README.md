@@ -866,6 +866,26 @@ We shall soon make it impossible to push the code directly to the main branch, b
 
 <hr style="border: 2px solid #9C7AA6">
 
+### Exercises 11.13 - 11.14
 
+Our workflow is doing a nice job of ensuring good code quality, but since it is run on commits to the main branch, it's catching the problems too late!
+
+#### 11.13 Pull request
+
+Update the trigger of the existing workflow as suggested above to run on new pull requests to your main branch.
+
+Create a new branch, commit your changes, and open a pull request to your main branch.
+
+If you have not worked with branches before, check [e.g. this tutorial](https://www.atlassian.com/git/tutorials/using-branches) to get started.
+
+Note that when you open the pull request, make sure that you select here your *own* repository as the destination *base repository*. By default, the selection is the original repository by https://github.com/fullstack-hy2020 and you **do not want** to do that:
+
+![alt text](assets/image15.png)
+
+In the "Conversation" tab of the pull request you should see your latest commit(s) and the yellow status for checks in progress:
+
+![alt text](assets/image16.png)
+
+Once the checks have been run, the status should turn to green. Make sure all the checks pass. Do not merge your branch yet, there's still one more thing we need to improve on our pipeline.
 
 <hr style="border: 2px solid #9C7AA6">
