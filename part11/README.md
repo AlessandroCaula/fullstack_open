@@ -966,3 +966,41 @@ For example, when we have a project that uses hash-based artifact builds for tes
 
 In the case above, the software we release is tested because the CI system makes sure that tests are run on the code it is about to tag. It would not be incorrect to say that the project uses semantic versioning and simply ignore that the CI system tests individual developer branches/PRs with a hash-based naming system. We do this because the version we care about (the one that is released) is given a semantic version.
 
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercises 11.15 - 11.16
+
+Let's extend our workflow so that it will automatically increase (bump) the version when a pull request is merged into the main branch and [tag](https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag) the release with the version number. We will use an open source action developed by a third party: [anothrNick/github-tag-action](https://github.com/anothrNick/github-tag-action).
+
+#### 11.15 Adding versioning
+
+we will extend our workflow with one more step:
+
+```yml
+- name: Bump version and push tag
+  uses: anothrNick/github-tag-action@1.64.0
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Note: you should use the most recent version of the action, see [here](https://github.com/anothrNick/github-tag-action) if a more recent version is available.
+
+We're passing an environmental variable `secrets.GITHUB_TOKEN` to the action. As it is third party action, it needs the token for authentication in your repository. You can read more [here](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) about authentication in GitHub Actions.
+
+You may end up having this error message
+
+![alt text](assets/image17.png)
+
+The most likely cause for this is that your token has no write access to your repo. Go to your repository settings, select actions/general, and ensure that your token has read and write permissions:
+
+![alt text](assets/image18.png)
+
+The [anothrNick/github-tag-action](https://github.com/anothrNick/github-tag-action) action accepts some environment variables that modify the way the action tags your releases. You can look at these in the [README](https://github.com/anothrNick/github-tag-action) and see what suits your needs.
+
+As you can see from the documentation by default your releases will receive a `minor` bump, meaning that the middle number will be incremented.
+
+Modify the configuration above so that each new version is by default a `patch` bump in the version number, so that by default, the last number is increased.
+
+Remember that we want only to bump the version when the change happens to the main branch! So add a similar `if` condition to prevent version bumps on pull request as was done in [Exercise 11.14](#1114-run-deployment-step-only-for-the-main-branch) to prevent deployment on pull request related events.
+
+<hr style="border: 2px solid #9C7AA6">
