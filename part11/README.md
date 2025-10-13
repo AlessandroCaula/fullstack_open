@@ -1003,4 +1003,45 @@ Modify the configuration above so that each new version is by default a `patch` 
 
 Remember that we want only to bump the version when the change happens to the main branch! So add a similar `if` condition to prevent version bumps on pull request as was done in [Exercise 11.14](#1114-run-deployment-step-only-for-the-main-branch) to prevent deployment on pull request related events.
 
+Complete now the workflow. Do not just add it as another step, but configure it as a separate job that [depends](https://docs.github.com/en/actions/using-workflows/advanced-workflow-features#creating-dependent-jobs) on the job that takes care of linting, testing and deployment. So change your workflow definition as follows:
+
+```yml
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      // steps here
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      // steps here
+```
+
+As mentioned [earlier](#getting-started-with-workflows), jobs of a workflow are executed in parallel. However since we want the linting, testing and deployment to be done first, we set a dependency that the *tag_release* waits for since we do not want to tag the release unless it passes tests and is deployed.
+
+If you're uncertain of the configuration, you can set `DRY_RUN` to `true`, which will make the action output the next version number without creating or tagging the release!
+
+Once the workflow runs successfully, the repository mentions that there are some *tags*:
+
+![alt text](assets/image19.png)
+
+By clicking *view all tags*, you can see all the tags listed:
+
+![alt text](assets/image20.png)
+
+If needed, you can navigate to the view of a single tag that shows eg. what is the GitHub commit corresponding to the tag.
+
+
+
 <hr style="border: 2px solid #9C7AA6">
