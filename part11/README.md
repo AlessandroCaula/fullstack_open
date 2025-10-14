@@ -1153,3 +1153,30 @@ In the case of third-party actions, the code might end up being buggy or even ma
 
 By pointing to the hash of a specific commit we can be sure that the code we use when running the workflow will not change because changing the underlying commit and its contents would also change the hash.
 
+### Keep the main branch protected
+
+GitHub allows you to set up protected branches. It is important to protect your most important branch that should never be broken: main. In repository settings, you can choose between several levels of protection. We will not go over all of the protection options, you can learn more about them in GitHub documentation. Requiring pull request approval when merging into the main branch is one of the options we mentioned earlier.
+
+From CI point of view, the most important protection is requiring status checks to pass before a PR can be merged into the main branch. This means that if you have set up GitHub Actions to run e.g. linting and testing tasks, then until all the lint errors are fixed and all the tests pass the PR cannot be merged. Because you are the administrator of your repository, you will see an option to override the restriction. However, non-administrators will not have this option.
+
+![alt text](assets/image21.png)
+
+To set up protection for your main branch, navigate to repository "Settings" from the top menu inside the repository. In the left-side menu select "Branches". Click "Add rule" button next to "Branch protection rules". Type a branch name pattern ("main" will do nicely) and select the protection you would want to set up. At least "Require status checks to pass before merging" is necessary for you to fully utilize the power of GitHub Actions. Under it, you should also check "Require branches to be up to date before merging" and select all of the status checks that should pass before a PR can be merged.
+
+![alt text](assets/image22.png)
+
+<hr style="border: 2px solid #9C7AA6">
+
+### Exercise 11.17
+
+#### 11.17 Adding protection to your main branch
+
+Add protection to your *main* branch.
+
+You should protect it to:
+
+- Require all pull request to be approved before merging
+
+- require all status checks to pass before merging
+
+<hr style="border: 2px solid #9C7AA6">
