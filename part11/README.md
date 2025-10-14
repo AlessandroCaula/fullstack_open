@@ -1130,6 +1130,26 @@ jobs:
 
 It would also be possible to install a tool such as [act](https://github.com/nektos/act) that makes it possible to run your workflows locally. Unless you end up using more involved use cases like creating your [own custom actions](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions), going through the burden of setting up a tool such as act is most likely not worth the trouble.
 
-
-
 <hr style="border: 2px solid #9C7AA6">
+
+### A note about using third-party actions
+
+When using a third-party action such that *github-tag-action* it might be a good idea to specify the used version with hash instead of using a version number. The reason for this is that the version number, that is implemented with a Git tag can in principle be *moved*. So today's version 1.61.0 might be a different code that is at next week the version 1.61.0!
+
+However, the code in a commit with a particular hash does not change in any circumstances, so if we want to be 100% sure about the code we use, it is safest to use the hash.
+
+Version [1.61.0](https://github.com/anothrNick/github-tag-action/releases/tag/1.61.0) of the action corresponds to a commit with hash `8c8163ef62cf9c4677c8e800f36270af27930f42`, so we might want to change our configuration as follows:
+
+```yml
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+When we use actions provided by GitHub we trust them not to mess with version tags and to thoroughly test their code.
+
+In the case of third-party actions, the code might end up being buggy or even malicious. Even when the author of the open-source code does not have the intention of doing something bad, they might end up leaving their credentials on a post-it note in a cafe, and then who knows what might happen.
+
+By pointing to the hash of a specific commit we can be sure that the code we use when running the workflow will not change because changing the underlying commit and its contents would also change the hash.
+
