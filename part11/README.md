@@ -1042,6 +1042,94 @@ By clicking *view all tags*, you can see all the tags listed:
 
 If needed, you can navigate to the view of a single tag that shows eg. what is the GitHub commit corresponding to the tag.
 
+#### 11.16 Skipping a commit for tagging and deployment
+
+In general, the more often you deploy the main branch to production, the better. However, there might sometimes be a valid reason to skip/prevent a particular commit or a merged pull request from being tagged and released to production.
+
+Modify your setup so that if a commit message in a pull request contains `#skip`, the merge will not be deployed to production and it is not tagged with a version number.
+
+**Hints**
+
+The easiest way to implement this is to alter the [if](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif) conditions of the relevant steps. Similarly to [exercise 11-14](#1114-run-deployment-step-only-for-the-main-branch) you can get the relevant information from the [GitHub context](https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#github-context) of the workflow.
+
+You might take this as a starting point:
+
+```yml
+name: Testing stuff
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  a_test_job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: commits
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$COMMITS"
+      - name: commit messages
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+        run: echo "$COMMIT_MESSAGES"
+```
+
+See what gets printed in the workflow log!
+
+Note that you can access the commits and commit messages *only when pushing or merging to the main branch*, so for pull requests the `github.event.commits` is empty. It is anyway not needed, since we want to skip the step altogether for pull requests.
+
+You most likely need functions [contains](https://docs.github.com/en/actions/learn-github-actions/expressions#contains) and [join](https://docs.github.com/en/actions/learn-github-actions/expressions#join) for your if condition.
+
+Developing workflows is not easy, and quite often the only option is trial and error. It might actually be advisable to have a separate repository for getting the configuration right, and when it is done, to copy the right configurations to the actual repository.
+
+It would also make sense to re-use longer conditions by moving them to commonly accessible variables and referring these variables on the step level:
+
+```yml
+name: some workflow name
+
+env:
+  # the below will be 'true'
+  CONDITION: ${{ contains('kissa', 'ss') && contains('koira', 'ra') && contains('pretty long array of criteria to repeat in multiple places', 'crit') }}
+
+jobs:
+  job1:
+    # rest of the job
+    outputs:
+      # here we produce a record of the outcome of a key step in the job.
+      # the below will be 'true'
+      job2_can_run: ${{ steps.final.outcome == 'success' }}
+    steps:
+      - if: ${{ env.CONDITION == 'true' }}
+        run: echo 'this step is executed'
+
+      - if: ${{ env.CONDITION == 'false' }}
+        run: echo 'this step will not be executed'
+
+      - if: ${{ env.CONDITION == 'true' }}
+        # this is important, the id `final` is referenced in job1's `outputs`.
+        id: final
+        run: echo
+
+  job2:
+    needs:
+      - job1
+    # this job will be dependent on the above job1's final step, which in turn depends on the CONDITION defined at the beginning of the file.
+    # note that the `env`-variable cannot be directly accessed on the job level, so we need to use something else,
+    # such as the outputs from another job.
+    if: ${{ needs.job1.outputs.job2_can_run == 'true' }}
+    steps:
+      # rest of the job
+```
+
+It would also be possible to install a tool such as [act](https://github.com/nektos/act) that makes it possible to run your workflows locally. Unless you end up using more involved use cases like creating your [own custom actions](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions), going through the burden of setting up a tool such as act is most likely not worth the trouble.
+
 
 
 <hr style="border: 2px solid #9C7AA6">
